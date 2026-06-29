@@ -1,0 +1,22 @@
+id: no-oauth-sso
+language: Tsx
+files:
+  - src/**/*.tsx
+  - src/**/*.ts
+rule:
+  kind: call_expression
+  all:
+    # Match any OAuth SSO sign-in call
+    - has:
+        kind: member_expression
+        has:
+          kind: property_identifier
+          regex: "^(signInWithOAuth|signInWithRedirect)$"
+    - has:
+        kind: arguments
+        has:
+          kind: string
+          regex: '^"(google|github|facebook|apple|azure|twitter|linkedin)"$'
+
+message: "Detected OAuth/SSO sign-in implementation. This project uses password-based admin authentication only (per PRD §4.5). SSO providers are out of scope. Use the admin password flow implemented in the backend API."
+severity: warning

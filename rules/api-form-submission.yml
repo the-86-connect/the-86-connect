@@ -1,0 +1,35 @@
+id: api-form-submission
+language: Tsx
+files:
+  - src/**/*.tsx
+  - src/**/*.ts
+rule:
+  kind: call_expression
+  all:
+    # Match fetch() or API call
+    - has:
+        kind: identifier
+        regex: '^(fetch|axios)$'
+    - has:
+        kind: arguments
+        has:
+          kind: string
+          regex: '.*api/contact.*'
+    # Must have POST method
+    - not:
+        has:
+          kind: arguments
+          has:
+            kind: object
+            has:
+              kind: pair
+              all:
+                - has:
+                    kind: property_identifier
+                    regex: '^method$'
+                - has:
+                    kind: string
+                    regex: '^"POST"$'
+
+message: "Contact form submissions must use POST method to the /api/contact endpoint. Ensure the fetch request includes method: 'POST' and the correct Content-Type header."
+severity: error

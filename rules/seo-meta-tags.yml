@@ -1,0 +1,21 @@
+id: seo-meta-tags
+severity: warning
+language: typescript
+message: "Page is missing SEO metadata. Add metadata export with title, description, and keywords."
+pattern: |
+  export default function $PAGE($$$) {
+    $$$
+  }
+rule:
+  kind: function_declaration
+  not:
+    has:
+      kind: export_statement
+      pattern: "export const metadata"
+fix: |
+  // Add metadata export above the page component:
+  // export const metadata: Metadata = {
+  //   title: 'Page Title',
+  //   description: 'Page description with keywords',
+  //   keywords: ['keyword1', 'keyword2'],
+  // }

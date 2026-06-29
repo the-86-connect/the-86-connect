@@ -1,0 +1,24 @@
+id: seo-headings
+severity: warning
+language: typescript
+message: "Heading hierarchy violation. Ensure proper h1 → h2 → h3 nesting without skipping levels. Only one h1 per page."
+pattern: |
+  <h1 $C1>$TEXT</h1>
+  $$$
+  <h3 $C3>$TEXT2</h3>
+rule:
+  any:
+    - pattern: |
+        <h1 $C1>$TEXT</h1>
+        $$$
+        <h3 $C3>$TEXT2</h3>
+      message: "Skipped heading level: h1 → h3 without h2"
+    - pattern: |
+        <h2 $C1>$TEXT</h2>
+        $$$
+        <h4 $C3>$TEXT2</h4>
+      message: "Skipped heading level: h2 → h4 without h3"
+fix: |
+  // Ensure proper heading hierarchy:
+  // h1 → h2 → h3 → h4 → h5 → h6
+  // Never skip levels and only use ONE h1 per page

@@ -1,0 +1,21 @@
+id: seo-images
+severity: warning
+language: typescript
+message: "Image is missing alt text. All images must have descriptive alt attributes for SEO and accessibility."
+pattern: |
+  <Image
+    $$$
+    alt=""
+    $$$
+  />
+rule:
+  pattern: |
+    <Image
+      $$$
+      alt=""
+      $$$
+    />
+  message: "Empty alt text on image"
+fix: |
+  // Add descriptive alt text:
+  // <Image src="..." alt="Descriptive alt text with keywords" width={600} height={400} />

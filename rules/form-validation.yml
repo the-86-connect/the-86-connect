@@ -1,0 +1,35 @@
+id: contact-form-required-fields
+language: Tsx
+files:
+  - src/**/*.tsx
+rule:
+  kind: jsx_element
+  all:
+    # Match form element
+    - has:
+        kind: jsx_opening_element
+        has:
+          kind: identifier
+          regex: "^(form|Form)$"
+    # Form must contain Input/Textarea fields for required contact form fields
+    - not:
+        has:
+          kind: jsx_element
+          has:
+            kind: jsx_opening_element
+            all:
+              - has:
+                  kind: identifier
+                  regex: "^(Input|input)$"
+              - has:
+                  kind: jsx_attribute
+                  all:
+                    - has:
+                        kind: property_identifier
+                        regex: "^(name|id)$"
+                    - has:
+                        kind: string
+                        regex: '^"(name|email|message)"$'
+
+message: "Contact form must include required input fields for 'name', 'email', and 'message' as specified in the PRD. Ensure these fields exist with proper name attributes."
+severity: error

@@ -1,0 +1,13 @@
+id: useAuth-hook-usage
+language: Tsx
+files:
+  - src/**/*.tsx
+  - src/**/*.ts
+rule:
+  kind: call_expression
+  has:
+    kind: identifier
+    regex: "^useAuth$"
+
+message: "Detected useAuth() hook usage. Ensure that the component using useAuth is wrapped within an AuthProvider component to provide proper authentication context. Without AuthProvider, useAuth will not have access to authentication state and functions."
+severity: warning

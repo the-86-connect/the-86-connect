@@ -1,0 +1,12 @@
+id: require-next-image
+language: Tsx
+files:
+  - src/**/*.tsx
+rule:
+  kind: jsx_opening_element
+  has:
+    kind: identifier
+    regex: '^img$'
+
+message: "Use next/image <Image /> component instead of plain <img> tags. Next.js Image component provides automatic optimization, lazy loading, and prevents layout shift. Import: import Image from 'next/image'"
+severity: warning

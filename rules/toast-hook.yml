@@ -1,0 +1,24 @@
+id: toast-hook-usage
+language: Tsx
+files:
+  - src/**/*.tsx
+  - src/**/*.ts
+rule:
+  kind: call_expression
+  all:
+    # Match useToast() hook call
+    - has:
+        kind: identifier
+        regex: "^useToast$"
+    # Must destructure to get toast function
+    - not:
+        inside:
+          kind: variable_declarator
+          has:
+            kind: object_pattern
+            has:
+              kind: property_identifier
+              regex: "^toast$"
+
+message: "useToast() hook must be destructured to extract the 'toast' function. Example: const { toast } = useToast(). The toast function is required to display success/error notifications for form submissions and admin actions."
+severity: warning

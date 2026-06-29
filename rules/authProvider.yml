@@ -1,0 +1,24 @@
+id: authProvider-wrapper
+language: Tsx
+files:
+  - src/**/*.tsx
+rule:
+  kind: jsx_element
+  all:
+    - has:
+        kind: jsx_opening_element
+        has:
+          kind: identifier
+          regex: "^AuthProvider$"
+    # AuthProvider should wrap the application (App or Router)
+    - not:
+        has:
+          kind: jsx_element
+          has:
+            kind: jsx_opening_element
+            has:
+              kind: identifier
+              regex: "^(App|Router|BrowserRouter|HashRouter)$"
+
+message: "AuthProvider should wrap the application root (App, Router, BrowserRouter, or HashRouter) to ensure authentication context is available throughout the app. Example: <AuthProvider><App /></AuthProvider>"
+severity: warning

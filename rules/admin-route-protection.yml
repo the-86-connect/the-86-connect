@@ -1,0 +1,28 @@
+id: admin-route-protection
+language: Tsx
+files:
+  - src/**/*.tsx
+  - src/**/*.ts
+rule:
+  kind: export_statement
+  all:
+    # Match middleware function export
+    - has:
+        kind: function_declaration
+        has:
+          kind: identifier
+          regex: "^middleware$"
+    # Must check for auth token/cookie
+    - not:
+        has:
+          kind: call_expression
+          has:
+            kind: member_expression
+            has:
+              kind: member_expression
+              has:
+                kind: property_identifier
+                regex: "^(get|cookies)$"
+
+message: "Admin route protection middleware must check for authentication token/cookie. The middleware function should verify admin_token cookie before allowing access to /admin routes. Example: const token = request.cookies.get('admin_token')?.value"
+severity: error

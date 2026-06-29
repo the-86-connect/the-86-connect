@@ -1,0 +1,17 @@
+id: express-body-parsing
+language: Tsx
+files:
+  - src/**/*.tsx
+  - src/**/*.ts
+rule:
+  kind: member_expression
+  all:
+    - has:
+        kind: identifier
+        regex: "^(req|request)$"
+    - has:
+        kind: property_identifier
+        regex: "^body$"
+
+message: "Express route handler accessing req.body. Ensure express.json() middleware is configured in the server (app.use(express.json())). Also ensure proper validation on the parsed body before database operations."
+severity: error

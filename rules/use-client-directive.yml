@@ -1,0 +1,23 @@
+id: require-use-client-for-hooks
+language: Tsx
+files:
+  - src/**/*.tsx
+rule:
+  kind: program
+  all:
+    # File uses React hooks (useState, useEffect, useContext, etc.)
+    - has:
+        kind: call_expression
+        has:
+          kind: identifier
+          regex: '^(useState|useEffect|useContext|useReducer|useRef|useCallback|useMemo|useRouter|usePathname|useSearchParams)$'
+    # Missing 'use client' directive at top of file
+    - not:
+        has:
+          kind: expression_statement
+          has:
+            kind: string
+            regex: '^"use client"$'
+
+message: "Components using React hooks (useState, useEffect, useRouter, etc.) must have 'use client' directive at the top of the file. Next.js App Router requires this directive for client-side interactivity."
+severity: error
