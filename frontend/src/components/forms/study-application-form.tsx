@@ -24,7 +24,7 @@ import {
 } from "@/lib/validation";
 import {
   submitStudyApplication,
-  uploadFile,
+  uploadFiles,
   type UploadedAttachment,
 } from "@/lib/api";
 import { Input } from "@/components/ui/input";
@@ -98,7 +98,7 @@ export function StudyApplicationForm() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFiles = Array.from(e.target.files ?? []).slice(
       0,
-      5 - files.length,
+      15 - files.length,
     );
     if (newFiles.length === 0) return;
 
@@ -110,31 +110,32 @@ export function StudyApplicationForm() {
       error: null,
     }));
 
-    setFiles((prev) => [...prev, ...pending].slice(0, 5));
+    setFiles((prev) => [...prev, ...pending].slice(0, 15));
     if (fileInputRef.current) fileInputRef.current.value = "";
 
-    for (const pendingFile of pending) {
-      try {
-        const attachment = await uploadFile(pendingFile.file);
-        setFiles((prev) =>
-          prev.map((f) =>
-            f.id === pendingFile.id
-              ? { ...f, attachment, uploading: false }
-              : f,
-          ),
-        );
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Upload failed";
-        setFiles((prev) =>
-          prev.map((f) =>
-            f.id === pendingFile.id
-              ? { ...f, uploading: false, error: message }
-              : f,
-          ),
-        );
-        toast.error("File upload failed", { description: message });
-      }
+    try {
+      const attachments = await uploadFiles(pending.map((p) => p.file));
+      setFiles((prev) =>
+        prev.map((f) => {
+          const idx = pending.findIndex((p) => p.id === f.id);
+          if (idx === -1) return f;
+          return {
+            ...f,
+            attachment: attachments[idx] ?? null,
+            uploading: false,
+          };
+        }),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Upload failed";
+      setFiles((prev) =>
+        prev.map((f) =>
+          pending.some((p) => p.id === f.id)
+            ? { ...f, uploading: false, error: message }
+            : f,
+        ),
+      );
+      toast.error("File upload failed", { description: message });
     }
   };
 
@@ -423,13 +424,22 @@ export function StudyApplicationForm() {
       {/* Section: Documents */}
       <FormSection
         title="Documents"
-        description="Upload transcripts, passport, or recommendation letters (optional)."
+        description={
+          <>
+            Upload your passport photo, passport ID page, academic transcripts,
+            degree certificate, English test score, recommendation letters, or
+            any other supporting documents.{" "}
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 text-xs font-bold uppercase tracking-wide">
+              All Optional
+            </span>
+          </>
+        }
       >
         <input
           ref={fileInputRef}
           type="file"
           multiple
-          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+          accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.heic,.heif,.avif,.tif,.tiff,.doc,.docx"
           onChange={handleFileChange}
           className="hidden"
           id="file-upload"
@@ -446,7 +456,8 @@ export function StudyApplicationForm() {
               Click to upload documents
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              PDF, JPG, PNG, DOC up to 5 files
+              PNG, JPG, JPEG, GIF, WebP, BMP, SVG, HEIC, AVIF, TIFF, PDF, DOC —
+              up to 15 files, no size limit
             </p>
           </div>
         </label>
@@ -575,7 +586,7 @@ function FormSection({
   children,
 }: {
   title: string;
-  description?: string;
+  description?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (

@@ -24,6 +24,10 @@ import { StudyApplicationForm } from "@/components/forms/study-application-form"
 import { VideoGallery } from "@/components/sections/video-gallery";
 import { Testimonials } from "@/components/sections/testimonials";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
+import {
+  UniversitiesGrid,
+  type University,
+} from "@/components/sections/universities-grid";
 import { fetchVideos } from "@/lib/api";
 import { STUDY_TESTIMONIALS } from "@/data/testimonials";
 import { FAQ_SECTIONS } from "@/data/faq";
@@ -91,7 +95,7 @@ const SERVICES = [
   },
 ];
 
-const UNIVERSITIES = [
+const UNIVERSITIES: University[] = [
   // Top-Tier (Highly Competitive)
   {
     name: "Zhejiang University",
@@ -101,7 +105,7 @@ const UNIVERSITIES = [
     scholarship: "Full + Partial",
     tier: "top",
     image:
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Zhejiang%20University%20Hangzhou%20campus%20modern%20library%20building%20lake%20green%20trees%20photorealistic&image_size=landscape_4_3",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Hangzhou_Zhijiang_Daxue_20120518-25.jpg/960px-Hangzhou_Zhijiang_Daxue_20120518-25.jpg",
   },
   {
     name: "Shanghai Jiao Tong University",
@@ -111,7 +115,7 @@ const UNIVERSITIES = [
     scholarship: "Full + Partial",
     tier: "top",
     image:
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Shanghai%20Jiao%20Tong%20University%20campus%20modern%20engineering%20building%20trees%20photorealistic&image_size=landscape_4_3",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Shanghai_Jiao_Tong_University_Xuhui_campus.jpg/960px-Shanghai_Jiao_Tong_University_Xuhui_campus.jpg",
   },
   {
     name: "Fudan University",
@@ -121,7 +125,7 @@ const UNIVERSITIES = [
     scholarship: "Full + Partial",
     tier: "top",
     image:
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Fudan%20University%20Shanghai%20campus%20modern%20building%20green%20lawn%20blue%20sky%20photorealistic&image_size=landscape_4_3",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/201704_Gate_of_Fudan_University_Jiangwan_Campus.jpg/960px-201704_Gate_of_Fudan_University_Jiangwan_Campus.jpg",
   },
   {
     name: "Nanjing University",
@@ -131,7 +135,7 @@ const UNIVERSITIES = [
     scholarship: "Full + Partial",
     tier: "top",
     image:
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Nanjing%20University%20campus%20historic%20Chinese%20architecture%20trees%20photorealistic&image_size=landscape_4_3",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Main_Gate_of_Nanjing_University_Gulou_Campus_2012-11.JPG/960px-Main_Gate_of_Nanjing_University_Gulou_Campus_2012-11.JPG",
   },
   {
     name: "Wuhan University",
@@ -141,7 +145,7 @@ const UNIVERSITIES = [
     scholarship: "Full + Partial",
     tier: "top",
     image:
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Wuhan%20University%20campus%20cherry%20blossom%20spring%20traditional%20Chinese%20architecture%20mountain%20photorealistic&image_size=landscape_4_3",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Gate_of_the_Wuhan_University.jpg/960px-Gate_of_the_Wuhan_University.jpg",
   },
   {
     name: "Tongji University",
@@ -151,7 +155,7 @@ const UNIVERSITIES = [
     scholarship: "Partial",
     tier: "top",
     image:
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Tongji%20University%20Shanghai%20campus%20modern%20architecture%20building%20photorealistic&image_size=landscape_4_3",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Tongji_University_Multi-functional_Building_and_its_reflection.jpg/960px-Tongji_University_Multi-functional_Building_and_its_reflection.jpg",
   },
   // Mid-Tier (Higher Admission & Scholarship Chances)
   {
@@ -162,7 +166,7 @@ const UNIVERSITIES = [
     scholarship: "Full + Partial",
     tier: "mid",
     image:
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=East%20China%20Normal%20University%20Shanghai%20campus%20green%20trees%20modern%20building%20photorealistic&image_size=landscape_4_3",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/East_China_Normal_University_-_Minhang_campus_1.jpg/960px-East_China_Normal_University_-_Minhang_campus_1.jpg",
   },
   {
     name: "Beijing Language & Culture University",
@@ -172,7 +176,7 @@ const UNIVERSITIES = [
     scholarship: "Full + Partial",
     tier: "mid",
     image:
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Beijing%20Language%20and%20Culture%20University%20campus%20modern%20building%20photorealistic&image_size=landscape_4_3",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/South_gate_of_BLCU_%2820230206132105%29.jpg/960px-South_gate_of_BLCU_%2820230206132105%29.jpg",
   },
   {
     name: "UIBE",
@@ -182,7 +186,7 @@ const UNIVERSITIES = [
     scholarship: "Full + Partial",
     tier: "mid",
     image:
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=University%20of%20International%20Business%20and%20Economics%20Beijing%20campus%20modern%20building%20photorealistic&image_size=landscape_4_3",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/South_gate_of_UIBE_%2820230215153342%29.jpg/960px-South_gate_of_UIBE_%2820230215153342%29.jpg",
   },
   {
     name: "Nanjing Medical University",
@@ -192,7 +196,7 @@ const UNIVERSITIES = [
     scholarship: "Partial",
     tier: "mid",
     image:
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Nanjing%20Medical%20University%20campus%20modern%20medical%20building%20photorealistic&image_size=landscape_4_3",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/201704_Nanjing_Medical_University_Sir_Run_Run_Hospital.jpg/960px-201704_Nanjing_Medical_University_Sir_Run_Run_Hospital.jpg",
   },
   {
     name: "Jiangsu University",
@@ -202,7 +206,7 @@ const UNIVERSITIES = [
     scholarship: "Full + Partial",
     tier: "mid",
     image:
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Jiangsu%20University%20campus%20modern%20building%20green%20trees%20photorealistic&image_size=landscape_4_3",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Jiangsu_University_Mengxi_Campus_2013-04.JPG/960px-Jiangsu_University_Mengxi_Campus_2013-04.JPG",
   },
   {
     name: "Zhejiang Normal University",
@@ -212,7 +216,7 @@ const UNIVERSITIES = [
     scholarship: "Full + Partial",
     tier: "mid",
     image:
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Zhejiang%20Normal%20University%20campus%20modern%20building%20photorealistic&image_size=landscape_4_3",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Zhejiang_Normal_University_%28228082775%29.jpg/960px-Zhejiang_Normal_University_%28228082775%29.jpg",
   },
 ];
 
@@ -458,10 +462,10 @@ export default async function StudyInChinaPage() {
                   scholarships, admissions, visas, and ongoing support — so you
                   can focus on your education.
                 </p>
-                <div className="flex flex-wrap gap-2.5 sm:gap-3">
+                <div className="flex flex-col gap-3 w-full sm:flex-row sm:flex-wrap sm:gap-3 sm:w-auto">
                   <a
                     href="#apply"
-                    className="inline-flex items-center gap-2 px-5 sm:px-6 h-12 sm:h-14 bg-primary text-white rounded-2xl font-black text-sm sm:text-base shadow-red hover:bg-red-700 transition-all duration-200 cursor-pointer press"
+                    className="inline-flex items-center justify-center gap-2 w-full px-5 sm:px-6 h-12 sm:h-14 sm:w-auto bg-primary text-white rounded-xl sm:rounded-2xl font-black text-sm sm:text-base shadow-red hover:bg-red-700 transition-all duration-200 cursor-pointer press"
                   >
                     <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                     <span>Start Application</span>
@@ -469,20 +473,20 @@ export default async function StudyInChinaPage() {
                   </a>
                   <a
                     href="#universities"
-                    className="inline-flex items-center gap-2 px-5 sm:px-6 h-12 sm:h-14 bg-white text-foreground rounded-2xl font-black text-sm sm:text-base border border-border hover:border-primary/30 transition-all duration-200 cursor-pointer press"
+                    className="inline-flex items-center justify-center gap-2 w-full px-5 sm:px-6 h-12 sm:h-14 sm:w-auto bg-slate-900 text-white rounded-xl sm:rounded-2xl font-black text-sm sm:text-base border border-slate-900 hover:bg-slate-800 hover:border-slate-800 transition-all duration-200 cursor-pointer press shadow-md"
                   >
                     <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                     <span>View Universities</span>
                   </a>
+                  <Link
+                    href="/study-in-china/track-application"
+                    className="inline-flex items-center justify-center gap-2 w-full px-4 sm:px-5 h-12 sm:h-12 sm:w-auto bg-primary/5 text-primary rounded-xl font-black text-sm sm:text-sm border-2 border-primary/20 hover:bg-primary/10 hover:border-primary/40 transition-all duration-200 cursor-pointer press"
+                  >
+                    <Search className="h-4 w-4 sm:h-4 sm:w-4 shrink-0" />
+                    <span>Track your application</span>
+                    <ArrowRight className="h-4 w-4 sm:h-4 sm:w-4 shrink-0" />
+                  </Link>
                 </div>
-                <Link
-                  href="/study-in-china/track-application"
-                  className="inline-flex items-center gap-2 mt-4 px-4 sm:px-5 h-10 sm:h-12 bg-primary/5 text-primary rounded-xl font-black text-xs sm:text-sm border-2 border-primary/20 hover:bg-primary/10 hover:border-primary/40 transition-all duration-200 cursor-pointer press"
-                >
-                  <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-                  <span>Track your application</span>
-                  <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-                </Link>
               </div>
 
               {/* Right — campus image collage */}
@@ -555,10 +559,10 @@ export default async function StudyInChinaPage() {
                 </span>
               </div>
               <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
-                A Decade of <span className="text-primary">Success</span>
+                A Record of <span className="text-primary">Success</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
-                We&apos;ve helped thousands of students from 30+ countries
+                Since 2023, we&apos;ve helped students from 30+ countries
                 achieve their dream of studying in China.
               </p>
             </div>
@@ -744,66 +748,7 @@ export default async function StudyInChinaPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {UNIVERSITIES.map((uni) => (
-                <div
-                  key={uni.name}
-                  className="bg-white rounded-3xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 overflow-hidden"
-                >
-                  {/* Campus image */}
-                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                    <img
-                      src={uni.image}
-                      alt={`${uni.name} campus in ${uni.location}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <div
-                      className={`absolute top-3 right-3 px-2.5 py-1 rounded-full backdrop-blur-sm text-xs font-black shadow-soft-sm ${uni.tier === "top" ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}
-                    >
-                      {uni.tier === "top" ? "Top-Tier" : "Higher Acceptance"}
-                    </div>
-                    <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
-                      <p className="text-white font-black text-sm">
-                        {uni.name}
-                      </p>
-                      <p className="text-white/80 text-xs font-medium">
-                        {uni.location}
-                      </p>
-                    </div>
-                  </div>
-                  {/* Card body */}
-                  <div className="p-5 sm:p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                        <GraduationCap className="h-4 w-4 text-primary" />
-                      </div>
-                      <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
-                        Partner University
-                      </span>
-                    </div>
-                    <div className="space-y-1.5 pt-3 border-t border-border">
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="text-muted-foreground font-bold uppercase tracking-wider">
-                          Programs:
-                        </span>
-                        <span className="text-foreground font-medium">
-                          {uni.programs}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="text-muted-foreground font-bold uppercase tracking-wider">
-                          Scholarship:
-                        </span>
-                        <span className="text-primary font-bold">
-                          {uni.scholarship}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <UniversitiesGrid universities={UNIVERSITIES} />
           </div>
         </section>
 
@@ -894,27 +839,6 @@ export default async function StudyInChinaPage() {
           }
           subtitle="Hear from international students who achieved their dreams of studying in China with our support."
         />
-
-        {/* FAQ */}
-        <section
-          id="faq"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
-        >
-          <div className="container mx-auto max-w-3xl">
-            <FAQAccordion
-              sections={FAQ_SECTIONS.slice(0, 2)}
-              title={
-                <>
-                  Frequently Asked{" "}
-                  <span className="text-primary">Questions</span>
-                </>
-              }
-              ctaText="View All FAQs"
-              ctaHref="/faq"
-              ctaSubtext="Have more questions? Browse our complete FAQ."
-            />
-          </div>
-        </section>
 
         {/* Requirements & Process */}
         <section
@@ -1033,6 +957,27 @@ export default async function StudyInChinaPage() {
             <div className="bg-white rounded-3xl border border-border shadow-soft-md p-6 sm:p-8 lg:p-10">
               <StudyApplicationForm />
             </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section
+          id="faq"
+          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
+        >
+          <div className="container mx-auto max-w-3xl">
+            <FAQAccordion
+              sections={FAQ_SECTIONS.slice(0, 2)}
+              title={
+                <>
+                  Frequently Asked{" "}
+                  <span className="text-primary">Questions</span>
+                </>
+              }
+              ctaText="View All FAQs"
+              ctaHref="/faq"
+              ctaSubtext="Have more questions? Browse our complete FAQ."
+            />
           </div>
         </section>
       </main>

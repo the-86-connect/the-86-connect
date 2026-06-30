@@ -31,6 +31,7 @@ import {
   AlertTriangle,
   Eye,
   EyeOff,
+  ExternalLink,
   Settings,
   CalendarCheck,
   Video,
@@ -43,6 +44,7 @@ import {
   changePassword,
   exportUserData,
   deleteAccount,
+  cancelConsultation,
   type UserProfile,
   type UserSubmission,
   type UserConsultation,
@@ -77,13 +79,23 @@ const CONSULTATION_STATUS_STYLES: Record<string, string> = {
   cancelled: "bg-red-50 text-red-700 border-red-200",
 };
 
-const CONSULTATION_SERVICE_STYLES: Record<string, { label: string; bg: string; text: string }> = {
+const CONSULTATION_SERVICE_STYLES: Record<
+  string,
+  { label: string; bg: string; text: string }
+> = {
   study: { label: "Study in China", bg: "bg-red-50", text: "text-red-700" },
-  sourcing: { label: "Product Sourcing", bg: "bg-blue-50", text: "text-blue-700" },
+  sourcing: {
+    label: "Product Sourcing",
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+  },
   general: { label: "General", bg: "bg-slate-100", text: "text-slate-700" },
 };
 
-const CONSULTATION_SERVICE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const CONSULTATION_SERVICE_ICONS: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
   study: GraduationCap,
   sourcing: ShoppingCart,
   general: MessageSquare,
@@ -349,6 +361,35 @@ export default function AccountPage() {
     }
   }, []);
 
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  const handleCancelConsultation = useCallback(
+    async (id: string) => {
+      if (cancellingId) return;
+      if (
+        !window.confirm(
+          "Cancel this booking? The time slot will become available to others.",
+        )
+      )
+        return;
+      setCancellingId(id);
+      try {
+        await cancelConsultation(id);
+        toast.success("Booking cancelled", {
+          description: "The time slot is now available for others.",
+        });
+        await loadProfile();
+      } catch (err) {
+        toast.error("Failed to cancel", {
+          description: err instanceof Error ? err.message : "Please try again.",
+        });
+      } finally {
+        setCancellingId(null);
+      }
+    },
+    [cancellingId, loadProfile],
+  );
+
   useEffect(() => {
     if (authLoading) return;
     if (!isAuthenticated) {
@@ -455,11 +496,14 @@ export default function AccountPage() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const upcoming = consultations.filter((c) => {
-      if (!["pending", "confirmed", "rescheduled"].includes(c.status)) return false;
+      if (!["pending", "confirmed", "rescheduled"].includes(c.status))
+        return false;
       const d = new Date(c.preferredDate + "T00:00:00");
       return d >= today;
     }).length;
-    const completed = consultations.filter((c) => c.status === "completed").length;
+    const completed = consultations.filter(
+      (c) => c.status === "completed",
+    ).length;
     return { total: consultations.length, upcoming, completed };
   }, [profile]);
 
@@ -573,596 +617,601 @@ export default function AccountPage() {
 
         {activeTab === "submissions" && (
           <>
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
-          <div className="p-3 sm:p-4 rounded-xl glass-card glass-card-hover">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
-                Submissions
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-slate-100/60 flex items-center justify-center">
-                <Inbox className="h-3.5 w-3.5 text-slate-500" />
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
+              <div className="p-3 sm:p-4 rounded-xl glass-card glass-card-hover">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
+                    Submissions
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-slate-100/60 flex items-center justify-center">
+                    <Inbox className="h-3.5 w-3.5 text-slate-500" />
+                  </div>
+                </div>
+                <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                  {stats.total}
+                </p>
+              </div>
+              <div className="p-3 sm:p-4 rounded-xl glass-card glass-card-hover">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
+                    Study
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <GraduationCap className="h-3.5 w-3.5 text-blue-600" />
+                  </div>
+                </div>
+                <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                  {stats.study}
+                </p>
+              </div>
+              <div className="p-3 sm:p-4 rounded-xl glass-card glass-card-hover">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
+                    Sourcing
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+                    <ShoppingCart className="h-3.5 w-3.5 text-amber-600" />
+                  </div>
+                </div>
+                <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                  {stats.sourcing}
+                </p>
               </div>
             </div>
-            <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              {stats.total}
-            </p>
-          </div>
-          <div className="p-3 sm:p-4 rounded-xl glass-card glass-card-hover">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
-                Study
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
-                <GraduationCap className="h-3.5 w-3.5 text-blue-600" />
-              </div>
-            </div>
-            <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              {stats.study}
-            </p>
-          </div>
-          <div className="p-3 sm:p-4 rounded-xl glass-card glass-card-hover">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
-                Sourcing
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
-                <ShoppingCart className="h-3.5 w-3.5 text-amber-600" />
-              </div>
-            </div>
-            <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              {stats.sourcing}
-            </p>
-          </div>
-        </div>
-
           </>
         )}
         {activeTab === "bookings" && (
           <>
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
-          <div className="p-3 sm:p-4 rounded-xl glass-card glass-card-hover">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
-                Total Bookings
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                <CalendarCheck className="h-3.5 w-3.5 text-primary" />
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
+              <div className="p-3 sm:p-4 rounded-xl glass-card glass-card-hover">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
+                    Total Bookings
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <CalendarCheck className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                </div>
+                <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                  {bookingStats.total}
+                </p>
+              </div>
+              <div className="p-3 sm:p-4 rounded-xl glass-card glass-card-hover">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
+                    Upcoming
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+                    <Clock className="h-3.5 w-3.5 text-amber-600" />
+                  </div>
+                </div>
+                <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                  {bookingStats.upcoming}
+                </p>
+              </div>
+              <div className="p-3 sm:p-4 rounded-xl glass-card glass-card-hover">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
+                    Completed
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                  </div>
+                </div>
+                <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                  {bookingStats.completed}
+                </p>
               </div>
             </div>
-            <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              {bookingStats.total}
-            </p>
-          </div>
-          <div className="p-3 sm:p-4 rounded-xl glass-card glass-card-hover">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
-                Upcoming
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
-                <Clock className="h-3.5 w-3.5 text-amber-600" />
-              </div>
-            </div>
-            <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              {bookingStats.upcoming}
-            </p>
-          </div>
-          <div className="p-3 sm:p-4 rounded-xl glass-card glass-card-hover">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
-                Completed
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-              </div>
-            </div>
-            <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              {bookingStats.completed}
-            </p>
-          </div>
-        </div>
-
           </>
         )}
         {activeTab === "settings" && (
           <>
-        <div className="mb-8 p-6 rounded-2xl glass-card">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="font-display font-bold text-lg text-foreground">
-              Profile
-            </h2>
-            {!isEditing ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setEditName(profile.name);
-                  setEditPhone(profile.phone ?? "");
-                  setIsEditing(true);
-                }}
-                className="btn-glass inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold cursor-pointer"
-              >
-                <Pencil className="h-3 w-3" />
-                Edit
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="btn-glass inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold cursor-pointer"
-                >
-                  <X className="h-3 w-3" />
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveProfile}
-                  disabled={isSaving}
-                  className="inline-flex items-center gap-1.5 h-8 px-4 rounded-lg text-xs font-semibold bg-accent text-white hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-60"
-                >
-                  {isSaving ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                  ) : (
-                    <Save className="h-3 w-3" />
-                  )}
-                  Save
-                </button>
+            <div className="mb-8 p-6 rounded-2xl glass-card">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="font-display font-bold text-lg text-foreground">
+                  Profile
+                </h2>
+                {!isEditing ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditName(profile.name);
+                      setEditPhone(profile.phone ?? "");
+                      setIsEditing(true);
+                    }}
+                    className="btn-glass inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold cursor-pointer"
+                  >
+                    <Pencil className="h-3 w-3" />
+                    Edit
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(false)}
+                      className="btn-glass inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold cursor-pointer"
+                    >
+                      <X className="h-3 w-3" />
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveProfile}
+                      disabled={isSaving}
+                      className="inline-flex items-center gap-1.5 h-8 px-4 rounded-lg text-xs font-semibold bg-accent text-white hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-60"
+                    >
+                      {isSaving ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Save className="h-3 w-3" />
+                      )}
+                      Save
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          {isEditing ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="editName"
-                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                >
-                  Name
-                </Label>
-                <Input
-                  id="editName"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="glass-input h-11 rounded-xl border-0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="editPhone"
-                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                >
-                  Phone
-                </Label>
-                <Input
-                  id="editPhone"
-                  type="tel"
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  className="glass-input h-11 rounded-xl border-0"
-                  placeholder="Optional"
-                />
-              </div>
+              {isEditing ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="editName"
+                      className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                    >
+                      Name
+                    </Label>
+                    <Input
+                      id="editName"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="glass-input h-11 rounded-xl border-0"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="editPhone"
+                      className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                    >
+                      Phone
+                    </Label>
+                    <Input
+                      id="editPhone"
+                      type="tel"
+                      value={editPhone}
+                      onChange={(e) => setEditPhone(e.target.value)}
+                      className="glass-input h-11 rounded-xl border-0"
+                      placeholder="Optional"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <ProfileField
+                    icon={<UserCircle className="h-4 w-4 text-slate-500" />}
+                    label="Name"
+                    value={profile.name}
+                  />
+                  <ProfileField
+                    icon={<Mail className="h-4 w-4 text-slate-500" />}
+                    label="Email"
+                    value={profile.email}
+                  />
+                  <ProfileField
+                    icon={<Phone className="h-4 w-4 text-slate-500" />}
+                    label="Phone"
+                    value={profile.phone || "Not set"}
+                  />
+                  <ProfileField
+                    icon={<Calendar className="h-4 w-4 text-slate-500" />}
+                    label="Member Since"
+                    value={formatDate(profile.createdAt)}
+                  />
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <ProfileField
-                icon={<UserCircle className="h-4 w-4 text-slate-500" />}
-                label="Name"
-                value={profile.name}
-              />
-              <ProfileField
-                icon={<Mail className="h-4 w-4 text-slate-500" />}
-                label="Email"
-                value={profile.email}
-              />
-              <ProfileField
-                icon={<Phone className="h-4 w-4 text-slate-500" />}
-                label="Phone"
-                value={profile.phone || "Not set"}
-              />
-              <ProfileField
-                icon={<Calendar className="h-4 w-4 text-slate-500" />}
-                label="Member Since"
-                value={formatDate(profile.createdAt)}
-              />
-            </div>
-          )}
-        </div>
-
           </>
         )}
         {activeTab === "submissions" && (
           <>
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-bold text-lg text-foreground">
-              My Submissions
-              <span className="ml-2 text-sm font-medium text-muted-foreground">
-                ({profile.submissions.length})
-              </span>
-            </h2>
-          </div>
-
-          {profile.submissions.length === 0 ? (
-            <div className="p-10 rounded-2xl glass-card text-center">
-              <div className="w-14 h-14 rounded-2xl bg-slate-100/60 flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="h-6 w-6 text-slate-400" />
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-display font-bold text-lg text-foreground">
+                  My Submissions
+                  <span className="ml-2 text-sm font-medium text-muted-foreground">
+                    ({profile.submissions.length})
+                  </span>
+                </h2>
               </div>
-              <p className="text-sm font-medium text-foreground mb-1">
-                No submissions yet
-              </p>
-              <p className="text-xs text-muted-foreground mb-6 max-w-xs mx-auto">
-                Start a Study application or Sourcing inquiry to track your
-                progress here.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+
+              {profile.submissions.length === 0 ? (
+                <div className="p-10 rounded-2xl glass-card text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-100/60 flex items-center justify-center mx-auto mb-4">
+                    <Sparkles className="h-6 w-6 text-slate-400" />
+                  </div>
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    No submissions yet
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-6 max-w-xs mx-auto">
+                    Start a Study application or Sourcing inquiry to track your
+                    progress here.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Link
+                      href="/study-in-china#apply"
+                      className="inline-flex items-center justify-center gap-2 h-11 px-5 bg-accent text-white rounded-xl font-semibold text-sm hover:bg-red-700 transition-colors cursor-pointer"
+                    >
+                      <GraduationCap className="h-4 w-4" />
+                      Study Application
+                    </Link>
+                    <Link
+                      href="/product-sourcing#inquire"
+                      className="btn-glass inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl font-semibold text-sm cursor-pointer"
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      Sourcing Inquiry
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {profile.submissions.map((sub) => (
+                    <SubmissionCard
+                      key={sub.id}
+                      submission={sub}
+                      userEmail={profile.email}
+                      copiedId={copiedId}
+                      onCopy={handleCopy}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <h2 className="font-display font-bold text-lg text-foreground mb-4">
+                Quick Actions
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Link
                   href="/study-in-china#apply"
-                  className="inline-flex items-center justify-center gap-2 h-11 px-5 bg-accent text-white rounded-xl font-semibold text-sm hover:bg-red-700 transition-colors cursor-pointer"
+                  className="group p-5 rounded-2xl glass-card glass-card-hover cursor-pointer"
                 >
-                  <GraduationCap className="h-4 w-4" />
-                  Study Application
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                      <GraduationCap className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground text-sm">
+                        New Study Application
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Apply to study in China
+                      </p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
+                  </div>
                 </Link>
                 <Link
                   href="/product-sourcing#inquire"
-                  className="btn-glass inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl font-semibold text-sm cursor-pointer"
+                  className="group p-5 rounded-2xl glass-card glass-card-hover cursor-pointer"
                 >
-                  <ShoppingCart className="h-4 w-4" />
-                  Sourcing Inquiry
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+                      <ShoppingCart className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground text-sm">
+                        New Sourcing Inquiry
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Source products from China
+                      </p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
+                  </div>
                 </Link>
               </div>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {profile.submissions.map((sub) => (
-                <SubmissionCard
-                  key={sub.id}
-                  submission={sub}
-                  userEmail={profile.email}
-                  copiedId={copiedId}
-                  onCopy={handleCopy}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <h2 className="font-display font-bold text-lg text-foreground mb-4">
-            Quick Actions
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Link
-              href="/study-in-china#apply"
-              className="group p-5 rounded-2xl glass-card glass-card-hover cursor-pointer"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                  <GraduationCap className="h-5 w-5 text-blue-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground text-sm">
-                    New Study Application
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Apply to study in China
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
-              </div>
-            </Link>
-            <Link
-              href="/product-sourcing#inquire"
-              className="group p-5 rounded-2xl glass-card glass-card-hover cursor-pointer"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
-                  <ShoppingCart className="h-5 w-5 text-amber-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground text-sm">
-                    New Sourcing Inquiry
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Source products from China
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
-              </div>
-            </Link>
-          </div>
-        </div>
-
           </>
         )}
         {activeTab === "bookings" && (
           <>
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-bold text-lg text-foreground">
-              My Bookings
-              <span className="ml-2 text-sm font-medium text-muted-foreground">
-                ({(profile.consultations ?? []).length})
-              </span>
-            </h2>
-          </div>
-
-          {(profile.consultations ?? []).length === 0 ? (
-            <div className="p-10 rounded-2xl glass-card text-center">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <CalendarCheck className="h-6 w-6 text-primary" />
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-display font-bold text-lg text-foreground">
+                  My Bookings
+                  <span className="ml-2 text-sm font-medium text-muted-foreground">
+                    ({(profile.consultations ?? []).length})
+                  </span>
+                </h2>
               </div>
-              <p className="text-sm font-medium text-foreground mb-1">
-                No bookings yet
-              </p>
-              <p className="text-xs text-muted-foreground mb-6 max-w-xs mx-auto">
-                Schedule a free consultation with our experts to get personalized guidance.
-              </p>
-              <Link
-                href="/book-consultation"
-                className="inline-flex items-center justify-center gap-2 h-11 px-5 bg-accent text-white rounded-xl font-semibold text-sm hover:bg-red-700 transition-colors cursor-pointer"
-              >
-                <CalendarCheck className="h-4 w-4" />
-                Book a Consultation
-              </Link>
+
+              {(profile.consultations ?? []).length === 0 ? (
+                <div className="p-10 rounded-2xl glass-card text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <CalendarCheck className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    No bookings yet
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-6 max-w-xs mx-auto">
+                    Schedule a free consultation with our experts to get
+                    personalized guidance.
+                  </p>
+                  <Link
+                    href="/book-consultation"
+                    className="inline-flex items-center justify-center gap-2 h-11 px-5 bg-accent text-white rounded-xl font-semibold text-sm hover:bg-red-700 transition-colors cursor-pointer"
+                  >
+                    <CalendarCheck className="h-4 w-4" />
+                    Book a Consultation
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {(profile.consultations ?? []).map((booking) => (
+                    <ConsultationCard
+                      key={booking.id}
+                      consultation={booking}
+                      onCancel={handleCancelConsultation}
+                      cancellingId={cancellingId}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="space-y-3">
-              {(profile.consultations ?? []).map((booking) => (
-                <ConsultationCard key={booking.id} consultation={booking} />
-              ))}
-            </div>
-          )}
-        </div>
           </>
         )}
         {activeTab === "settings" && (
           <>
-        <div>
-          <h2 className="font-display font-bold text-lg text-foreground mb-4">
-            Security
-          </h2>
-          <div className="rounded-2xl glass-card p-5">
-            {!showChangePw ? (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                    <Lock className="h-5 w-5 text-slate-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">Password</p>
-                    <p className="text-xs text-muted-foreground">
-                      Change your account password
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowChangePw(true)}
-                  className="cursor-pointer rounded-xl"
-                >
-                  Change
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="currentPw">Current Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="currentPw"
-                      type={showCurrentPw ? "text" : "password"}
-                      value={currentPw}
-                      onChange={(e) => setCurrentPw(e.target.value)}
-                      className="pl-9 pr-10 h-11"
-                      placeholder="Enter current password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowCurrentPw((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-                    >
-                      {showCurrentPw ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <div className="flex justify-end -mt-1">
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs font-bold text-primary hover:text-red-700 transition-colors"
-                  >
-                    Forgot your current password?
-                  </Link>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="newPw">New Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="newPw"
-                      type={showNewPw ? "text" : "password"}
-                      value={newPw}
-                      onChange={(e) => setNewPw(e.target.value)}
-                      className="pl-9 pr-10 h-11"
-                      placeholder="At least 8 characters"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPw((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-                    >
-                      {showNewPw ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPw">Confirm New Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="confirmPw"
-                      type="password"
-                      value={confirmPw}
-                      onChange={(e) => setConfirmPw(e.target.value)}
-                      className="pl-9 h-11"
-                      placeholder="Re-enter new password"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 pt-1">
-                  <Button
-                    size="sm"
-                    onClick={handleChangePassword}
-                    disabled={pwLoading || !currentPw || !newPw || !confirmPw}
-                    className="cursor-pointer rounded-xl"
-                  >
-                    {pwLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      "Update Password"
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setShowChangePw(false);
-                      setCurrentPw("");
-                      setNewPw("");
-                      setConfirmPw("");
-                    }}
-                    className="cursor-pointer rounded-xl"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div>
-          <h2 className="font-display font-bold text-lg text-foreground mb-4">
-            Data &amp; Privacy
-          </h2>
-          <div className="rounded-2xl glass-card p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <Download className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="font-semibold text-sm">Export My Data</p>
-                  <p className="text-xs text-muted-foreground">
-                    Download all your data as a Word document
-                  </p>
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExportData}
-                className="cursor-pointer rounded-xl"
-              >
-                <Download className="h-4 w-4 mr-1" />
-                Export
-              </Button>
-            </div>
-            <div className="border-t border-border pt-4">
-              {!deleteConfirm ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
-                      <Trash2 className="h-5 w-5 text-red-600" />
+            <div>
+              <h2 className="font-display font-bold text-lg text-foreground mb-4">
+                Security
+              </h2>
+              <div className="rounded-2xl glass-card p-5">
+                {!showChangePw ? (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <Lock className="h-5 w-5 text-slate-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm">Password</p>
+                        <p className="text-xs text-muted-foreground">
+                          Change your account password
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold text-sm text-red-700">
-                        Delete Account
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Permanently delete your account and data
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setDeleteConfirm(true)}
-                    className="cursor-pointer rounded-xl"
-                  >
-                    Delete
-                  </Button>
-                </div>
-              ) : (
-                <div className="rounded-xl bg-red-50/80 border border-red-200/60 p-4">
-                  <div className="flex items-start gap-3 mb-3">
-                    <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
-                    <div>
-                      <p className="font-bold text-sm text-red-700">
-                        This action cannot be undone
-                      </p>
-                      <p className="text-xs text-red-600/80 mt-1">
-                        Your account will be permanently deleted. Your
-                        submissions will be anonymized but kept in our records.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-2 mb-3">
-                    <Label
-                      htmlFor="deleteConfirm"
-                      className="text-xs font-medium text-red-700"
-                    >
-                      Type <strong>DELETE</strong> to confirm
-                    </Label>
-                    <Input
-                      id="deleteConfirm"
-                      value={deleteText}
-                      onChange={(e) => setDeleteText(e.target.value)}
-                      placeholder="DELETE"
-                      className="h-10 border-red-200 focus:border-red-400"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={handleDeleteAccount}
-                      disabled={deleteText !== "DELETE" || deleteLoading}
-                      className="cursor-pointer rounded-xl"
-                    >
-                      {deleteLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        "Permanently Delete Account"
-                      )}
-                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => {
-                        setDeleteConfirm(false);
-                        setDeleteText("");
-                      }}
+                      onClick={() => setShowChangePw(true)}
                       className="cursor-pointer rounded-xl"
                     >
-                      Cancel
+                      Change
                     </Button>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="currentPw">Current Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="currentPw"
+                          type={showCurrentPw ? "text" : "password"}
+                          value={currentPw}
+                          onChange={(e) => setCurrentPw(e.target.value)}
+                          className="pl-9 pr-10 h-11"
+                          placeholder="Enter current password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPw((v) => !v)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                        >
+                          {showCurrentPw ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex justify-end -mt-1">
+                      <Link
+                        href="/forgot-password"
+                        className="text-xs font-bold text-primary hover:text-red-700 transition-colors"
+                      >
+                        Forgot your current password?
+                      </Link>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newPw">New Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="newPw"
+                          type={showNewPw ? "text" : "password"}
+                          value={newPw}
+                          onChange={(e) => setNewPw(e.target.value)}
+                          className="pl-9 pr-10 h-11"
+                          placeholder="At least 8 characters"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPw((v) => !v)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                        >
+                          {showNewPw ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPw">Confirm New Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="confirmPw"
+                          type="password"
+                          value={confirmPw}
+                          onChange={(e) => setConfirmPw(e.target.value)}
+                          className="pl-9 h-11"
+                          placeholder="Re-enter new password"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 pt-1">
+                      <Button
+                        size="sm"
+                        onClick={handleChangePassword}
+                        disabled={
+                          pwLoading || !currentPw || !newPw || !confirmPw
+                        }
+                        className="cursor-pointer rounded-xl"
+                      >
+                        {pwLoading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          "Update Password"
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setShowChangePw(false);
+                          setCurrentPw("");
+                          setNewPw("");
+                          setConfirmPw("");
+                        }}
+                        className="cursor-pointer rounded-xl"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
+
+            <div>
+              <h2 className="font-display font-bold text-lg text-foreground mb-4">
+                Data &amp; Privacy
+              </h2>
+              <div className="rounded-2xl glass-card p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                      <Download className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm">Export My Data</p>
+                      <p className="text-xs text-muted-foreground">
+                        Download all your data as a Word document
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleExportData}
+                    className="cursor-pointer rounded-xl"
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    Export
+                  </Button>
+                </div>
+                <div className="border-t border-border pt-4">
+                  {!deleteConfirm ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+                          <Trash2 className="h-5 w-5 text-red-600" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm text-red-700">
+                            Delete Account
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Permanently delete your account and data
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setDeleteConfirm(true)}
+                        className="cursor-pointer rounded-xl"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl bg-red-50/80 border border-red-200/60 p-4">
+                      <div className="flex items-start gap-3 mb-3">
+                        <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
+                        <div>
+                          <p className="font-bold text-sm text-red-700">
+                            This action cannot be undone
+                          </p>
+                          <p className="text-xs text-red-600/80 mt-1">
+                            Your account will be permanently deleted. Your
+                            submissions will be anonymized but kept in our
+                            records.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-2 mb-3">
+                        <Label
+                          htmlFor="deleteConfirm"
+                          className="text-xs font-medium text-red-700"
+                        >
+                          Type <strong>DELETE</strong> to confirm
+                        </Label>
+                        <Input
+                          id="deleteConfirm"
+                          value={deleteText}
+                          onChange={(e) => setDeleteText(e.target.value)}
+                          placeholder="DELETE"
+                          className="h-10 border-red-200 focus:border-red-400"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={handleDeleteAccount}
+                          disabled={deleteText !== "DELETE" || deleteLoading}
+                          className="cursor-pointer rounded-xl"
+                        >
+                          {deleteLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            "Permanently Delete Account"
+                          )}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setDeleteConfirm(false);
+                            setDeleteText("");
+                          }}
+                          className="cursor-pointer rounded-xl"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </>
         )}
       </div>
@@ -1198,24 +1247,47 @@ function ProfileField({
 
 function ConsultationCard({
   consultation,
+  onCancel,
+  cancellingId,
 }: {
   consultation: UserConsultation;
+  onCancel: (id: string) => void;
+  cancellingId: string | null;
 }) {
   const serviceInfo = CONSULTATION_SERVICE_STYLES[consultation.service] ?? {
     label: consultation.service,
     bg: "bg-slate-100",
     text: "text-slate-700",
   };
-  const ServiceIcon = CONSULTATION_SERVICE_ICONS[consultation.service] ?? MessageSquare;
-  const statusStyle = CONSULTATION_STATUS_STYLES[consultation.status] ?? "bg-slate-50 text-slate-600 border-slate-200";
-  const statusLabel = consultation.status.charAt(0).toUpperCase() + consultation.status.slice(1);
+  const ServiceIcon =
+    CONSULTATION_SERVICE_ICONS[consultation.service] ?? MessageSquare;
+  const statusStyle =
+    CONSULTATION_STATUS_STYLES[consultation.status] ??
+    "bg-slate-50 text-slate-600 border-slate-200";
+  const statusLabel =
+    consultation.status.charAt(0).toUpperCase() + consultation.status.slice(1);
   const MeetingIcon = consultation.meetingType === "online" ? Video : Phone;
-  const meetingLabel = consultation.meetingType === "online" ? "Video" : "Phone";
+  const meetingLabel =
+    consultation.meetingType === "online" ? "Video" : "Phone";
+
+  const canCancel = ["pending", "confirmed", "rescheduled"].includes(
+    consultation.status,
+  );
+  const canJoin =
+    consultation.meetingType === "online" &&
+    Boolean(consultation.meetingUrl) &&
+    ["confirmed", "rescheduled"].includes(consultation.status);
+  const isCancelling = cancellingId === consultation.id;
 
   return (
     <div className="p-4 rounded-xl bg-white border border-slate-100 hover:shadow-md transition-shadow">
       <div className="flex items-start gap-3">
-        <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", serviceInfo.bg)}>
+        <div
+          className={cn(
+            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+            serviceInfo.bg,
+          )}
+        >
           <ServiceIcon className={cn("h-5 w-5", serviceInfo.text)} />
         </div>
         <div className="flex-1 min-w-0">
@@ -1236,16 +1308,31 @@ function ConsultationCard({
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground mb-2">
             <span className="inline-flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5" />
-              <span className="font-medium">{formatConsultationDate(consultation.preferredDate)}</span>
+              <span className="font-medium">
+                {formatConsultationDate(consultation.preferredDate)}
+              </span>
             </span>
             <span className="inline-flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
-              <span className="font-medium">{formatConsultationTime(consultation.preferredTime)}</span>
+              <span className="font-medium">
+                {formatConsultationTime(consultation.preferredTime)}
+              </span>
             </span>
             <span className="inline-flex items-center gap-1">
               <MeetingIcon className="h-3.5 w-3.5" />
               <span className="font-medium">{meetingLabel}</span>
             </span>
+            {canJoin && (
+              <a
+                href={consultation.meetingUrl ?? "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-semibold"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Join meeting
+              </a>
+            )}
           </div>
 
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -1257,6 +1344,24 @@ function ConsultationCard({
             <p className="mt-2.5 text-xs text-slate-600 leading-relaxed line-clamp-2">
               {consultation.message}
             </p>
+          )}
+
+          {canCancel && (
+            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => onCancel(consultation.id)}
+                disabled={isCancelling}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              >
+                {isCancelling ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <X className="h-3 w-3" />
+                )}
+                {isCancelling ? "Cancelling..." : "Cancel booking"}
+              </button>
+            </div>
           )}
         </div>
       </div>

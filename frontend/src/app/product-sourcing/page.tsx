@@ -287,8 +287,8 @@ export default async function ProductSourcingPage() {
                   {/* Large image — spans 2 rows */}
                   <div className="row-span-2 relative rounded-3xl overflow-hidden border border-border shadow-soft-md bg-muted">
                     <img
-                      src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=large%20Chinese%20manufacturing%20factory%20warehouse%20workers%20in%20uniform%20assembly%20line%20modern%20industrial%20photorealistic%20high%20quality&image_size=portrait_4_3"
-                      alt="Modern Chinese manufacturing factory with assembly line"
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/001_Car_factory_assembly_line_-_Opel_factory_in_Gliwice%2C_Poland.jpg/1280px-001_Car_factory_assembly_line_-_Opel_factory_in_Gliwice%2C_Poland.jpg"
+                      alt="Modern automotive assembly line at a manufacturing factory"
                       className="w-full h-full object-cover"
                       loading="eager"
                     />
@@ -305,8 +305,8 @@ export default async function ProductSourcingPage() {
                   {/* Top right image */}
                   <div className="relative rounded-3xl overflow-hidden border border-border shadow-soft-md bg-muted">
                     <img
-                      src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=shipping%20containers%20cargo%20port%20cranes%20stacked%20logistics%20China%20export%20photorealistic%20high%20quality&image_size=square"
-                      alt="Shipping containers and cargo at a Chinese export port"
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Container-Terminal_Bremerhaven_02.jpg/1280px-Container-Terminal_Bremerhaven_02.jpg"
+                      alt="Container cranes and stacked cargo at a shipping port terminal"
                       className="w-full h-full object-cover"
                       loading="lazy"
                     />
@@ -320,8 +320,8 @@ export default async function ProductSourcingPage() {
                   {/* Bottom right image */}
                   <div className="relative rounded-3xl overflow-hidden border border-border shadow-soft-md bg-muted">
                     <img
-                      src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=quality%20control%20inspection%20electronics%20products%20factory%20worker%20checking%20goods%20magnifier%20photorealistic%20high%20quality&image_size=square"
-                      alt="Quality control inspection of manufactured products"
+                      src="https://upload.wikimedia.org/wikipedia/commons/4/49/Inspektor_QC_India_membuat_FAI_%28First_Article_Inspection%29.png"
+                      alt="Quality control inspector performing first article inspection on a product"
                       className="w-full h-full object-cover"
                       loading="lazy"
                     />

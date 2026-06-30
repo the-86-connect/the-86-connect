@@ -19,7 +19,7 @@ export const contactFormSchema = z.object({
     .regex(/^[\d\s+()-]{7,30}$/, "Please enter a valid phone number")
     .optional()
     .or(z.literal("")),
-  serviceInterest: z.enum(["Study in China", "Product Sourcing"], {
+  serviceInterest: z.enum(["Study in China", "Product Sourcing", "General"], {
     message: "Please select a service",
   }),
   message: z
@@ -34,6 +34,7 @@ export type ContactFormData = z.infer<typeof contactFormSchema>;
 export const SERVICE_OPTIONS = [
   "Study in China",
   "Product Sourcing",
+  "General",
 ] as const;
 
 /* ============== Study Application Form ============== */
@@ -168,6 +169,11 @@ export const SOURCING_INQUIRY_SCHEMA = z.object({
     .trim()
     .min(2, "Product category is required")
     .max(100, "Category must be at most 100 characters"),
+  productName: z
+    .string()
+    .trim()
+    .min(2, "Product name is required")
+    .max(150, "Product name must be at most 150 characters"),
   productDescription: z
     .string()
     .trim()
@@ -219,11 +225,7 @@ export const SOURCING_INQUIRY_SCHEMA = z.object({
 export type SourcingInquiryData = z.infer<typeof SOURCING_INQUIRY_SCHEMA>;
 
 /* ============== Consultation Booking Form ============== */
-export const CONSULTATION_SERVICES = [
-  "study",
-  "sourcing",
-  "general",
-] as const;
+export const CONSULTATION_SERVICES = ["study", "sourcing", "general"] as const;
 
 export const CONSULTATION_MEETING_TYPES = ["online", "phone"] as const;
 
@@ -252,14 +254,7 @@ export const CONSULTATION_SCHEMA = z.object({
   meetingType: z.enum(CONSULTATION_MEETING_TYPES, {
     message: "Please select a meeting type",
   }),
-  preferredDate: z
-    .string()
-    .trim()
-    .min(1, "Please select a preferred date"),
-  preferredTime: z
-    .string()
-    .trim()
-    .min(1, "Please select a preferred time"),
+  availabilitySlotId: z.string().min(1, "Please select an available time slot"),
   message: z
     .string()
     .trim()
@@ -270,17 +265,35 @@ export const CONSULTATION_SCHEMA = z.object({
 
 export type ConsultationFormData = z.infer<typeof CONSULTATION_SCHEMA>;
 
-export const CONSULTATION_TIME_SLOTS = [
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
-  "19:00",
-  "20:00",
-  "21:00",
-] as const;
+/* ============== Admin Availability Schemas ============== */
+
+export const SINGLE_SLOT_SCHEMA = z
+  .object({
+    date: z.string().min(1, "Date is required"),
+    startTime: z.string().min(1, "Start time is required"),
+    endTime: z.string().min(1, "End time is required"),
+  })
+  .refine((d) => d.startTime < d.endTime, {
+    message: "End time must be after start time",
+    path: ["endTime"],
+  });
+
+export const BULK_SLOT_SCHEMA = z
+  .object({
+    dateFrom: z.string().min(1, "Start date is required"),
+    dateTo: z.string().min(1, "End date is required"),
+    timeFrom: z.string().min(1, "Start time is required"),
+    timeTo: z.string().min(1, "End time is required"),
+    daysOfWeek: z.array(z.number()).optional(),
+  })
+  .refine((d) => d.dateFrom <= d.dateTo, {
+    message: "End date must be on or after start date",
+    path: ["dateTo"],
+  })
+  .refine((d) => d.timeFrom < d.timeTo, {
+    message: "End time must be after start time",
+    path: ["timeTo"],
+  });
+
+export type SingleSlotData = z.infer<typeof SINGLE_SLOT_SCHEMA>;
+export type BulkSlotData = z.infer<typeof BULK_SLOT_SCHEMA>;

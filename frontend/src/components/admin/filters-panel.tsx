@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { getStatusLabel } from "@/lib/submission-status";
 
-type FilterType = "all" | "Study in China" | "Product Sourcing";
+type FilterType = "all" | "Study in China" | "Product Sourcing" | "General";
 type ReadFilter = "all" | "read" | "unread";
 
 interface FiltersPanelProps {
@@ -66,29 +66,36 @@ export function FiltersPanel({
           role="tablist"
           aria-label="Filter submissions by service"
         >
-          {(["all", "Study in China", "Product Sourcing"] as FilterType[]).map(
-            (f) => (
-              <button
-                key={f}
-                type="button"
-                role="tab"
-                aria-selected={filter === f}
-                onClick={() => setFilter(f)}
-                className={cn(
-                  "px-3.5 py-1.5 text-sm font-medium rounded-xl transition-all cursor-pointer",
-                  filter === f
-                    ? f === "all"
-                      ? "bg-gradient-to-r from-primary to-red-700 text-white shadow-md shadow-primary/25"
-                      : f === "Study in China"
-                        ? "bg-gradient-to-r from-red-500 to-red-700 text-white shadow-md shadow-red-500/25"
-                        : "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/25"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/40",
-                )}
-              >
-                {f === "all" ? "All" : f}
-              </button>
-            ),
-          )}
+          {(
+            [
+              "all",
+              "Study in China",
+              "Product Sourcing",
+              "General",
+            ] as FilterType[]
+          ).map((f) => (
+            <button
+              key={f}
+              type="button"
+              role="tab"
+              aria-selected={filter === f}
+              onClick={() => setFilter(f)}
+              className={cn(
+                "px-3.5 py-1.5 text-sm font-medium rounded-xl transition-all cursor-pointer",
+                filter === f
+                  ? f === "all"
+                    ? "bg-gradient-to-r from-primary to-red-700 text-white shadow-md shadow-primary/25"
+                    : f === "Study in China"
+                      ? "bg-gradient-to-r from-red-500 to-red-700 text-white shadow-md shadow-red-500/25"
+                      : f === "Product Sourcing"
+                        ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/25"
+                        : "bg-gradient-to-r from-slate-600 to-slate-800 text-white shadow-md shadow-slate-500/25"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/40",
+              )}
+            >
+              {f === "all" ? "All" : f}
+            </button>
+          ))}
         </div>
 
         {/* Search */}

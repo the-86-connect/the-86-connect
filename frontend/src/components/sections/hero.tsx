@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
   GraduationCap,
   ShoppingCart,
@@ -18,41 +19,102 @@ import {
 } from "lucide-react";
 
 export function HeroSection() {
+  const [imageErrored, setImageErrored] = useState(false);
+  const showImage = !imageErrored;
+
   return (
     <section
       id="hero"
-      className="relative min-h-[92dvh] w-full overflow-hidden bg-hero-gradient pt-24 pb-16 sm:pt-28 sm:pb-20"
+      className={`relative min-h-[92dvh] w-full overflow-hidden pt-24 pb-16 sm:pt-28 sm:pb-20 ${
+        showImage ? "" : "bg-hero-gradient"
+      }`}
     >
-      {/* Decorative orbs */}
-      <div
-        aria-hidden="true"
-        className="absolute -top-32 -left-32 w-96 h-96 orb-red-soft pointer-events-none"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -bottom-24 -right-24 w-[28rem] h-[28rem] orb-red-soft opacity-60 pointer-events-none"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-grid-red opacity-[0.4] pointer-events-none"
-      />
+      {/* Hero background image (preloaded, then shown via CSS background) */}
+      {showImage && (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/hero-banner-pc.jpg"
+            alt=""
+            aria-hidden="true"
+            className="hidden"
+            onError={() => setImageErrored(true)}
+            loading="eager"
+            fetchPriority="high"
+          />
+        </>
+      )}
 
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+      {/* Background image layer — uses CSS background for reliable media query behavior */}
+      {showImage && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-0 bg-[url('/hero-banner-phone.jpg')] lg:bg-[url('/hero-banner-pc.jpg')] bg-cover bg-center"
+        />
+      )}
+
+      {/* Decorative orbs (only when no image is shown — the fallback design) */}
+      {!showImage && (
+        <>
+          <div
+            aria-hidden="true"
+            className="absolute -top-32 -left-32 w-96 h-96 orb-red-soft pointer-events-none"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute -bottom-24 -right-24 w-[28rem] h-[28rem] orb-red-soft opacity-60 pointer-events-none"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-grid-red opacity-[0.4] pointer-events-none"
+          />
+        </>
+      )}
+
+      {/* Dark overlay for text readability — only when image is shown */}
+      {showImage && (
+        <>
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/30 pointer-events-none z-[1]"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-[1]"
+          />
+        </>
+      )}
+
+      <div className={`container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative ${showImage ? "z-10" : ""}`}>
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[70dvh]">
           {/* Left content */}
           <div className="lg:col-span-6 text-center lg:text-left">
             {/* Headline */}
             <h1
-              className="font-display font-black text-[2.4rem] sm:text-6xl md:text-7xl lg:text-[4.8rem] leading-[0.95] tracking-[-0.04em] mb-5 sm:mb-6 animate-reveal-up"
+              className={`font-display font-black text-[2.4rem] sm:text-6xl md:text-7xl lg:text-[4.8rem] leading-[0.95] tracking-[-0.04em] mb-5 sm:mb-6 animate-reveal-up ${
+                showImage ? "text-white" : "text-foreground"
+              }`}
               style={{ animationDelay: "0ms" }}
             >
-              <span className="block text-foreground">Your Bridge to</span>
-              <span className="block text-gradient-red-animated">China.</span>
+              <span className={`block ${showImage ? "text-white" : "text-foreground"}`}>Your Bridge to</span>
+              <span
+                className={`block ${
+                  showImage
+                    ? "text-white [text-shadow:0_2px_20px_rgba(0,0,0,0.4)]"
+                    : "text-gradient-red-animated"
+                }`}
+              >
+                China.
+              </span>
             </h1>
 
             {/* Subtitle */}
             <p
-              className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mb-8 sm:mb-10 leading-relaxed font-medium mx-auto lg:mx-0 animate-reveal-up"
+              className={`text-base sm:text-lg md:text-xl max-w-2xl mb-8 sm:mb-10 leading-relaxed font-medium mx-auto lg:mx-0 animate-reveal-up ${
+                showImage
+                  ? "text-white/90 [text-shadow:0_1px_8px_rgba(0,0,0,0.5)]"
+                  : "text-muted-foreground"
+              }`}
               style={{ animationDelay: "100ms" }}
             >
               Premium consulting for international education and business
@@ -86,12 +148,26 @@ export function HeroSection() {
 
             {/* Trust badges */}
             <div
-              className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 animate-reveal-up"
+              className={`flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 animate-reveal-up ${
+                showImage ? "text-white" : ""
+              }`}
               style={{ animationDelay: "300ms" }}
             >
-              <TrustBadge icon={Shield} label="Verified Partners" />
-              <TrustBadge icon={Award} label="Scholarship Experts" />
-              <TrustBadge icon={Globe} label="30+ Countries" />
+              <TrustBadge
+                icon={Shield}
+                label="Verified Partners"
+                onDark={showImage}
+              />
+              <TrustBadge
+                icon={Award}
+                label="Scholarship Experts"
+                onDark={showImage}
+              />
+              <TrustBadge
+                icon={Globe}
+                label="30+ Countries"
+                onDark={showImage}
+              />
             </div>
           </div>
 
@@ -212,10 +288,18 @@ export function HeroSection() {
 
         {/* Trust strip */}
         <div
-          className="mt-8 sm:mt-12 max-w-5xl mx-auto animate-reveal-up"
+          className={`mt-8 sm:mt-12 max-w-5xl mx-auto animate-reveal-up ${
+            showImage ? "z-10 relative" : ""
+          }`}
           style={{ animationDelay: "400ms" }}
         >
-          <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-border/60 shadow-soft-lg p-5 sm:p-7">
+          <div
+            className={`backdrop-blur-xl rounded-3xl border p-5 sm:p-7 ${
+              showImage
+                ? "bg-white/95 border-white/30 shadow-2xl"
+                : "bg-white/80 border-border/60 shadow-soft-lg"
+            }`}
+          >
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 text-center">
               <Stat value="10+" label="Years experience" icon={TrendingUp} />
               <Stat value="500+" label="Students placed" icon={Users} />
@@ -232,12 +316,20 @@ export function HeroSection() {
 function TrustBadge({
   icon: Icon,
   label,
+  onDark = false,
 }: {
   icon: typeof Shield;
   label: string;
+  onDark?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-foreground/80">
+    <div
+      className={`flex items-center gap-2 text-xs sm:text-sm font-bold ${
+        onDark
+          ? "text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.6)]"
+          : "text-foreground/80"
+      }`}
+    >
       <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
         <Icon className="h-3 w-3 text-white" strokeWidth={3} />
       </div>

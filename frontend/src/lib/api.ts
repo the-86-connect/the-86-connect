@@ -54,6 +54,7 @@ export interface UserConsultation {
   timezone: string;
   status: string;
   message: string;
+  meetingUrl: string | null;
   createdAt: string;
 }
 
@@ -112,7 +113,7 @@ export async function uploadFile(file: File): Promise<UploadedAttachment> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`${API_URL}/api/upload`, {
+  const response = await fetch(`${API_URL}/api/upload/single`, {
     method: "POST",
     body: formData,
   });
@@ -123,6 +124,27 @@ export async function uploadFile(file: File): Promise<UploadedAttachment> {
   }
 
   return response.json();
+}
+
+export async function uploadFiles(
+  files: File[],
+): Promise<UploadedAttachment[]> {
+  if (files.length === 0) return [];
+  const formData = new FormData();
+  files.forEach((f) => formData.append("files", f));
+
+  const response = await fetch(`${API_URL}/api/upload`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to upload files. Please try again.");
+  }
+
+  const data = await response.json();
+  return data.files as UploadedAttachment[];
 }
 
 export function submitContactForm(
@@ -161,6 +183,7 @@ export async function submitConsultation(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
+    credentials: "include",
   });
 
   if (!response.ok) {
@@ -364,15 +387,19 @@ export interface Video {
 export async function fetchVideos(
   page?: "study" | "sourcing",
 ): Promise<Video[]> {
-  const url = page
-    ? `${API_URL}/api/videos?page=${page}`
-    : `${API_URL}/api/videos`;
-  const response = await fetch(url, {
-    next: { revalidate: 60 },
-  });
-  if (!response.ok) return [];
-  const data = await response.json();
-  return data.videos || [];
+  try {
+    const url = page
+      ? `${API_URL}/api/videos?page=${page}`
+      : `${API_URL}/api/videos`;
+    const response = await fetch(url, {
+      next: { revalidate: 60 },
+    });
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.videos || [];
+  } catch {
+    return [];
+  }
 }
 
 /* ============== Tracking ============== */
@@ -389,6 +416,201 @@ export async function trackSubmission(
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error(error.error || "Tracking lookup failed");
+  }
+
+  return response.json();
+}
+
+/* ============== Availability Slots ============== */
+
+export interface AvailabilitySlot {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface AdminAvailabilitySlot extends AvailabilitySlot {
+  status: "available" | "booked" | "blocked";
+  consultation?: {
+    id: string;
+    name: string;
+    email: string;
+    service: string;
+    status: string;
+  } | null;
+}
+
+export interface AvailabilityStats {
+  total: number;
+  available: number;
+  booked: number;
+  blocked: number;
+}
+
+/** Fetch available slots for a date range (public, for booking page) */
+export async function fetchAvailableSlots(
+  dateFrom: string,
+  dateTo: string,
+): Promise<AvailabilitySlot[]> {
+  const params = new URLSearchParams({ dateFrom, dateTo });
+  const response = await fetch(`${API_URL}/api/availability?${params}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to load available time slots");
+  }
+
+  const data = await response.json();
+  return data.slots as AvailabilitySlot[];
+}
+
+/** Cancel the current user's own consultation booking */
+export async function cancelConsultation(
+  id: string,
+): Promise<{ success: boolean }> {
+  const response = await fetch(`${API_URL}/api/consultation/${id}/cancel`, {
+    method: "POST",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to cancel booking");
+  }
+
+  return response.json();
+}
+
+/* ============== Admin Availability Management ============== */
+
+/** List all slots (admin) with optional filters */
+export async function fetchAdminSlots(filters?: {
+  dateFrom?: string;
+  dateTo?: string;
+  status?: string;
+  page?: number;
+  limit?: number;
+}): Promise<{ slots: AdminAvailabilitySlot[]; total: number }> {
+  const params = new URLSearchParams();
+  if (filters?.dateFrom) params.set("dateFrom", filters.dateFrom);
+  if (filters?.dateTo) params.set("dateTo", filters.dateTo);
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.page) params.set("page", String(filters.page));
+  if (filters?.limit) params.set("limit", String(filters.limit));
+
+  const response = await fetch(`${API_URL}/api/admin/availability?${params}`, {
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch slots");
+  }
+
+  return response.json();
+}
+
+/** Fetch slot counts (admin) */
+export async function fetchAdminSlotStats(): Promise<AvailabilityStats> {
+  const response = await fetch(`${API_URL}/api/admin/availability/stats`, {
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch slot stats");
+  }
+
+  return response.json();
+}
+
+/** Create a single slot (admin) */
+export async function createSlot(data: {
+  date: string;
+  startTime: string;
+  endTime: string;
+}): Promise<void> {
+  const response = await fetch(`${API_URL}/api/admin/availability`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to create slot");
+  }
+}
+
+/** Bulk generate slots from a date range + time range (admin) */
+export async function bulkCreateSlots(data: {
+  dateFrom: string;
+  dateTo: string;
+  timeFrom: string;
+  timeTo: string;
+  daysOfWeek?: number[];
+}): Promise<{ created: number; skipped: number; total: number }> {
+  const response = await fetch(`${API_URL}/api/admin/availability/bulk`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to generate slots");
+  }
+
+  return response.json();
+}
+
+/** Delete a single slot (admin) */
+export async function deleteSlot(id: string): Promise<void> {
+  const response = await fetch(`${API_URL}/api/admin/availability/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to delete slot");
+  }
+}
+
+/** Update slot status — block/unblock (admin) */
+export async function updateSlotStatus(
+  id: string,
+  status: "available" | "blocked",
+): Promise<void> {
+  const response = await fetch(`${API_URL}/api/admin/availability/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to update slot");
+  }
+}
+
+/** Bulk delete slots by IDs or date range (admin) */
+export async function bulkDeleteSlots(data: {
+  ids?: string[];
+  dateFrom?: string;
+  dateTo?: string;
+}): Promise<{ deleted: number }> {
+  const response = await fetch(`${API_URL}/api/admin/availability/bulk`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to delete slots");
   }
 
   return response.json();

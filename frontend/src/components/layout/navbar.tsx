@@ -14,9 +14,10 @@ import {
   User,
   UserRound,
   LogIn,
-  Search,
   CalendarCheck,
+  Search,
 } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useUserAuth } from "@/context/user-auth-context";
 
@@ -30,8 +31,18 @@ type NavLink = {
 
 const NAV_LINKS: NavLink[] = [
   { label: "Home", shortLabel: "Home", target: "hero", icon: Home },
-  { label: "Study in China", shortLabel: "Study", href: "/study-in-china", icon: GraduationCap },
-  { label: "Product Sourcing", shortLabel: "Sourcing", href: "/product-sourcing", icon: ShoppingCart },
+  {
+    label: "Study in China",
+    shortLabel: "Study",
+    href: "/study-in-china",
+    icon: GraduationCap,
+  },
+  {
+    label: "Product Sourcing",
+    shortLabel: "Sourcing",
+    href: "/product-sourcing",
+    icon: ShoppingCart,
+  },
   { label: "Contact", shortLabel: "Contact", target: "contact", icon: Mail },
 ];
 
@@ -218,20 +229,20 @@ export function Navbar() {
       >
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20">
-            {/* Logo */}
+            {/* Logo — white when transparent (over dark hero), dark when scrolled (white bg) */}
             <Link
               href="/"
-              className="group flex items-center gap-2.5 press shrink-0"
+              className="group flex items-center press shrink-0"
               aria-label="86 Connect home"
             >
-              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center group-hover:bg-red-700 transition-colors">
-                <span className="text-white font-black text-base tracking-tight">
-                  86
-                </span>
-              </div>
-              <span className="font-display font-black text-lg lg:text-xl tracking-tight text-foreground">
-                Connect
-              </span>
+              <Image
+                src={scrolled ? "/logo-main.png" : "/logo-white-nav.png"}
+                alt="86 Connect"
+                width={180}
+                height={49}
+                className="h-8 lg:h-9 w-auto group-hover:opacity-90 transition-opacity"
+                priority
+              />
             </Link>
 
             {/* Desktop nav — clean horizontal text links with underline indicator */}
@@ -241,20 +252,6 @@ export function Navbar() {
 
             {/* Desktop CTA */}
             <div className="hidden lg:flex items-center gap-3">
-              <Link
-                href="/study-in-china/track-application"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-foreground/80 hover:text-primary transition-colors duration-200 cursor-pointer press"
-              >
-                <Search className="h-4 w-4" />
-                <span>Track</span>
-              </Link>
-              <Link
-                href="/book-consultation"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-foreground/80 hover:text-primary transition-colors duration-200 cursor-pointer press"
-              >
-                <CalendarCheck className="h-4 w-4" />
-                <span>Book a Call</span>
-              </Link>
               <Link
                 href={isAuthenticated ? "/account" : "/login"}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-foreground/80 hover:text-primary transition-colors duration-200 cursor-pointer press"
@@ -373,7 +370,7 @@ export function Navbar() {
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 safe-bottom pointer-events-none">
         <div className="mx-2 sm:mx-3 mb-2 sm:mb-3 pointer-events-auto">
           <div className="bg-white rounded-3xl shadow-soft-xl px-1.5 py-1.5 sm:px-2 sm:py-2 border border-border">
-            <div className="grid grid-cols-5 gap-0.5 sm:gap-1">
+            <div className="grid grid-cols-6 gap-0.5 sm:gap-1">
               {NAV_LINKS.map((link) => {
                 const Icon = link.icon;
                 const active = isActive(link);

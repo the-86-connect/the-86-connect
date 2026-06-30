@@ -32,18 +32,6 @@ const API_URL =
     ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
     : "";
 
-const CONSULTATION_TIME_SLOTS = [
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-] as const;
-
 interface Consultation {
   id: string;
   name: string;
@@ -57,6 +45,7 @@ interface Consultation {
   message: string;
   status: string;
   read: boolean;
+  meetingUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -72,11 +61,31 @@ interface ConsultationStats {
 }
 
 const STATUS_OPTIONS = [
-  { value: "pending", label: "Pending", color: "bg-amber-100 text-amber-800 border-amber-200" },
-  { value: "confirmed", label: "Confirmed", color: "bg-blue-100 text-blue-800 border-blue-200" },
-  { value: "rescheduled", label: "Rescheduled", color: "bg-purple-100 text-purple-800 border-purple-200" },
-  { value: "completed", label: "Completed", color: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-  { value: "cancelled", label: "Cancelled", color: "bg-red-100 text-red-800 border-red-200" },
+  {
+    value: "pending",
+    label: "Pending",
+    color: "bg-amber-100 text-amber-800 border-amber-200",
+  },
+  {
+    value: "confirmed",
+    label: "Confirmed",
+    color: "bg-blue-100 text-blue-800 border-blue-200",
+  },
+  {
+    value: "rescheduled",
+    label: "Rescheduled",
+    color: "bg-purple-100 text-purple-800 border-purple-200",
+  },
+  {
+    value: "completed",
+    label: "Completed",
+    color: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  },
+  {
+    value: "cancelled",
+    label: "Cancelled",
+    color: "bg-red-100 text-red-800 border-red-200",
+  },
 ] as const;
 
 const SERVICE_LABELS: Record<string, string> = {
@@ -110,15 +119,6 @@ function toDateInputValue(iso: string): string {
   if (!iso) return "";
   if (/^\d{4}-\d{2}-\d{2}/.test(iso)) return iso.slice(0, 10);
   const d = new Date(iso);
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-function getTomorrowISO(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
@@ -160,6 +160,7 @@ export function ConsultationsTab() {
   const [editDate, setEditDate] = useState("");
   const [editTime, setEditTime] = useState("");
   const [editMeetingType, setEditMeetingType] = useState("");
+  const [editMeetingUrl, setEditMeetingUrl] = useState("");
   const [saveLoading, setSaveLoading] = useState(false);
 
   const fetchConsultations = useCallback(async () => {
@@ -179,7 +180,9 @@ export function ConsultationsTab() {
       const data = await res.json();
       setConsultations(data.consultations || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load consultations");
+      setError(
+        err instanceof Error ? err.message : "Failed to load consultations",
+      );
     } finally {
       setLoading(false);
     }
@@ -216,7 +219,8 @@ export function ConsultationsTab() {
             ? {
                 ...prev,
                 total: prev.total + 1,
-                pending: data.status === "pending" ? prev.pending + 1 : prev.pending,
+                pending:
+                  data.status === "pending" ? prev.pending + 1 : prev.pending,
                 unread: prev.unread + 1,
               }
             : prev,
@@ -240,6 +244,7 @@ export function ConsultationsTab() {
           setEditDate(toDateInputValue(merged.preferredDate));
           setEditTime(merged.preferredTime);
           setEditMeetingType(merged.meetingType);
+          setEditMeetingUrl(merged.meetingUrl ?? "");
         }
       } catch {}
     };
@@ -264,15 +269,12 @@ export function ConsultationsTab() {
   const updateStatus = async (id: string, status: string) => {
     setActionLoading(true);
     try {
-      const res = await fetch(
-        `${API_URL}/api/admin/consultations/${id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ status }),
-        },
-      );
+      const res = await fetch(`${API_URL}/api/admin/consultations/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ status }),
+      });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "Failed to update status");
@@ -287,6 +289,7 @@ export function ConsultationsTab() {
         setEditDate(toDateInputValue(data.consultation.preferredDate));
         setEditTime(data.consultation.preferredTime);
         setEditMeetingType(data.consultation.meetingType);
+        setEditMeetingUrl(data.consultation.meetingUrl ?? "");
       }
       toast.success(`Status updated to ${getStatusInfo(status).label}`);
       fetchStats();
@@ -301,19 +304,22 @@ export function ConsultationsTab() {
 
   const updateBooking = async (
     id: string,
-    fields: { status?: string; preferredDate?: string; preferredTime?: string; meetingType?: string },
+    fields: {
+      status?: string;
+      preferredDate?: string;
+      preferredTime?: string;
+      meetingType?: string;
+      meetingUrl?: string;
+    },
   ) => {
     setSaveLoading(true);
     try {
-      const res = await fetch(
-        `${API_URL}/api/admin/consultations/${id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(fields),
-        },
-      );
+      const res = await fetch(`${API_URL}/api/admin/consultations/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(fields),
+      });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "Failed to update booking");
@@ -327,6 +333,7 @@ export function ConsultationsTab() {
       setEditDate(toDateInputValue(data.consultation.preferredDate));
       setEditTime(data.consultation.preferredTime);
       setEditMeetingType(data.consultation.meetingType);
+      setEditMeetingUrl(data.consultation.meetingUrl ?? "");
       toast.success("Booking updated successfully");
       fetchStats();
     } catch (err) {
@@ -340,13 +347,10 @@ export function ConsultationsTab() {
 
   const markRead = async (id: string) => {
     try {
-      const res = await fetch(
-        `${API_URL}/api/admin/consultations/${id}/read`,
-        {
-          method: "PATCH",
-          credentials: "include",
-        },
-      );
+      const res = await fetch(`${API_URL}/api/admin/consultations/${id}/read`, {
+        method: "PATCH",
+        credentials: "include",
+      });
       if (!res.ok) return;
       const data = await res.json();
       setConsultations((prev) =>
@@ -361,13 +365,10 @@ export function ConsultationsTab() {
   const deleteConsultation = async (id: string) => {
     setActionLoading(true);
     try {
-      const res = await fetch(
-        `${API_URL}/api/admin/consultations/${id}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
+      const res = await fetch(`${API_URL}/api/admin/consultations/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "Failed to delete");
@@ -402,11 +403,11 @@ export function ConsultationsTab() {
       const a = document.createElement("a");
       a.href = url;
       a.download = `consultations_${new Date().toISOString().slice(0, 10)}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        toast.success("CSV exported");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("CSV exported");
     } catch (err) {
       toast.error("Export failed", {
         description: err instanceof Error ? err.message : "Unknown error",
@@ -420,6 +421,7 @@ export function ConsultationsTab() {
     setEditDate(toDateInputValue(c.preferredDate));
     setEditTime(c.preferredTime);
     setEditMeetingType(c.meetingType);
+    setEditMeetingUrl(c.meetingUrl ?? "");
     if (!c.read) markRead(c.id);
   };
 
@@ -427,16 +429,27 @@ export function ConsultationsTab() {
     ? editStatus !== viewTarget.status ||
       editDate !== toDateInputValue(viewTarget.preferredDate) ||
       editTime !== viewTarget.preferredTime ||
-      editMeetingType !== viewTarget.meetingType
+      editMeetingType !== viewTarget.meetingType ||
+      editMeetingUrl !== (viewTarget.meetingUrl ?? "")
     : false;
 
   const handleSaveChanges = () => {
     if (!viewTarget || !hasEdits) return;
-    const fields: { status?: string; preferredDate?: string; preferredTime?: string; meetingType?: string } = {};
+    const fields: {
+      status?: string;
+      preferredDate?: string;
+      preferredTime?: string;
+      meetingType?: string;
+      meetingUrl?: string;
+    } = {};
     if (editStatus !== viewTarget.status) fields.status = editStatus;
-    if (editDate !== toDateInputValue(viewTarget.preferredDate)) fields.preferredDate = editDate;
+    if (editDate !== toDateInputValue(viewTarget.preferredDate))
+      fields.preferredDate = editDate;
     if (editTime !== viewTarget.preferredTime) fields.preferredTime = editTime;
-    if (editMeetingType !== viewTarget.meetingType) fields.meetingType = editMeetingType;
+    if (editMeetingType !== viewTarget.meetingType)
+      fields.meetingType = editMeetingType;
+    if (editMeetingUrl !== (viewTarget.meetingUrl ?? ""))
+      fields.meetingUrl = editMeetingUrl;
     updateBooking(viewTarget.id, fields);
   };
 
@@ -905,41 +918,25 @@ export function ConsultationsTab() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                      <Calendar className="h-3 w-3" /> Preferred Date
+                      <Calendar className="h-3 w-3" /> Date
                     </label>
-                    <input
-                      type="date"
-                      min={getTomorrowISO()}
-                      value={editDate}
-                      onChange={(e) => setEditDate(e.target.value)}
-                      disabled={saveLoading}
-                      className={cn(
-                        "w-full h-9 rounded-lg border border-input bg-background px-3 text-xs font-semibold text-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
-                        "focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10",
-                      )}
-                    />
+                    <div className="w-full h-9 rounded-lg border border-input bg-muted/40 px-3 text-xs font-semibold text-foreground flex items-center">
+                      {formatDateOnly(viewTarget.preferredDate)}
+                    </div>
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> Preferred Time
+                      <Clock className="h-3 w-3" /> Time
                     </label>
-                    <select
-                      value={editTime}
-                      onChange={(e) => setEditTime(e.target.value)}
-                      disabled={saveLoading}
-                      className={cn(
-                        "w-full h-9 rounded-lg border border-input bg-background px-3 text-xs font-semibold text-foreground cursor-pointer appearance-none disabled:opacity-50 disabled:cursor-not-allowed",
-                        "focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10",
-                      )}
-                    >
-                      {CONSULTATION_TIME_SLOTS.map((slot) => (
-                        <option key={slot} value={slot}>
-                          {formatTimeDisplay(slot)}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="w-full h-9 rounded-lg border border-input bg-muted/40 px-3 text-xs font-semibold text-foreground flex items-center">
+                      {formatTimeDisplay(viewTarget.preferredTime)}
+                    </div>
                   </div>
                 </div>
+                <p className="text-[10px] text-muted-foreground italic">
+                  Date and time are set by the availability slot. To change,
+                  cancel this booking and the slot will become available again.
+                </p>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
                     Meeting Type
@@ -971,6 +968,29 @@ export function ConsultationsTab() {
                     })}
                   </div>
                 </div>
+                {editMeetingType === "online" && (
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                      <Video className="h-3 w-3" /> Meeting URL
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://meet.google.com/xxx or https://zoom.us/j/xxx"
+                      value={editMeetingUrl}
+                      onChange={(e) => setEditMeetingUrl(e.target.value)}
+                      disabled={saveLoading}
+                      className={cn(
+                        "w-full h-9 rounded-lg border border-input bg-background px-3 text-xs font-medium",
+                        "focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10",
+                        "disabled:opacity-50 disabled:cursor-not-allowed",
+                      )}
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      Users will see a &quot;Join meeting&quot; link in their
+                      account once status is confirmed.
+                    </p>
+                  </div>
+                )}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     Status

@@ -37,6 +37,7 @@ import {
   ShieldAlert,
   Calendar,
   Download,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,7 @@ import { Skeleton, TableSkeleton } from "@/components/ui/skeleton";
 import { VideosTab } from "@/components/admin/videos-tab";
 import { OverviewTab } from "@/components/admin/overview-tab";
 import { ConsultationsTab } from "@/components/admin/consultations-tab";
+import { AvailabilityTab } from "@/components/admin/availability-tab";
 import { BulkActions } from "@/components/admin/bulk-actions";
 import { FiltersPanel } from "@/components/admin/filters-panel";
 import { SubmissionNotes } from "@/components/admin/submission-notes";
@@ -111,12 +113,13 @@ interface AdminSession {
   isCurrent: boolean;
 }
 
-type FilterType = "all" | "Study in China" | "Product Sourcing";
+type FilterType = "all" | "Study in China" | "Product Sourcing" | "General";
 type ReadFilter = "all" | "read" | "unread";
 type TabType =
   | "overview"
   | "submissions"
   | "consultations"
+  | "availability"
   | "users"
   | "videos"
   | "sessions";
@@ -378,6 +381,7 @@ export default function AdminDashboardPage() {
         hash === "overview" ||
         hash === "submissions" ||
         hash === "consultations" ||
+        hash === "availability" ||
         hash === "users" ||
         hash === "videos" ||
         hash === "sessions"
@@ -681,6 +685,29 @@ export default function AdminDashboardPage() {
           );
         } catch {}
       });
+
+      const availabilityEvents = [
+        "availability:new",
+        "availability:updated",
+        "availability:deleted",
+        "availability:bulk",
+        "availability:bulk-deleted",
+      ];
+      const es = eventSource;
+      if (es) {
+        availabilityEvents.forEach((evtName) => {
+          es.addEventListener(evtName, (e) => {
+            try {
+              const data = JSON.parse(e.data);
+              window.dispatchEvent(
+                new CustomEvent(evtName, {
+                  detail: JSON.stringify(data),
+                }),
+              );
+            } catch {}
+          });
+        });
+      }
 
       eventSource.onerror = () => {
         eventSource?.close();
@@ -1075,11 +1102,13 @@ export default function AdminDashboardPage() {
                   ? "Submissions"
                   : activeTab === "consultations"
                     ? "Consultations"
-                    : activeTab === "users"
-                      ? "Users"
-                      : activeTab === "videos"
-                        ? "Videos"
-                        : "Sessions"}
+                    : activeTab === "availability"
+                      ? "Availability"
+                      : activeTab === "users"
+                        ? "Users"
+                        : activeTab === "videos"
+                          ? "Videos"
+                          : "Sessions"}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
@@ -1089,11 +1118,13 @@ export default function AdminDashboardPage() {
                 ? "Submissions"
                 : activeTab === "consultations"
                   ? "Consultations"
-                  : activeTab === "users"
-                    ? "Users"
-                    : activeTab === "videos"
-                      ? "Videos"
-                      : "Sessions"}
+                  : activeTab === "availability"
+                    ? "Availability"
+                    : activeTab === "users"
+                      ? "Users"
+                      : activeTab === "videos"
+                        ? "Videos"
+                        : "Sessions"}
           </h1>
           <p className="text-sm text-muted-foreground mt-1.5">
             {activeTab === "overview"
@@ -1102,11 +1133,13 @@ export default function AdminDashboardPage() {
                 ? "Manage contact form submissions and inquiries"
                 : activeTab === "consultations"
                   ? "Manage consultation booking requests"
-                  : activeTab === "users"
-                    ? "Manage registered users and their accounts"
-                    : activeTab === "videos"
-                      ? "Manage YouTube videos displayed on service pages"
-                      : "Active admin sessions and devices"}
+                  : activeTab === "availability"
+                    ? "Manage consultation availability slots"
+                    : activeTab === "users"
+                      ? "Manage registered users and their accounts"
+                      : activeTab === "videos"
+                        ? "Manage YouTube videos displayed on service pages"
+                        : "Active admin sessions and devices"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -1397,11 +1430,15 @@ export default function AdminDashboardPage() {
                               !isExpanded &&
                                 (s.serviceInterest === "Study in China"
                                   ? "bg-red-50/40"
-                                  : "bg-white/80"),
+                                  : s.serviceInterest === "Product Sourcing"
+                                    ? "bg-white/80"
+                                    : "bg-slate-50/40"),
                               isExpanded &&
                                 (s.serviceInterest === "Study in China"
                                   ? "bg-red-50/90 border-l-4 border-l-red-500"
-                                  : "bg-slate-50/90 border-l-4 border-l-primary"),
+                                  : s.serviceInterest === "Product Sourcing"
+                                    ? "bg-slate-50/90 border-l-4 border-l-primary"
+                                    : "bg-slate-100/90 border-l-4 border-l-slate-500"),
                             )}
                             onClick={() => toggleExpand(s.id)}
                           >
@@ -1457,17 +1494,23 @@ export default function AdminDashboardPage() {
                                   "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold",
                                   s.serviceInterest === "Study in China"
                                     ? "bg-red-50 text-red-600"
-                                    : "bg-blue-50 text-blue-600",
+                                    : s.serviceInterest === "Product Sourcing"
+                                      ? "bg-blue-50 text-blue-600"
+                                      : "bg-slate-100 text-slate-700",
                                 )}
                               >
                                 {s.serviceInterest === "Study in China" ? (
                                   <GraduationCap className="h-3.5 w-3.5" />
-                                ) : (
+                                ) : s.serviceInterest === "Product Sourcing" ? (
                                   <ShoppingCart className="h-3.5 w-3.5" />
+                                ) : (
+                                  <MessageCircle className="h-3.5 w-3.5" />
                                 )}
                                 {s.serviceInterest === "Study in China"
                                   ? "Study"
-                                  : "Sourcing"}
+                                  : s.serviceInterest === "Product Sourcing"
+                                    ? "Sourcing"
+                                    : "General"}
                               </span>
                             </td>
                             <td
@@ -1876,6 +1919,8 @@ export default function AdminDashboardPage() {
       )}
 
       {activeTab === "consultations" && <ConsultationsTab />}
+
+      {activeTab === "availability" && <AvailabilityTab />}
 
       {activeTab === "videos" && <VideosTab />}
 

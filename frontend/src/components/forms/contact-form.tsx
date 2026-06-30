@@ -11,6 +11,7 @@ import {
   GraduationCap,
   ShoppingCart,
   Save,
+  MessageCircle,
 } from "lucide-react";
 
 import {
@@ -30,6 +31,7 @@ import { useFormAutosave } from "@/hooks/use-form-autosave";
 const SERVICE_ICONS: Record<ServiceType, typeof GraduationCap> = {
   "Study in China": GraduationCap,
   "Product Sourcing": ShoppingCart,
+  General: MessageCircle,
 };
 
 export function ContactForm() {

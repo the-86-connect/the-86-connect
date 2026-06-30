@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
@@ -21,6 +21,7 @@ import {
   ClipboardList,
   Home as HomeIcon,
 } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useUserAuth } from "@/context/user-auth-context";
 
@@ -139,17 +140,17 @@ export function PageNavbar({
               <div className="w-px h-5 bg-border" />
               <Link
                 href="/"
-                className="group flex items-center gap-2.5 press"
+                className="group flex items-center press"
                 aria-label="86 Connect home"
               >
-                <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center group-hover:bg-red-700 transition-colors">
-                  <span className="text-white font-black text-base tracking-tight">
-                    86
-                  </span>
-                </div>
-                <span className="font-display font-black text-lg tracking-tight text-foreground">
-                  Connect
-                </span>
+                <Image
+                  src={scrolled ? "/logo-main.png" : "/logo-white-nav.png"}
+                  alt="86 Connect"
+                  width={180}
+                  height={49}
+                  className="h-9 w-auto group-hover:opacity-90 transition-opacity"
+                  priority
+                />
               </Link>
             </div>
 
@@ -195,13 +196,6 @@ export function PageNavbar({
                 )}
                 <span>{isAuthenticated ? "Account" : "Login"}</span>
               </Link>
-              <Link
-                href={trackHref}
-                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-foreground/70 hover:text-foreground hover:bg-muted/60 rounded-lg transition-colors duration-200 cursor-pointer press"
-              >
-                <Search className="h-4 w-4" />
-                <span>Track</span>
-              </Link>
               <button
                 type="button"
                 onClick={() => handleNavClick(ctaTarget)}
@@ -216,15 +210,17 @@ export function PageNavbar({
           <div className="lg:hidden flex items-center justify-between h-16 sm:h-18">
             <Link
               href="/"
-              className="flex items-center gap-2 press min-h-[44px]"
+              className="flex items-center press min-h-[44px]"
               aria-label="Back to home"
             >
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
-                <span className="text-white font-black text-base">86</span>
-              </div>
-              <span className="font-display font-black text-base tracking-tight text-foreground">
-                Connect
-              </span>
+              <Image
+                src={scrolled ? "/logo-main.png" : "/logo-white-nav.png"}
+                alt="86 Connect"
+                width={160}
+                height={44}
+                className="h-8 w-auto"
+                priority
+              />
             </Link>
             <button
               type="button"
@@ -330,7 +326,7 @@ export function PageNavbar({
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 safe-bottom pointer-events-none">
         <div className="mx-2 sm:mx-3 mb-2 sm:mb-3 pointer-events-auto">
           <div className="bg-white rounded-3xl shadow-soft-xl px-1.5 py-1.5 sm:px-2 sm:py-2 border border-border">
-            <div className="grid grid-cols-5 gap-0.5 sm:gap-1">
+            <div className="grid grid-cols-6 gap-0.5 sm:gap-1">
               <Link
                 href="/"
                 className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/70 hover:text-foreground"
@@ -340,22 +336,109 @@ export function PageNavbar({
                   Home
                 </span>
               </Link>
-              <button
-                type="button"
-                onClick={() => handleNavClick("services")}
-                aria-label="Services"
-                className={cn(
-                  "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
-                  activeSection === "services"
-                    ? "text-primary"
-                    : "text-foreground/70 hover:text-foreground",
-                )}
-              >
-                <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
-                  Services
-                </span>
-              </button>
+              {isSIC ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => handleNavClick("services")}
+                    aria-label="Services"
+                    className={cn(
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      activeSection === "services"
+                        ? "text-primary"
+                        : "text-foreground/70 hover:text-foreground",
+                    )}
+                  >
+                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                      Services
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavClick("universities")}
+                    aria-label="Universities"
+                    className={cn(
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      activeSection === "universities"
+                        ? "text-primary"
+                        : "text-foreground/70 hover:text-foreground",
+                    )}
+                  >
+                    <Building2 className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                      Uni
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavClick("apply")}
+                    aria-label="Apply"
+                    className={cn(
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      activeSection === "apply"
+                        ? "text-primary"
+                        : "text-foreground/70 hover:text-foreground",
+                    )}
+                  >
+                    <FileCheck className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                      Apply
+                    </span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => handleNavClick("services")}
+                    aria-label="Services"
+                    className={cn(
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      activeSection === "services"
+                        ? "text-primary"
+                        : "text-foreground/70 hover:text-foreground",
+                    )}
+                  >
+                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                      Services
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavClick("models")}
+                    aria-label="Models"
+                    className={cn(
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      activeSection === "models"
+                        ? "text-primary"
+                        : "text-foreground/70 hover:text-foreground",
+                    )}
+                  >
+                    <GitBranch className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                      Models
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavClick("inquire")}
+                    aria-label="Get Quote"
+                    className={cn(
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      activeSection === "inquire"
+                        ? "text-primary"
+                        : "text-foreground/70 hover:text-foreground",
+                    )}
+                  >
+                    <Send className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                      Quote
+                    </span>
+                  </button>
+                </>
+              )}
               <Link
                 href={trackHref}
                 className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/70 hover:text-foreground"
@@ -365,21 +448,6 @@ export function PageNavbar({
                   Track
                 </span>
               </Link>
-              <button
-                type="button"
-                onClick={() => handleNavClick(ctaTarget)}
-                className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/70 hover:text-foreground"
-                aria-label={ctaLabel}
-              >
-                {isSIC ? (
-                  <FileCheck className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                ) : (
-                  <Send className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                )}
-                <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
-                  {isSIC ? "Apply" : "Quote"}
-                </span>
-              </button>
               <Link
                 href={isAuthenticated ? "/account" : "/login"}
                 className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/70 hover:text-foreground"

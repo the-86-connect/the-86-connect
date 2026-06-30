@@ -16,6 +16,7 @@ import {
   Calendar,
   TrendingUp,
   ArrowRight,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -342,13 +343,17 @@ export function OverviewTab({ onViewSubmissions }: { onViewSubmissions?: () => v
                       "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
                       s.serviceInterest === "Study in China"
                         ? "bg-red-100 text-red-600"
-                        : "bg-blue-100 text-blue-600",
+                        : s.serviceInterest === "Product Sourcing"
+                          ? "bg-blue-100 text-blue-600"
+                          : "bg-slate-100 text-slate-700",
                     )}
                   >
                     {s.serviceInterest === "Study in China" ? (
                       <GraduationCap className="h-5 w-5" />
-                    ) : (
+                    ) : s.serviceInterest === "Product Sourcing" ? (
                       <ShoppingCart className="h-5 w-5" />
+                    ) : (
+                      <MessageCircle className="h-5 w-5" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">

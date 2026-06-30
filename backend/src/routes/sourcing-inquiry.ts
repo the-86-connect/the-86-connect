@@ -48,6 +48,7 @@ sourcingInquiryRouter.post("/", async (req, res) => {
       `Company: ${data.company || "Not specified"}`,
       `Country: ${data.country}`,
       `Product Category: ${data.productCategory}`,
+      `Product Name: ${data.productName}`,
       `Product Description: ${data.productDescription}`,
       `Target Quantity: ${data.targetQuantity}`,
       `Target Price: ${data.targetPrice || "Not specified"}`,

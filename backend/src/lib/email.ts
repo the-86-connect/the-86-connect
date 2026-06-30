@@ -183,6 +183,7 @@ export async function notifyUserConsultationUpdate(data: {
   preferredTime: string;
   consultationId: string;
   isReschedule?: boolean;
+  meetingUrl?: string | null;
 }) {
   const serviceLabel =
     data.service === "study"
@@ -241,6 +242,11 @@ export async function notifyUserConsultationUpdate(data: {
           ? `Your consultation has been <strong>rescheduled</strong>. Here are the updated details:`
           : `Your consultation status has been updated to <strong>${statusLabel}</strong>.`;
 
+  const meetingUrlRow =
+    data.meetingUrl && data.status === "confirmed"
+      ? `<tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Meeting Link</td><td style="padding:8px 12px;border:1px solid #e2e8f0;"><a href="${data.meetingUrl}" style="color:#2563eb;font-weight:600;">Join Meeting</a></td></tr>`
+      : "";
+
   return send({
     to: data.to,
     subject,
@@ -253,11 +259,159 @@ export async function notifyUserConsultationUpdate(data: {
           <tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;width:150px;">Service</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${serviceLabel}</td></tr>
           <tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Status</td><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;color:${statusColor};">${statusLabel}</td></tr>
           ${data.status !== "cancelled" ? `<tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Date</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${dateStr}</td></tr><tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Time</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${timeStr}</td></tr>` : ""}
+          ${meetingUrlRow}
         </table>
         <p style="margin-top:20px;font-size:13px;color:#64748b;">
           If you have any questions, please reply to this email or <a href="https://wa.me/8617611533296" style="color:#25D366;">chat with us on WhatsApp</a>.
         </p>
         <p style="font-size:13px;color:#94a3b8;margin-top:24px;">— 86 Connect Team</p>
+      </div>
+    `,
+  });
+}
+
+/** Send user a booking-received confirmation on initial booking */
+export async function notifyUserBookingReceived(data: {
+  to: string;
+  name: string;
+  service: string;
+  preferredDate: Date;
+  preferredTime: string;
+  consultationId: string;
+}) {
+  const serviceLabel =
+    data.service === "study"
+      ? "Study in China"
+      : data.service === "sourcing"
+        ? "Product Sourcing"
+        : "General Consultation";
+
+  const dateStr = data.preferredDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const hour = parseInt(data.preferredTime);
+  const ampm = hour < 12 ? "AM" : "PM";
+  const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+  const timeStr = `${displayHour}:00 ${ampm}`;
+
+  return send({
+    to: data.to,
+    subject: `Booking received — ${serviceLabel} consultation`,
+    html: `
+      <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;">
+        <h2 style="color:#dc2626;margin:0 0 16px;">Booking Received</h2>
+        <p style="font-size:15px;">Hi ${data.name},</p>
+        <p style="font-size:15px;">We've received your consultation request. Our team will confirm your booking within 24 hours.</p>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:16px;">
+          <tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;width:150px;">Service</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${serviceLabel}</td></tr>
+          <tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Date</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${dateStr}</td></tr>
+          <tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Time</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${timeStr}</td></tr>
+        </table>
+        <p style="margin-top:20px;font-size:13px;color:#64748b;">
+          Need to make changes? <a href="https://wa.me/8617611533296" style="color:#25D366;">Chat with us on WhatsApp</a> or reply to this email.
+        </p>
+        <p style="font-size:13px;color:#94a3b8;margin-top:24px;">— 86 Connect Team</p>
+      </div>
+    `,
+  });
+}
+
+/** Send user a cancellation confirmation when they cancel their own booking */
+export async function notifyUserCancellation(data: {
+  to: string;
+  name: string;
+  service: string;
+  preferredDate: Date;
+  preferredTime: string;
+  consultationId: string;
+}) {
+  const serviceLabel =
+    data.service === "study"
+      ? "Study in China"
+      : data.service === "sourcing"
+        ? "Product Sourcing"
+        : "General Consultation";
+
+  const dateStr = data.preferredDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const hour = parseInt(data.preferredTime);
+  const ampm = hour < 12 ? "AM" : "PM";
+  const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+  const timeStr = `${displayHour}:00 ${ampm}`;
+
+  return send({
+    to: data.to,
+    subject: `Your ${serviceLabel} consultation has been cancelled`,
+    html: `
+      <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;">
+        <h2 style="color:#dc2626;margin:0 0 16px;">Booking Cancelled</h2>
+        <p style="font-size:15px;">Hi ${data.name},</p>
+        <p style="font-size:15px;">Your consultation has been <strong>cancelled</strong>. The time slot is now available for others to book.</p>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:16px;">
+          <tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;width:150px;">Service</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${serviceLabel}</td></tr>
+          <tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Original Date</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${dateStr}</td></tr>
+          <tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Original Time</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${timeStr}</td></tr>
+        </table>
+        <p style="margin-top:24px;text-align:center;">
+          <a href="https://the86connects.com/book-consultation" style="display:inline-block;padding:12px 32px;background:#dc2626;color:#fff;text-decoration:none;font-weight:700;border-radius:12px;font-size:15px;">Book a New Consultation</a>
+        </p>
+        <p style="font-size:13px;color:#94a3b8;margin-top:24px;">— 86 Connect Team</p>
+      </div>
+    `,
+  });
+}
+
+/** Notify admin when a user cancels their own booking */
+export async function notifyAdminCancellation(data: {
+  name: string;
+  email: string;
+  service: string;
+  preferredDate: Date;
+  preferredTime: string;
+  consultationId: string;
+}) {
+  if (!NOTIFY_EMAIL) return;
+
+  const serviceLabel =
+    data.service === "study"
+      ? "Study in China"
+      : data.service === "sourcing"
+        ? "Product Sourcing"
+        : "General Consultation";
+
+  const dateStr = data.preferredDate.toLocaleDateString("en-US", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+
+  return send({
+    to: NOTIFY_EMAIL,
+    subject: `Booking cancelled by user — ${data.name}`,
+    html: `
+      <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;">
+        <h2 style="color:#dc2626;margin:0 0 16px;">Booking Cancelled by User</h2>
+        <p style="font-size:15px;">A user has cancelled their consultation. The time slot is now available again.</p>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:16px;">
+          <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;width:140px;">Name</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${data.name}</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Email</td><td style="padding:6px 12px;border:1px solid #e2e8f0;"><a href="mailto:${data.email}">${data.email}</a></td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Service</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${serviceLabel}</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Date</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${dateStr}</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Time</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${data.preferredTime}</td></tr>
+        </table>
+        <p style="margin-top:20px;font-size:13px;color:#64748b;">
+          <a href="https://the86connects.com/admin#consultations" style="color:#dc2626;">View in admin panel</a>
+        </p>
       </div>
     `,
   });

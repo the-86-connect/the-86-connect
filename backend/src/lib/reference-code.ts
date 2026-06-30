@@ -3,6 +3,7 @@ import { prisma } from "./prisma";
 const SERVICE_PREFIXES: Record<string, string> = {
   "Study in China": "STU",
   "Product Sourcing": "SOU",
+  "General": "GEN",
 };
 
 const CONTACT_PREFIX = "GEN";

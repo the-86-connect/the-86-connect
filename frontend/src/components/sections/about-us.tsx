@@ -3,7 +3,7 @@ import {
   Shield,
   Heart,
   Sparkles,
-  TrendingUp,
+  Calendar,
   Award,
   Zap,
   Eye,
@@ -11,7 +11,10 @@ import {
   Layers,
   Truck,
   Target,
+  CalendarCheck,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 
 const VALUES = [
   {
@@ -41,7 +44,7 @@ const VALUES = [
 ];
 
 const DIFFERENTIATORS = [
-  { label: "Years of Experience", value: "10+", icon: TrendingUp },
+  { label: "Established", value: "Nov 2023", icon: Calendar },
   { label: "Verified Partners", value: "50K+", icon: Shield },
   { label: "Countries Served", value: "50+", icon: Globe },
   { label: "Client Satisfaction", value: "98%", icon: Award },
@@ -89,8 +92,7 @@ export function AboutUsSection() {
             </div>
 
             <h3 className="font-display font-black text-2xl sm:text-3xl mb-3 sm:mb-4">
-              Bridging{" "}
-              <span className="text-primary">China & the World</span>
+              Bridging <span className="text-primary">China & the World</span>
             </h3>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-3 sm:mb-4 font-medium">
               <span className="font-black text-foreground">86 Connect</span> is
@@ -141,12 +143,16 @@ export function AboutUsSection() {
               useful guidance at every step.
             </p>
 
-            {/* Quote */}
-            <div className="mt-auto pt-6 border-t border-white/30">
-              <p className="text-xs sm:text-sm font-black text-white italic">
-                &ldquo;Connecting the world to China, one success at a
-                time.&rdquo;
-              </p>
+            {/* CTA Button */}
+            <div className="mt-auto pt-6">
+              <Link
+                href="/book-consultation"
+                className="inline-flex items-center gap-2 px-5 py-3 bg-white text-primary rounded-xl font-black text-sm hover:bg-white/95 transition-all duration-200 cursor-pointer press shadow-soft-sm hover:shadow-soft-md lift-sm"
+              >
+                <CalendarCheck className="h-4 w-4" />
+                <span>Book a Free Call</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
         </div>
@@ -181,6 +187,31 @@ export function AboutUsSection() {
               <ValueCard key={value.title} value={value} />
             ))}
           </div>
+        </div>
+
+        {/* CTA Banner */}
+        <div className="mt-12 sm:mt-16 bg-white rounded-3xl border border-border shadow-soft-sm p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-5">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+              <CalendarCheck className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
+            </div>
+            <div>
+              <h4 className="font-display font-black text-lg sm:text-xl leading-tight">
+                Ready to connect with China?
+              </h4>
+              <p className="text-sm text-muted-foreground font-medium mt-0.5">
+                Book a free 15-minute consultation with our team.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/book-consultation"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-black text-sm hover:bg-red-700 transition-colors duration-200 cursor-pointer press shadow-soft-sm hover:shadow-soft-md lift-sm shrink-0"
+          >
+            <CalendarCheck className="h-4 w-4" />
+            <span>Book a Call</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     </section>

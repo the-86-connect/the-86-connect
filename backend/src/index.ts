@@ -16,6 +16,10 @@ import { authRouter } from "./routes/auth";
 import { studyApplicationRouter } from "./routes/study-application";
 import { sourcingInquiryRouter } from "./routes/sourcing-inquiry";
 import { consultationRouter } from "./routes/consultation";
+import {
+  availabilityPublicRouter,
+  availabilityAdminRouter,
+} from "./routes/availability";
 import { trackingRouter } from "./routes/tracking";
 import { uploadRouter } from "./routes/upload";
 import { videosRouter } from "./routes/videos";
@@ -162,6 +166,10 @@ app.use("/api/sourcing-inquiry", formLimiter, botCheck, sourcingInquiryRouter);
 
 // Consultation booking route (public, rate limited)
 app.use("/api/consultation", formLimiter, botCheck, consultationRouter);
+
+// Availability slots — public read (for booking page), admin CRUD
+app.use("/api/availability", apiLimiter, availabilityPublicRouter);
+app.use("/api/admin/availability", availabilityAdminRouter);
 
 // File upload route (public, rate limited)
 app.use("/api/upload", uploadLimiter, uploadRouter);

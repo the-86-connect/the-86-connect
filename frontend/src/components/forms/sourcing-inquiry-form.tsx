@@ -24,7 +24,7 @@ import {
 } from "@/lib/validation";
 import {
   submitSourcingInquiry,
-  uploadFile,
+  uploadFiles,
   type UploadedAttachment,
 } from "@/lib/api";
 import { Input } from "@/components/ui/input";
@@ -75,6 +75,7 @@ export function SourcingInquiryForm() {
       company: "",
       country: "",
       productCategory: "",
+      productName: "",
       productDescription: "",
       targetQuantity: "",
       targetPrice: "",
@@ -94,10 +95,12 @@ export function SourcingInquiryForm() {
       watch,
     });
 
+  const MAX_FILES = 15;
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFiles = Array.from(e.target.files ?? []).slice(
       0,
-      5 - files.length,
+      MAX_FILES - files.length,
     );
     if (newFiles.length === 0) return;
 
@@ -109,31 +112,29 @@ export function SourcingInquiryForm() {
       error: null,
     }));
 
-    setFiles((prev) => [...prev, ...pending].slice(0, 5));
+    setFiles((prev) => [...prev, ...pending].slice(0, MAX_FILES));
     if (fileInputRef.current) fileInputRef.current.value = "";
 
-    for (const pendingFile of pending) {
-      try {
-        const attachment = await uploadFile(pendingFile.file);
-        setFiles((prev) =>
-          prev.map((f) =>
-            f.id === pendingFile.id
-              ? { ...f, attachment, uploading: false }
-              : f,
-          ),
-        );
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Upload failed";
-        setFiles((prev) =>
-          prev.map((f) =>
-            f.id === pendingFile.id
-              ? { ...f, uploading: false, error: message }
-              : f,
-          ),
-        );
-        toast.error("File upload failed", { description: message });
-      }
+    try {
+      const attachments = await uploadFiles(pending.map((p) => p.file));
+      setFiles((prev) =>
+        prev.map((f) => {
+          const idx = pending.findIndex((p) => p.id === f.id);
+          if (idx === -1) return f;
+          return { ...f, attachment: attachments[idx] ?? null, uploading: false };
+        }),
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Upload failed";
+      setFiles((prev) =>
+        prev.map((f) =>
+          pending.some((p) => p.id === f.id)
+            ? { ...f, uploading: false, error: message }
+            : f,
+        ),
+      );
+      toast.error("File upload failed", { description: message });
     }
   };
 
@@ -341,6 +342,19 @@ export function SourcingInquiryForm() {
             />
           </Field>
           <Field
+            label="Product Name"
+            required
+            error={errors.productName?.message}
+          >
+            <Input
+              id="productName"
+              placeholder="e.g. Wireless Bluetooth Earbuds, Cotton T-Shirt, LED Strip Light..."
+              aria-invalid={!!errors.productName}
+              className={cn(errors.productName && "border-destructive")}
+              {...register("productName")}
+            />
+          </Field>
+          <Field
             label="Target Quantity"
             required
             error={errors.targetQuantity?.message}
@@ -439,13 +453,13 @@ export function SourcingInquiryForm() {
       {/* Section: Documents */}
       <FormSection
         title="Documents"
-        description="Upload specs, designs, or reference images (optional)."
+        description="Upload product photos, spec sheets, design files, or reference images."
       >
         <input
           ref={fileInputRef}
           type="file"
           multiple
-          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+          accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.heic,.heif,.avif,.tif,.tiff,.doc,.docx"
           onChange={handleFileChange}
           className="hidden"
           id="file-upload"
@@ -462,8 +476,12 @@ export function SourcingInquiryForm() {
               Click to upload documents
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              PDF, JPG, PNG, DOC up to 5 files
+              PNG, JPG, JPEG, GIF, WebP, BMP, SVG, HEIC, AVIF, TIFF, PDF, DOC
+              — up to 15 files, no size limit
             </p>
+            <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black uppercase tracking-wider">
+              All Optional
+            </span>
           </div>
         </label>
 

@@ -1,6 +1,6 @@
 "use client";
-
-import { useState, useEffect } from "react";
+ 
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -18,14 +18,18 @@ import {
   ArrowLeft,
   ChevronDown,
   UserCheck,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import {
   CONSULTATION_SCHEMA,
-  CONSULTATION_TIME_SLOTS,
   type ConsultationFormData,
 } from "@/lib/validation";
-import { submitConsultation } from "@/lib/api";
+import {
+  submitConsultation,
+  fetchAvailableSlots,
+  type AvailabilitySlot,
+} from "@/lib/api";
 import { useUserAuth } from "@/context/user-auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,6 +87,10 @@ function getMaxDateISO(): string {
 
 export function BookingPageClient() {
   const [submitted, setSubmitted] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState<AvailabilitySlot[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(true);
+  const [slotsError, setSlotsError] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
   const { user, isAuthenticated, isLoading: authLoading } = useUserAuth();
 
   const {
@@ -100,11 +108,34 @@ export function BookingPageClient() {
       phone: "",
       service: "general",
       meetingType: "online",
-      preferredDate: "",
-      preferredTime: "",
+      availabilitySlotId: "",
       message: "",
     },
   });
+
+  const loadSlots = async () => {
+    setSlotsLoading(true);
+    setSlotsError("");
+    try {
+      const from = getTomorrowISO();
+      const to = getMaxDateISO();
+      const slots = await fetchAvailableSlots(from, to);
+      setAvailableSlots(slots);
+    } catch (err) {
+      setSlotsError(
+        err instanceof Error
+          ? err.message
+          : "Failed to load available time slots.",
+      );
+      setAvailableSlots([]);
+    } finally {
+      setSlotsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadSlots();
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -116,9 +147,27 @@ export function BookingPageClient() {
 
   const selectedService = watch("service");
   const selectedMeeting = watch("meetingType");
-  const selectedDate = watch("preferredDate");
-  const selectedTime = watch("preferredTime");
+  const selectedSlotId = watch("availabilitySlotId");
   const messageValue = watch("message") ?? "";
+
+  // Unique sorted list of dates that have at least one available slot
+  const availableDates = useMemo(() => {
+    const set = new Set<string>();
+    availableSlots.forEach((s) => set.add(s.date));
+    return Array.from(set).sort();
+  }, [availableSlots]);
+
+  // Slots available for the selected date
+  const timesForDate = useMemo(() => {
+    if (!selectedDate) return [];
+    return availableSlots.filter((s) => s.date === selectedDate);
+  }, [availableSlots, selectedDate]);
+
+  // The currently selected slot object (for the booking summary)
+  const selectedSlot = useMemo(
+    () => availableSlots.find((s) => s.id === selectedSlotId) ?? null,
+    [availableSlots, selectedSlotId],
+  );
 
   const onSubmit = async (data: ConsultationFormData) => {
     try {
@@ -128,12 +177,21 @@ export function BookingPageClient() {
         description: "We'll contact you within 24 hours to confirm.",
       });
       reset();
+      // Refresh slots since the booked one is no longer available
+      loadSlots();
+      setSelectedDate("");
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
           : "Booking failed. Please try again later.";
       toast.error("Booking failed", { description: message });
+      // If the slot was just booked by someone else, refresh the list
+      if (/just booked|already/i.test(message)) {
+        loadSlots();
+        setValue("availabilitySlotId", "");
+        setSelectedDate("");
+      }
     }
   };
 
@@ -161,17 +219,19 @@ export function BookingPageClient() {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#25D366] text-white font-black text-sm hover:bg-[#20BD5A] transition-colors mb-8"
         >
-          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <svg
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+          >
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
           </svg>
           Chat with us on WhatsApp
         </a>
 
         <div className="flex flex-col sm:flex-row gap-3">
-          <Button
-            variant="outline"
-            onClick={() => setSubmitted(false)}
-          >
+          <Button variant="outline" onClick={() => setSubmitted(false)}>
             Book another consultation
           </Button>
           <Link href="/">
@@ -209,7 +269,10 @@ export function BookingPageClient() {
             <UserCheck className="h-3.5 w-3.5 text-emerald-700" />
           </div>
           <span>Welcome back, {user.name}! Your details are pre-filled.</span>
-          <Link href="/account" className="ml-auto text-xs font-bold text-emerald-700 hover:text-emerald-900 underline">
+          <Link
+            href="/account"
+            className="ml-auto text-xs font-bold text-emerald-700 hover:text-emerald-900 underline"
+          >
             My Bookings
           </Link>
         </div>
@@ -401,88 +464,161 @@ export function BookingPageClient() {
           </div>
 
           {/* Date + Time */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-            {/* Date */}
-            <div className="space-y-2">
-              <Label>
-                <span className="inline-flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5" />
-                  Preferred Date <span className="text-primary">*</span>
-                </span>
-              </Label>
-              <div className="relative group">
-                <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/60 group-focus-within:text-primary pointer-events-none transition-colors z-10" />
-                <input
-                  id="preferredDate"
-                  type="date"
-                  min={getTomorrowISO()}
-                  max={getMaxDateISO()}
-                  aria-invalid={!!errors.preferredDate}
-                  className={cn(
-                    "w-full h-12 rounded-xl border-2 border-border bg-white pl-10 pr-4 text-sm font-semibold text-foreground transition-all cursor-pointer",
-                    "focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 focus:shadow-glow-sm",
-                    "placeholder:text-muted-foreground",
-                    "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 hover:[&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:transition-opacity [&::-webkit-calendar-picker-indicator]:p-0 [&::-webkit-calendar-picker-indicator]:ml-auto",
-                    errors.preferredDate && "border-destructive focus:border-destructive focus:ring-destructive/10",
-                  )}
-                  {...register("preferredDate")}
-                />
+          {slotsLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+              <div className="space-y-2">
+                <Label>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5" />
+                    Available Dates <span className="text-primary">*</span>
+                  </span>
+                </Label>
+                <div className="h-12 rounded-xl border-2 border-border bg-white flex items-center justify-center text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Loading available times…
+                </div>
               </div>
-              {errors.preferredDate && (
-                <p className="text-xs font-bold text-destructive">
-                  {errors.preferredDate.message}
-                </p>
-              )}
+              <div className="space-y-2">
+                <Label>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5" />
+                    Available Times <span className="text-primary">*</span>
+                  </span>
+                </Label>
+                <div className="h-12 rounded-xl border-2 border-border bg-white" />
+              </div>
             </div>
+          ) : slotsError || availableSlots.length === 0 ? (
+            <div className="rounded-xl border-2 border-dashed border-border bg-muted/30 p-6 text-center">
+              <Calendar className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm font-bold text-foreground mb-1">
+                {slotsError
+                  ? "Couldn't load available times"
+                  : "No available time slots right now"}
+              </p>
+              <p className="text-xs text-muted-foreground mb-3">
+                {slotsError
+                  ? slotsError
+                  : "Please check back soon — our team is setting up the calendar."}
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={loadSlots}
+                className="gap-1.5"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                Retry
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+              {/* Date dropdown */}
+              <div className="space-y-2">
+                <Label>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5" />
+                    Available Dates <span className="text-primary">*</span>
+                  </span>
+                </Label>
+                <div className="relative group">
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/60 group-focus-within:text-primary pointer-events-none transition-colors z-10" />
+                  <select
+                    id="selectedDate"
+                    aria-invalid={!!errors.availabilitySlotId}
+                    className={cn(
+                      "w-full h-12 rounded-xl border-2 border-border bg-white pl-10 pr-10 text-sm font-semibold text-foreground transition-all cursor-pointer appearance-none",
+                      "focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 focus:shadow-glow-sm",
+                      errors.availabilitySlotId &&
+                        "border-destructive focus:border-destructive focus:ring-destructive/10",
+                    )}
+                    value={selectedDate}
+                    onChange={(e) => {
+                      setSelectedDate(e.target.value);
+                      setValue("availabilitySlotId", "", {
+                        shouldValidate: false,
+                      });
+                    }}
+                  >
+                    <option value="" className="text-muted-foreground">
+                      Select a date
+                    </option>
+                    {availableDates.map((dateIso) => {
+                      const d = new Date(dateIso + "T00:00:00");
+                      const label = d.toLocaleDateString("en-US", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                      });
+                      return (
+                        <option key={dateIso} value={dateIso}>
+                          {label}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary pointer-events-none transition-colors" />
+                </div>
+              </div>
 
-            {/* Time */}
-            <div className="space-y-2">
-              <Label>
-                <span className="inline-flex items-center gap-1.5">
-                  <Clock className="h-3.5 w-3.5" />
-                  Preferred Time <span className="text-primary">*</span>
-                </span>
-              </Label>
-              <div className="relative group">
-                <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/60 group-focus-within:text-primary pointer-events-none transition-colors z-10" />
-                <select
-                  id="preferredTime"
-                  aria-invalid={!!errors.preferredTime}
-                  className={cn(
-                    "w-full h-12 rounded-xl border-2 border-border bg-white pl-10 pr-10 text-sm font-semibold text-foreground transition-all cursor-pointer appearance-none",
-                    "focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 focus:shadow-glow-sm",
-                    errors.preferredTime && "border-destructive focus:border-destructive focus:ring-destructive/10",
-                  )}
-                  {...register("preferredTime")}
-                  value={selectedTime}
-                >
-                  <option value="" className="text-muted-foreground">Select a time</option>
-                  {CONSULTATION_TIME_SLOTS.map((slot) => {
-                    const hour = parseInt(slot);
-                    const ampm = hour < 12 ? "AM" : "PM";
-                    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-                    return (
-                      <option key={slot} value={slot}>
-                        {displayHour}:00 {ampm}
-                      </option>
-                    );
-                  })}
-                </select>
-                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary pointer-events-none transition-colors" />
+              {/* Time dropdown */}
+              <div className="space-y-2">
+                <Label>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5" />
+                    Available Times <span className="text-primary">*</span>
+                  </span>
+                </Label>
+                <div className="relative group">
+                  <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/60 group-focus-within:text-primary pointer-events-none transition-colors z-10" />
+                  <select
+                    id="availabilitySlotId"
+                    aria-invalid={!!errors.availabilitySlotId}
+                    disabled={!selectedDate}
+                    className={cn(
+                      "w-full h-12 rounded-xl border-2 border-border bg-white pl-10 pr-10 text-sm font-semibold text-foreground transition-all cursor-pointer appearance-none",
+                      "focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 focus:shadow-glow-sm",
+                      "disabled:opacity-50 disabled:cursor-not-allowed",
+                      errors.availabilitySlotId &&
+                        "border-destructive focus:border-destructive focus:ring-destructive/10",
+                    )}
+                    {...register("availabilitySlotId")}
+                    value={selectedSlotId}
+                  >
+                    <option value="" className="text-muted-foreground">
+                      {selectedDate ? "Select a time" : "Pick a date first"}
+                    </option>
+                    {timesForDate.map((slot) => {
+                      const hour = parseInt(slot.startTime.split(":")[0], 10);
+                      const ampm = hour < 12 ? "AM" : "PM";
+                      const displayHour =
+                        hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+                      return (
+                        <option key={slot.id} value={slot.id}>
+                          {displayHour}:00 {ampm}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary pointer-events-none transition-colors" />
+                </div>
+                {errors.availabilitySlotId && (
+                  <p className="text-xs font-bold text-destructive">
+                    {errors.availabilitySlotId.message}
+                  </p>
+                )}
               </div>
-              {errors.preferredTime && (
-                <p className="text-xs font-bold text-destructive">
-                  {errors.preferredTime.message}
-                </p>
-              )}
             </div>
-          </div>
+          )}
 
           {/* Message */}
           <div className="space-y-2">
             <Label htmlFor="message">
               Message{" "}
-              <span className="text-muted-foreground font-normal">(optional)</span>
+              <span className="text-muted-foreground font-normal">
+                (optional)
+              </span>
             </Label>
             <Textarea
               id="message"
@@ -490,7 +626,10 @@ export function BookingPageClient() {
               maxLength={1000}
               placeholder="Anything specific you'd like to discuss? (optional)"
               aria-invalid={!!errors.message}
-              className={cn("resize-none", errors.message && "border-destructive")}
+              className={cn(
+                "resize-none",
+                errors.message && "border-destructive",
+              )}
               {...register("message")}
             />
             <div className="flex items-center justify-end">
@@ -501,7 +640,7 @@ export function BookingPageClient() {
           </div>
 
           {/* Summary hint */}
-          {(selectedDate || selectedTime) && (
+          {(selectedDate || selectedSlot) && (
             <div className="px-4 py-3 rounded-xl bg-primary/5 border border-primary/15 text-sm">
               <p className="font-bold text-foreground">Booking summary:</p>
               <p className="text-muted-foreground mt-1">
@@ -512,15 +651,17 @@ export function BookingPageClient() {
                     : "General consultation"}
                 {" · "}
                 {selectedMeeting === "online" ? "Online meeting" : "Phone call"}
-                {selectedDate &&
-                  ` · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
+                {(selectedSlot?.date ?? selectedDate) &&
+                  ` · ${new Date(
+                    (selectedSlot?.date ?? selectedDate) + "T00:00:00",
+                  ).toLocaleDateString("en-US", {
                     weekday: "short",
                     month: "short",
                     day: "numeric",
                   })}`}
-                {selectedTime &&
+                {selectedSlot &&
                   ` · ${(() => {
-                    const h = parseInt(selectedTime);
+                    const h = parseInt(selectedSlot.startTime.split(":")[0], 10);
                     const a = h < 12 ? "AM" : "PM";
                     const dh = h > 12 ? h - 12 : h === 0 ? 12 : h;
                     return `${dh}:00 ${a}`;

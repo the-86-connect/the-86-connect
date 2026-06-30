@@ -95,12 +95,30 @@ model Consultation {
   message       String   @default("")
   status        String   @default("pending") // "pending" | "confirmed" | "completed" | "cancelled" | "rescheduled"
   adminNotes    String?
+  meetingUrl    String?  // Set by admin when confirming online meetings
   read          Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  availabilitySlot AvailabilitySlot?
 
   @@index([status])
   @@index([preferredDate])
   @@index([userId])
   @@map("consultations")
+}
+
+model AvailabilitySlot {
+  id              String        @id @default(uuid())
+  date            DateTime
+  startTime       String
+  endTime         String
+  status          String        @default("available") // "available" | "booked" | "blocked"
+  consultationId  String?       @unique
+  consultation    Consultation? @relation(fields: [consultationId], references: [id], onDelete: SetNull)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([date, startTime])
+  @@index([date])
+  @@index([status])
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   Mail,
   Phone,
@@ -62,14 +63,17 @@ export function Footer() {
             <button
               type="button"
               onClick={handleScrollTop}
-              className="group flex items-center gap-2 mb-3 press"
+              className="group flex items-center mb-3 press"
+              aria-label="86 Connect home"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-red-700 flex items-center justify-center group-hover:scale-105 transition-transform shadow-red-sm">
-                <span className="text-white font-black text-sm">86</span>
-              </div>
-              <span className="font-display font-black text-lg tracking-tight text-white">
-                Connect
-              </span>
+              <Image
+                src="/logo-white.png"
+                alt="86 Connect"
+                width={180}
+                height={54}
+                className="h-9 w-auto group-hover:opacity-90 transition-opacity"
+                priority
+              />
             </button>
             <p className="text-xs sm:text-sm text-white/70 max-w-sm leading-relaxed mb-4">
               Your trusted gateway to China for education and business

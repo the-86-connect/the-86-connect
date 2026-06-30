@@ -19,7 +19,7 @@ export const contactFormSchema = z.object({
     .regex(/^[\d\s+()-]{7,30}$/, "Invalid phone format")
     .optional()
     .or(z.literal("")),
-  serviceInterest: z.enum(["Study in China", "Product Sourcing"], {
+  serviceInterest: z.enum(["Study in China", "Product Sourcing", "General"], {
     errorMap: () => ({ message: "Please select a service" }),
   }),
   message: z
@@ -138,6 +138,7 @@ export const sourcingInquirySchema = z.object({
   company: z.string().trim().max(120).optional().or(z.literal("")),
   country: z.string().trim().min(2).max(60),
   productCategory: z.string().trim().min(2).max(100),
+  productName: z.string().trim().min(2).max(150),
   productDescription: z.string().trim().min(10).max(1000),
   targetQuantity: z.string().trim().min(1).max(60),
   targetPrice: z.string().trim().max(60).optional().or(z.literal("")),
@@ -215,8 +216,7 @@ export const consultationSchema = z.object({
   phone: z.string().optional(),
   service: z.enum(["study", "sourcing", "general"]).default("general"),
   meetingType: z.enum(["online", "phone"]).default("online"),
-  preferredDate: z.string().min(1, "Please select a date"),
-  preferredTime: z.string().min(1, "Please select a time"),
+  availabilitySlotId: z.string().min(1, "Please select an available time slot"),
   timezone: z.string().default("UTC"),
   message: z
     .string()
@@ -226,3 +226,45 @@ export const consultationSchema = z.object({
 });
 
 export type ConsultationData = z.infer<typeof consultationSchema>;
+
+/* ============== Availability Slot Schemas ============== */
+const TIME_REGEX = /^\d{2}:\d{2}$/;
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+export const availabilitySlotCreateSchema = z
+  .object({
+    date: z.string().regex(DATE_REGEX, "Invalid date format (use YYYY-MM-DD)"),
+    startTime: z.string().regex(TIME_REGEX, "Invalid time format (use HH:MM)"),
+    endTime: z.string().regex(TIME_REGEX, "Invalid time format (use HH:MM)"),
+  })
+  .refine((d) => d.startTime < d.endTime, {
+    message: "End time must be after start time",
+    path: ["endTime"],
+  });
+
+export const availabilityBulkCreateSchema = z
+  .object({
+    dateFrom: z.string().regex(DATE_REGEX, "Invalid date format"),
+    dateTo: z.string().regex(DATE_REGEX, "Invalid date format"),
+    timeFrom: z.string().regex(TIME_REGEX, "Invalid time format"),
+    timeTo: z.string().regex(TIME_REGEX, "Invalid time format"),
+    daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(),
+  })
+  .refine((d) => d.dateFrom <= d.dateTo, {
+    message: "End date must be on or after start date",
+    path: ["dateTo"],
+  })
+  .refine((d) => d.timeFrom < d.timeTo, {
+    message: "End time must be after start time",
+    path: ["timeTo"],
+  });
+
+export const availabilityUpdateSchema = z.object({
+  status: z.enum(["available", "blocked"]).optional(),
+});
+
+export const availabilityBulkDeleteSchema = z.object({
+  ids: z.array(z.string()).optional(),
+  dateFrom: z.string().regex(DATE_REGEX).optional(),
+  dateTo: z.string().regex(DATE_REGEX).optional(),
+});

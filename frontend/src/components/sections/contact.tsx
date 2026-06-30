@@ -67,9 +67,9 @@ const QUICK_FEATURES = [
 ];
 
 const baseIconClass =
-  "shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center";
+  "shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center";
 const baseItemClass =
-  "flex items-start gap-3 sm:gap-4 p-3 rounded-xl hover:bg-primary/5 transition-colors -mx-2 px-2";
+  "flex items-start gap-2.5 sm:gap-3 p-2.5 rounded-xl hover:bg-primary/5 transition-colors -mx-2 px-2";
 
 export function ContactSection() {
   return (
@@ -115,18 +115,18 @@ export function ContactSection() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 sm:gap-6">
-          <div className="lg:col-span-2 space-y-4 sm:space-y-5">
-            <div className="bg-white rounded-3xl border border-border shadow-soft-sm p-6 sm:p-7">
-              <h3 className="font-display font-black text-xl sm:text-2xl mb-5 sm:mb-6 flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
+          <div className="lg:col-span-2 space-y-3 sm:space-y-4">
+            <div className="bg-white rounded-3xl border border-border shadow-soft-sm p-5 sm:p-6">
+              <h3 className="font-display font-black text-lg sm:text-xl mb-3 sm:mb-4 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 How to Reach Us
               </h3>
-              <div className="space-y-3 sm:space-y-4">
+              <div className="space-y-2 sm:space-y-2.5">
                 {CONTACT_INFO.map((item) => {
                   const Icon = item.icon;
                   const iconNode = (
                     <div className={`${baseIconClass} ${item.iconBgClass}`}>
-                      <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                      <Icon className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white" />
                     </div>
                   );
                   const textNode = (
@@ -165,33 +165,33 @@ export function ContactSection() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-primary to-red-800 rounded-3xl border-2 border-red-700 p-5 sm:p-6 text-white">
+            <div className="bg-gradient-to-br from-primary to-red-800 rounded-3xl border border-red-700 p-5 sm:p-6 text-white">
               <div className="flex items-start gap-3">
-                <div className="shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/20 flex items-center justify-center">
-                  <Send className="h-5 w-5 text-white" />
+                <div className="shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                  <Send className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
                 <div>
-                  <p className="font-display font-black text-base sm:text-lg mb-1">
+                  <p className="font-display font-black text-sm sm:text-base mb-0.5">
                     Prefer direct contact?
                   </p>
-                  <p className="text-xs sm:text-sm text-white/90 leading-relaxed mb-3">
+                  <p className="text-xs text-white/90 leading-relaxed mb-2.5">
                     Email us or chat on WhatsApp — we respond within 24 hours.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <a
                       href="mailto:beijingbridgepath@gmail.com"
-                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white text-primary font-black text-xs sm:text-sm hover:bg-white/90 transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-primary font-black text-xs hover:bg-white/90 transition-colors"
                     >
-                      <Send className="h-3.5 w-3.5" />
+                      <Send className="h-3 w-3" />
                       Email Us
                     </a>
                     <a
                       href="https://wa.me/8617611533296"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#25D366] text-white font-black text-xs sm:text-sm hover:bg-[#20BD5A] transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366] text-white font-black text-xs hover:bg-[#20BD5A] transition-colors"
                     >
-                      <WhatsAppIconLucide className="h-3.5 w-3.5" />
+                      <WhatsAppIconLucide className="h-3 w-3" />
                       WhatsApp
                     </a>
                   </div>
@@ -201,21 +201,21 @@ export function ContactSection() {
 
             <Link
               href="/book-consultation"
-              className="block bg-white rounded-3xl border-2 border-primary/30 p-5 sm:p-6 hover:border-primary hover:shadow-glow-sm transition-all cursor-pointer press group"
+              className="block bg-gradient-to-br from-blue-50 to-indigo-50/60 rounded-3xl border border-blue-200/70 p-5 sm:p-6 hover:border-blue-500 hover:shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all cursor-pointer press group"
             >
               <div className="flex items-start gap-3">
-                <div className="shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-primary flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <CalendarCheck className="h-5 w-5 text-white" />
+                <div className="shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <CalendarCheck className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-display font-black text-base sm:text-lg mb-1 text-foreground">
+                  <p className="font-display font-black text-sm sm:text-base mb-0.5 text-foreground">
                     Book a Free Consultation
                   </p>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-2">
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-1.5">
                     Schedule a 30-minute call with our experts. Get personalized
                     guidance — no commitment required.
                   </p>
-                  <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-black text-primary group-hover:gap-2.5 transition-all">
+                  <span className="inline-flex items-center gap-1 text-xs font-black text-blue-600 group-hover:gap-2 transition-all">
                     Schedule now
                     <span aria-hidden>→</span>
                   </span>

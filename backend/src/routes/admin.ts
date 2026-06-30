@@ -602,7 +602,7 @@ adminRouter.get(
     const service = String(req.params.service);
 
     // Validate against allowed services
-    const allowedServices = ["Study in China", "Product Sourcing"];
+    const allowedServices = ["Study in China", "Product Sourcing", "General"];
     if (!allowedServices.includes(service)) {
       return res.status(400).json({ error: "Invalid service filter" });
     }
@@ -1227,6 +1227,7 @@ const consultationListSelect = {
   message: true,
   status: true,
   adminNotes: true,
+  meetingUrl: true,
   read: true,
   createdAt: true,
   updatedAt: true,
@@ -1309,16 +1310,23 @@ adminRouter.get(
   authenticateToken,
   async (_req, res) => {
     try {
-      const [total, pending, confirmed, rescheduled, completed, cancelled, unread] =
-        await Promise.all([
-          prisma.consultation.count(),
-          prisma.consultation.count({ where: { status: "pending" } }),
-          prisma.consultation.count({ where: { status: "confirmed" } }),
-          prisma.consultation.count({ where: { status: "rescheduled" } }),
-          prisma.consultation.count({ where: { status: "completed" } }),
-          prisma.consultation.count({ where: { status: "cancelled" } }),
-          prisma.consultation.count({ where: { read: false } }),
-        ]);
+      const [
+        total,
+        pending,
+        confirmed,
+        rescheduled,
+        completed,
+        cancelled,
+        unread,
+      ] = await Promise.all([
+        prisma.consultation.count(),
+        prisma.consultation.count({ where: { status: "pending" } }),
+        prisma.consultation.count({ where: { status: "confirmed" } }),
+        prisma.consultation.count({ where: { status: "rescheduled" } }),
+        prisma.consultation.count({ where: { status: "completed" } }),
+        prisma.consultation.count({ where: { status: "cancelled" } }),
+        prisma.consultation.count({ where: { read: false } }),
+      ]);
 
       res.json({
         total,
@@ -1337,116 +1345,134 @@ adminRouter.get(
 );
 
 // Update consultation (status, date, time, meeting type, admin notes) — protected
-adminRouter.patch(
-  "/consultations/:id",
-  authenticateToken,
-  async (req, res) => {
-    const id = String(req.params.id);
-    const { status, preferredDate, preferredTime, meetingType, adminNotes } = req.body;
+adminRouter.patch("/consultations/:id", authenticateToken, async (req, res) => {
+  const id = String(req.params.id);
+  const {
+    status,
+    preferredDate,
+    preferredTime,
+    meetingType,
+    adminNotes,
+    meetingUrl,
+  } = req.body;
 
-    const updateData: Record<string, unknown> = {};
+  const updateData: Record<string, unknown> = {};
 
-    if (status !== undefined) {
-      if (
-        !VALID_CONSULTATION_STATUSES.includes(
-          status as (typeof VALID_CONSULTATION_STATUSES)[number],
-        )
-      ) {
-        return res.status(400).json({ error: "Invalid status value" });
-      }
-      updateData.status = status;
+  if (status !== undefined) {
+    if (
+      !VALID_CONSULTATION_STATUSES.includes(
+        status as (typeof VALID_CONSULTATION_STATUSES)[number],
+      )
+    ) {
+      return res.status(400).json({ error: "Invalid status value" });
+    }
+    updateData.status = status;
+  }
+
+  if (preferredDate !== undefined) {
+    const parsedDate = new Date(preferredDate);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ error: "Invalid date format" });
+    }
+    updateData.preferredDate = parsedDate;
+  }
+
+  if (preferredTime !== undefined) {
+    if (!/^\d{2}:\d{2}$/.test(preferredTime)) {
+      return res.status(400).json({ error: "Invalid time format" });
+    }
+    updateData.preferredTime = preferredTime;
+  }
+
+  if (meetingType !== undefined) {
+    if (!["online", "phone"].includes(meetingType)) {
+      return res.status(400).json({ error: "Invalid meeting type" });
+    }
+    updateData.meetingType = meetingType;
+  }
+
+  if (adminNotes !== undefined) {
+    updateData.adminNotes = adminNotes || null;
+  }
+
+  if (meetingUrl !== undefined) {
+    if (typeof meetingUrl !== "string" || meetingUrl.length > 500) {
+      return res.status(400).json({ error: "Invalid meeting URL" });
+    }
+    updateData.meetingUrl = meetingUrl || null;
+  }
+
+  if (Object.keys(updateData).length === 0) {
+    return res.status(400).json({ error: "No fields to update" });
+  }
+
+  try {
+    const existing = await prisma.consultation.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({ error: "Consultation not found" });
     }
 
-    if (preferredDate !== undefined) {
-      const parsedDate = new Date(preferredDate);
-      if (isNaN(parsedDate.getTime())) {
-        return res.status(400).json({ error: "Invalid date format" });
-      }
-      updateData.preferredDate = parsedDate;
+    const isTimeChanged =
+      (preferredDate !== undefined &&
+        new Date(preferredDate).toDateString() !==
+          existing.preferredDate.toDateString()) ||
+      (preferredTime !== undefined && preferredTime !== existing.preferredTime);
+
+    const isStatusChanged = status !== undefined && status !== existing.status;
+    const isReschedule = isTimeChanged;
+
+    if (isReschedule && status === undefined) {
+      updateData.status = "rescheduled";
     }
 
-    if (preferredTime !== undefined) {
-      if (!/^\d{2}:\d{2}$/.test(preferredTime)) {
-        return res.status(400).json({ error: "Invalid time format" });
-      }
-      updateData.preferredTime = preferredTime;
-    }
+    const updated = await prisma.consultation.update({
+      where: { id },
+      data: updateData,
+      select: consultationListSelect,
+    });
 
-    if (meetingType !== undefined) {
-      if (!["online", "phone"].includes(meetingType)) {
-        return res.status(400).json({ error: "Invalid meeting type" });
-      }
-      updateData.meetingType = meetingType;
-    }
-
-    if (adminNotes !== undefined) {
-      updateData.adminNotes = adminNotes || null;
-    }
-
-    if (Object.keys(updateData).length === 0) {
-      return res.status(400).json({ error: "No fields to update" });
-    }
-
-    try {
-      const existing = await prisma.consultation.findUnique({ where: { id } });
-      if (!existing) {
-        return res.status(404).json({ error: "Consultation not found" });
-      }
-
-      const isTimeChanged =
-        (preferredDate !== undefined &&
-          new Date(preferredDate).toDateString() !== existing.preferredDate.toDateString()) ||
-        (preferredTime !== undefined && preferredTime !== existing.preferredTime);
-
-      const isStatusChanged = status !== undefined && status !== existing.status;
-      const isReschedule = isTimeChanged;
-
-      if (isReschedule && status === undefined) {
-        updateData.status = "rescheduled";
-      }
-
-      const updated = await prisma.consultation.update({
-        where: { id },
-        data: updateData,
-        select: consultationListSelect,
+    // If status changed to "cancelled", free the linked availability slot
+    if (isStatusChanged && status === "cancelled") {
+      await prisma.availabilitySlot.updateMany({
+        where: { consultationId: id },
+        data: { status: "available", consultationId: null },
       });
-
-      broadcastToAdmins("consultation:updated", {
-        ...updated,
-        preferredDate: updated.preferredDate.toISOString(),
-        createdAt: updated.createdAt.toISOString(),
-        updatedAt: updated.updatedAt.toISOString(),
+      broadcastToAdmins("availability:updated", {
+        consultationId: id,
+        status: "available",
       });
+    }
 
-      // Send email notification to user if status or time changed
-      if (isStatusChanged || isTimeChanged) {
-        notifyUserConsultationUpdate({
-          to: updated.email,
-          name: updated.name,
-          service: updated.service,
-          status: updated.status,
-          preferredDate: updated.preferredDate,
-          preferredTime: updated.preferredTime,
-          consultationId: updated.id,
-          isReschedule: isReschedule && !isStatusChanged,
-        }).catch((err) =>
-          console.error(
-            "Consultation user email error:",
-            (err as Error).message,
-          ),
-        );
-      }
+    broadcastToAdmins("consultation:updated", {
+      ...updated,
+      preferredDate: updated.preferredDate.toISOString(),
+      createdAt: updated.createdAt.toISOString(),
+      updatedAt: updated.updatedAt.toISOString(),
+    });
 
-      res.json({ success: true, consultation: updated });
-    } catch (error) {
-      console.error(
-        "Update consultation error:",
-        (error as Error).message,
+    // Send email notification to user if status or time changed
+    if (isStatusChanged || isTimeChanged) {
+      notifyUserConsultationUpdate({
+        to: updated.email,
+        name: updated.name,
+        service: updated.service,
+        status: updated.status,
+        preferredDate: updated.preferredDate,
+        preferredTime: updated.preferredTime,
+        consultationId: updated.id,
+        isReschedule: isReschedule && !isStatusChanged,
+        meetingUrl: updated.meetingUrl,
+      }).catch((err) =>
+        console.error("Consultation user email error:", (err as Error).message),
       );
-      res.status(500).json({ error: "Failed to update consultation" });
     }
-  },
-);
+
+    res.json({ success: true, consultation: updated });
+  } catch (error) {
+    console.error("Update consultation error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to update consultation" });
+  }
+});
 
 // Mark consultation as read (protected)
 adminRouter.patch(
