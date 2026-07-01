@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -38,7 +38,7 @@ export function HeroSection() {
         </>
       )}
 
-      {/* Background image layer ΓÇö uses CSS background for reliable media query behavior */}
+      {/* Background image layer — uses CSS background for reliable media query behavior */}
       {showImage && (
         <div
           aria-hidden="true"
@@ -46,7 +46,7 @@ export function HeroSection() {
         />
       )}
 
-      {/* Decorative orbs (only when no image is shown ΓÇö the fallback design) */}
+      {/* Decorative orbs (only when no image is shown — the fallback design) */}
       {!showImage && (
         <>
           <div
@@ -64,29 +64,31 @@ export function HeroSection() {
         </>
       )}
 
-      {/* Light overlay for text readability ΓÇö only when image is shown */}
+      {/* Light overlay for text readability — only when image is shown, more subtle */}
       {showImage && (
         <>
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-black/10 pointer-events-none z-[1]"
+            className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/28 to-black/8 pointer-events-none z-[1]"
           />
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-black/0 pointer-events-none z-[1]"
+            className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/8 to-black/0 pointer-events-none z-[1]"
           />
         </>
       )}
 
       <div
-        className={`container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative ${showImage ? "z-10" : ""}`}
+        className={`container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative ${
+          showImage ? "z-10" : ""
+        }`}
       >
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[70dvh]">
           {/* Left content */}
           <div className="lg:col-span-7 lg:col-start-1 text-center lg:text-left">
             {/* Headline */}
             <h1
-              className={`font-display font-black text-[2.4rem] sm:text-6xl md:text-7xl lg:text-[4.8rem] leading-[0.95] tracking-[-0.04em] mb-5 sm:mb-6 animate-reveal-up ${
+              className={`font-display font-black text-[2.5rem] sm:text-[4.25rem] md:text-7xl lg:text-[5.2rem] leading-[0.92] tracking-[-0.045em] mb-5 sm:mb-6 animate-reveal-up ${
                 showImage
                   ? "text-white [text-shadow:0_4px_36px_rgba(0,0,0,0.95),0_2px_8px_rgba(0,0,0,1),0_1px_3px_rgba(0,0,0,1)]"
                   : "text-foreground"
@@ -105,7 +107,7 @@ export function HeroSection() {
               <span
                 className={`block ${
                   showImage
-                    ? "text-red-400 [text-shadow:0_4px_36px_rgba(0,0,0,0.95),0_2px_8px_rgba(0,0,0,1),0_0_18px_rgba(239,68,68,0.55),0_1px_3px_rgba(0,0,0,1)]"
+                    ? "bg-gradient-to-r from-red-400 via-red-500 to-red-400 bg-clip-text text-transparent [text-shadow:none] drop-shadow-[0_4px_36px_rgba(0,0,0,0.95)]"
                     : "text-gradient-red-animated"
                 }`}
               >
@@ -115,16 +117,16 @@ export function HeroSection() {
 
             {/* Subtitle */}
             <p
-              className={`text-base sm:text-lg md:text-xl max-w-2xl mb-8 sm:mb-10 leading-relaxed font-semibold mx-auto lg:mx-0 animate-reveal-up ${
+              className={`text-base sm:text-lg md:text-[1.2rem] max-w-2xl mb-8 sm:mb-10 leading-relaxed tracking-[-0.01em] font-semibold mx-auto lg:mx-0 animate-reveal-up ${
                 showImage
-                  ? "text-white [text-shadow:0_3px_24px_rgba(0,0,0,0.95),0_1px_6px_rgba(0,0,0,1),0_1px_2px_rgba(0,0,0,1)]"
+                  ? "text-white/90 [text-shadow:0_3px_24px_rgba(0,0,0,0.95),0_1px_6px_rgba(0,0,0,1),0_1px_2px_rgba(0,0,0,1)]"
                   : "text-muted-foreground"
               }`}
               style={{ animationDelay: "100ms" }}
             >
               Premium consulting for international education and business
               procurement. We connect the world with China&apos;s top
-              universities and trusted manufacturers ΓÇö end-to-end, fully
+              universities and trusted manufacturers — end-to-end, fully
               managed.
             </p>
 
@@ -135,25 +137,25 @@ export function HeroSection() {
             >
               <Link
                 href="/study-in-china"
-                className="group inline-flex items-center justify-center gap-2 px-7 sm:px-8 h-14 bg-primary text-white rounded-2xl font-black text-base sm:text-lg hover:bg-red-700 transition-all duration-200 cursor-pointer press btn-primary-glow shadow-red active:translate-y-[1px]"
+                className="group inline-flex items-center justify-center gap-2 px-7 sm:px-8 h-14 bg-gradient-to-r from-primary to-red-700 text-white rounded-2xl font-black text-base sm:text-lg shadow-lg shadow-red-900/25 hover:-translate-y-[1px] hover:shadow-xl hover:shadow-red-900/35 active:translate-y-[1px] transition-all duration-300 ease-out cursor-pointer press btn-primary-glow"
               >
                 <GraduationCap className="h-5 w-5" />
                 <span>Study in China</span>
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/product-sourcing"
-                className="group inline-flex items-center justify-center gap-2 px-7 sm:px-8 h-14 bg-white text-slate-900 rounded-2xl font-black text-base sm:text-lg shadow-lg hover:bg-white/90 hover:shadow-xl active:translate-y-[1px] transition-all duration-200 cursor-pointer press"
+                className="group inline-flex items-center justify-center gap-2 px-7 sm:px-8 h-14 bg-white text-slate-900 rounded-2xl font-black text-base sm:text-lg shadow-lg hover:-translate-y-[1px] hover:bg-white/90 hover:shadow-xl active:translate-y-[1px] transition-all duration-300 ease-out cursor-pointer press"
               >
                 <ShoppingCart className="h-5 w-5" />
                 <span>Source Products</span>
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </div>
 
             {/* Trust badges */}
             <div
-              className={`flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 animate-reveal-up ${
+              className={`flex flex-wrap items-center justify-center lg:justify-start gap-x-7 gap-y-3 animate-reveal-up ${
                 showImage ? "text-white" : ""
               }`}
               style={{ animationDelay: "300ms" }}
@@ -176,7 +178,6 @@ export function HeroSection() {
             </div>
           </div>
         </div>
-
       </div>
     </section>
   );
@@ -193,17 +194,16 @@ function TrustBadge({
 }) {
   return (
     <div
-      className={`flex items-center gap-2 text-xs sm:text-sm font-bold ${
+      className={`flex items-center gap-2.5 text-xs sm:text-sm font-bold tracking-wide ${
         onDark
           ? "text-white [text-shadow:0_1px_8px_rgba(0,0,0,0.9),0_1px_2px_rgba(0,0,0,0.9)]"
           : "text-foreground/80"
       }`}
     >
-      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
-        <Icon className="h-3 w-3 text-white" strokeWidth={3} />
+      <div className="w-6 h-6 rounded-full bg-primary/90 flex items-center justify-center shrink-0 shadow-sm shadow-primary/20">
+        <Icon className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
       </div>
       <span>{label}</span>
     </div>
   );
 }
-

@@ -11,7 +11,7 @@ const stats = [
 
 export function ByTheNumbersSection() {
   return (
-    <section className="relative py-24 sm:py-32 overflow-hidden bg-gradient-to-b from-white to-red-50/30">
+    <section className="relative py-20 sm:py-28 overflow-hidden bg-section-alt">
       {/* Subtle decorative background */}
       <div
         aria-hidden="true"
@@ -24,17 +24,17 @@ export function ByTheNumbersSection() {
           <span className="inline-block text-xs sm:text-sm font-black text-primary tracking-[0.2em] uppercase mb-3">
             By the Numbers
           </span>
-          <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl text-foreground tracking-tight">
+          <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl text-foreground tracking-[-0.035em]">
             Trusted across the globe
           </h2>
         </div>
 
         {/* Stats grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 sm:gap-7">
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className="group relative bg-white rounded-2xl border border-border/60 p-6 sm:p-8 text-center shadow-soft-lg hover:shadow-soft-xl hover:-translate-y-1 transition-all duration-300"
+              className="group relative bg-white rounded-2xl border border-border/80 p-6 sm:p-8 text-center shadow-soft-sm hover:shadow-soft-md hover:-translate-y-0.5 transition-all duration-300"
             >
               {/* Icon */}
               <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/10 text-primary mb-4 sm:mb-5 group-hover:bg-primary group-hover:text-white transition-colors duration-300">

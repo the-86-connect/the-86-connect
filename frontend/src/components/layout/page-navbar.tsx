@@ -120,7 +120,7 @@ export function PageNavbar({
         className={cn(
           "fixed top-0 inset-x-0 z-50 transition-all duration-300",
           scrolled
-            ? "bg-white/95 backdrop-blur-md border-b border-border/60 shadow-sm"
+            ? "bg-white/90 backdrop-blur-xl border-b border-border/40 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
             : "bg-transparent",
         )}
       >
@@ -131,13 +131,13 @@ export function PageNavbar({
             <div className="flex items-center gap-4 shrink-0">
               <Link
                 href="/"
-                className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-primary transition-colors press"
+                className="flex items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-primary transition-colors duration-200 press"
                 aria-label="Back to home"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-3.5 w-3.5" />
                 <span>Home</span>
               </Link>
-              <div className="w-px h-5 bg-border" />
+              <div className="w-px h-4 bg-border/60" />
               <Link
                 href="/"
                 className="group flex items-center press"
@@ -148,13 +148,13 @@ export function PageNavbar({
                   alt="86 Connect"
                   width={180}
                   height={49}
-                  className="h-9 w-auto group-hover:opacity-90 transition-opacity"
+                  className="h-9 w-auto group-hover:opacity-90 transition-opacity duration-200"
                   priority
                 />
               </Link>
             </div>
 
-            {/* Desktop sub-nav — clean text links with underline */}
+            {/* Desktop sub-nav -- clean text links with underline */}
             <nav className="flex items-center gap-8">
               {subLinks.map((link) => {
                 const isActive = activeSection === link.target;
@@ -165,10 +165,10 @@ export function PageNavbar({
                     onClick={() => handleNavClick(link.target)}
                     aria-current={isActive ? "page" : undefined}
                     className={cn(
-                      "relative px-1 py-2 text-sm font-bold tracking-wide transition-colors duration-200 cursor-pointer press group",
+                      "relative px-1 py-2 text-sm font-semibold tracking-[-0.01em] transition-colors duration-200 cursor-pointer press group",
                       isActive
                         ? "text-primary"
-                        : "text-foreground/70 hover:text-foreground",
+                        : "text-foreground/60 hover:text-foreground",
                     )}
                   >
                     {link.label}
@@ -187,7 +187,7 @@ export function PageNavbar({
             <div className="flex items-center gap-3">
               <Link
                 href={isAuthenticated ? "/account" : "/login"}
-                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-foreground/70 hover:text-foreground hover:bg-muted/60 rounded-lg transition-colors duration-200 cursor-pointer press"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-foreground/60 hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors duration-200 cursor-pointer press"
               >
                 {isAuthenticated ? (
                   <User className="h-4 w-4" />
@@ -199,7 +199,7 @@ export function PageNavbar({
               <button
                 type="button"
                 onClick={() => handleNavClick(ctaTarget)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:bg-red-700 transition-colors duration-200 cursor-pointer press"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg font-semibold text-sm hover:bg-red-700 transition-all duration-200 cursor-pointer press shadow-sm hover:shadow-md"
               >
                 {ctaLabel}
               </button>
@@ -225,7 +225,7 @@ export function PageNavbar({
             <button
               type="button"
               onClick={() => setIsOpen((v) => !v)}
-              className="flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-border shadow-soft-sm cursor-pointer press touch-manipulation"
+              className="flex items-center justify-center w-11 h-11 rounded-xl bg-white/90 backdrop-blur-sm border border-border/60 shadow-sm cursor-pointer press touch-manipulation"
               aria-label={isOpen ? "Close menu" : "Open menu"}
               aria-expanded={isOpen}
             >
@@ -245,9 +245,9 @@ export function PageNavbar({
           className="lg:hidden fixed inset-0 z-40 pt-16 px-3"
           onClick={() => setIsOpen(false)}
         >
-          <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" />
           <nav
-            className="relative bg-white rounded-3xl shadow-soft-xl p-2.5 border border-border animate-in fade-in slide-in-from-top-4 duration-300"
+            className="relative bg-white rounded-2xl shadow-xl p-2.5 border border-border/50 animate-in fade-in slide-in-from-top-4 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-2 px-3 py-2.5 mb-1">
@@ -259,12 +259,12 @@ export function PageNavbar({
             <Link
               href="/"
               onClick={() => setIsOpen(false)}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-bold text-[13px] transition-all cursor-pointer press min-h-[46px] text-muted-foreground hover:text-foreground hover:bg-muted/70"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-semibold text-[13px] transition-all cursor-pointer press min-h-[46px] text-muted-foreground hover:text-foreground hover:bg-muted/50"
             >
               <ArrowLeft className="h-[18px] w-[18px]" />
               Back to Home
             </Link>
-            <div className="border-t border-border/60 my-2" />
+            <div className="border-t border-border/50 my-2" />
             <div className="space-y-0.5">
               {subLinks.map((link) => {
                 const isActive = activeSection === link.target;
@@ -276,10 +276,10 @@ export function PageNavbar({
                     onClick={() => handleNavClick(link.target)}
                     aria-current={isActive ? "page" : undefined}
                     className={cn(
-                      "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-bold text-[13px] transition-all cursor-pointer press min-h-[46px]",
+                      "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-semibold text-[13px] transition-all cursor-pointer press min-h-[46px]",
                       isActive
-                        ? "bg-gradient-to-r from-primary to-red-700 text-white shadow-red-sm"
-                        : "text-foreground hover:bg-muted/70",
+                        ? "bg-primary text-white shadow-sm"
+                        : "text-foreground hover:bg-muted/50",
                     )}
                   >
                     <Icon className="h-[18px] w-[18px]" />
@@ -288,12 +288,12 @@ export function PageNavbar({
                 );
               })}
             </div>
-            <div className="border-t border-border/60 my-2" />
+            <div className="border-t border-border/50 my-2" />
             <div className="space-y-0.5">
               <Link
                 href={trackHref}
                 onClick={() => setIsOpen(false)}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-bold text-[13px] transition-all cursor-pointer press min-h-[46px] text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-semibold text-[13px] transition-all cursor-pointer press min-h-[46px] text-muted-foreground hover:text-foreground hover:bg-muted/50"
               >
                 <Search className="h-[18px] w-[18px]" />
                 Track Submission
@@ -301,7 +301,7 @@ export function PageNavbar({
               <Link
                 href={isAuthenticated ? "/account" : "/login"}
                 onClick={() => setIsOpen(false)}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-bold text-[13px] transition-all cursor-pointer press min-h-[46px] text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-semibold text-[13px] transition-all cursor-pointer press min-h-[46px] text-muted-foreground hover:text-foreground hover:bg-muted/50"
               >
                 {isAuthenticated ? (
                   <User className="h-[18px] w-[18px]" />
@@ -314,7 +314,7 @@ export function PageNavbar({
             <button
               type="button"
               onClick={() => handleNavClick(ctaTarget)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 mt-2 bg-gradient-to-r from-primary to-red-700 text-white rounded-2xl font-black text-sm cursor-pointer press min-h-[48px] shadow-red-sm active:translate-y-[1px] active:shadow-none transition-all"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 mt-2 bg-primary text-white rounded-xl font-semibold text-sm cursor-pointer press min-h-[48px] shadow-sm active:translate-y-[1px] active:shadow-none transition-all hover:bg-red-700"
             >
               {ctaLabel}
             </button>
@@ -325,14 +325,14 @@ export function PageNavbar({
       {/* Mobile bottom tab bar */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 safe-bottom pointer-events-none">
         <div className="mx-2 sm:mx-3 mb-2 sm:mb-3 pointer-events-auto">
-          <div className="bg-white rounded-3xl shadow-soft-xl px-1.5 py-1.5 sm:px-2 sm:py-2 border border-border">
+          <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-lg px-1.5 py-1.5 sm:px-2 sm:py-2 border border-border/40">
             <div className="grid grid-cols-6 gap-0.5 sm:gap-1">
               <Link
                 href="/"
-                className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/70 hover:text-foreground"
+                className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/50 hover:text-foreground"
               >
                 <HomeIcon className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
                   Home
                 </span>
               </Link>
@@ -343,14 +343,14 @@ export function PageNavbar({
                     onClick={() => handleNavClick("services")}
                     aria-label="Services"
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
                       activeSection === "services"
                         ? "text-primary"
-                        : "text-foreground/70 hover:text-foreground",
+                        : "text-foreground/50 hover:text-foreground",
                     )}
                   >
                     <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                    <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
                       Services
                     </span>
                   </button>
@@ -359,14 +359,14 @@ export function PageNavbar({
                     onClick={() => handleNavClick("universities")}
                     aria-label="Universities"
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
                       activeSection === "universities"
                         ? "text-primary"
-                        : "text-foreground/70 hover:text-foreground",
+                        : "text-foreground/50 hover:text-foreground",
                     )}
                   >
                     <Building2 className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                    <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
                       Uni
                     </span>
                   </button>
@@ -375,14 +375,14 @@ export function PageNavbar({
                     onClick={() => handleNavClick("apply")}
                     aria-label="Apply"
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
                       activeSection === "apply"
                         ? "text-primary"
-                        : "text-foreground/70 hover:text-foreground",
+                        : "text-foreground/50 hover:text-foreground",
                     )}
                   >
                     <FileCheck className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                    <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
                       Apply
                     </span>
                   </button>
@@ -394,14 +394,14 @@ export function PageNavbar({
                     onClick={() => handleNavClick("services")}
                     aria-label="Services"
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
                       activeSection === "services"
                         ? "text-primary"
-                        : "text-foreground/70 hover:text-foreground",
+                        : "text-foreground/50 hover:text-foreground",
                     )}
                   >
                     <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                    <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
                       Services
                     </span>
                   </button>
@@ -410,14 +410,14 @@ export function PageNavbar({
                     onClick={() => handleNavClick("models")}
                     aria-label="Models"
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
                       activeSection === "models"
                         ? "text-primary"
-                        : "text-foreground/70 hover:text-foreground",
+                        : "text-foreground/50 hover:text-foreground",
                     )}
                   >
                     <GitBranch className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                    <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
                       Models
                     </span>
                   </button>
@@ -426,14 +426,14 @@ export function PageNavbar({
                     onClick={() => handleNavClick("inquire")}
                     aria-label="Get Quote"
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
                       activeSection === "inquire"
                         ? "text-primary"
-                        : "text-foreground/70 hover:text-foreground",
+                        : "text-foreground/50 hover:text-foreground",
                     )}
                   >
                     <Send className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                    <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
                       Quote
                     </span>
                   </button>
@@ -441,23 +441,23 @@ export function PageNavbar({
               )}
               <Link
                 href={trackHref}
-                className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/70 hover:text-foreground"
+                className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/50 hover:text-foreground"
               >
                 <Search className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
                   Track
                 </span>
               </Link>
               <Link
                 href={isAuthenticated ? "/account" : "/login"}
-                className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/70 hover:text-foreground"
+                className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/50 hover:text-foreground"
               >
                 {isAuthenticated ? (
                   <User className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
                 ) : (
                   <UserRound className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
                 )}
-                <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
                   {isAuthenticated ? "Me" : "Login"}
                 </span>
               </Link>

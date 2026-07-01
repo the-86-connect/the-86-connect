@@ -54,7 +54,7 @@ export function AboutUsSection() {
   return (
     <section
       id="about-us"
-      className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-section-alt"
+      className="relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-section-alt"
     >
       <div className="container mx-auto max-w-7xl">
         {/* Section Header */}
@@ -65,7 +65,7 @@ export function AboutUsSection() {
               Who We Are
             </span>
           </div>
-          <h2 className="font-display font-black text-4xl sm:text-5xl md:text-6xl tracking-[-0.04em] mb-4 leading-[1.05]">
+          <h2 className="font-display font-black text-4xl sm:text-5xl md:text-6xl tracking-[-0.035em] mb-4 leading-[1.05]">
             About <span className="text-primary">86 Connect</span>
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -76,7 +76,7 @@ export function AboutUsSection() {
         {/* Company Intro */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 mb-12 sm:mb-16">
           {/* Story - large card */}
-          <div className="lg:col-span-7 bg-white rounded-3xl border border-border shadow-soft-sm p-6 sm:p-8">
+          <div className="lg:col-span-7 bg-white rounded-2xl border border-border/80 shadow-soft-sm p-6 sm:p-8">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary flex items-center justify-center">
                 <Sparkles className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
@@ -91,7 +91,7 @@ export function AboutUsSection() {
               </div>
             </div>
 
-            <h3 className="font-display font-black text-2xl sm:text-3xl mb-3 sm:mb-4">
+            <h3 className="font-display font-black text-2xl sm:text-3xl tracking-[-0.035em] mb-3 sm:mb-4">
               Bridging <span className="text-primary">China & the World</span>
             </h3>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-3 sm:mb-4 font-medium">
@@ -117,7 +117,7 @@ export function AboutUsSection() {
           </div>
 
           {/* Mission - red card */}
-          <div className="lg:col-span-5 bg-gradient-to-br from-primary to-red-800 rounded-3xl p-6 sm:p-8 flex flex-col">
+          <div className="lg:col-span-5 bg-gradient-to-br from-primary to-red-800 rounded-2xl p-6 sm:p-8 flex flex-col">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/20 flex items-center justify-center">
                 <Target className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
@@ -178,7 +178,7 @@ export function AboutUsSection() {
                 Our Value Proposition
               </span>
             </div>
-            <h3 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em]">
+            <h3 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em]">
               Our Core <span className="text-primary">Values</span>
             </h3>
           </div>
@@ -190,7 +190,7 @@ export function AboutUsSection() {
         </div>
 
         {/* CTA Banner */}
-        <div className="mt-12 sm:mt-16 bg-white rounded-3xl border border-border shadow-soft-sm p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-5">
+        <div className="mt-12 sm:mt-16 bg-white rounded-2xl border border-border/80 shadow-soft-sm p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-5">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
               <CalendarCheck className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
@@ -228,7 +228,7 @@ function MetricCard({
   icon: React.ElementType;
 }) {
   return (
-    <div className="text-center p-5 sm:p-7 rounded-3xl bg-white border border-border shadow-soft-sm hover:shadow-soft-md transition-shadow lift-sm">
+    <div className="text-center p-5 sm:p-7 rounded-2xl bg-white border border-border/80 shadow-soft-sm hover:shadow-soft-md transition-shadow lift-sm">
       <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4">
         <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
       </div>
@@ -245,7 +245,7 @@ function MetricCard({
 function ValueCard({ value }: { value: (typeof VALUES)[number] }) {
   const Icon = value.icon;
   return (
-    <div className="bg-white rounded-3xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-5 sm:p-6 lift-sm card-shine">
+    <div className="bg-white rounded-2xl border border-border/80 shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-5 sm:p-6 lift-sm card-shine">
       <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
         <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
       </div>

@@ -75,7 +75,7 @@ export function ContactSection() {
   return (
     <section
       id="contact"
-      className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-section-warm-gradient"
+      className="relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-section-warm-gradient"
     >
       <div className="container mx-auto max-w-7xl">
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -85,7 +85,7 @@ export function ContactSection() {
               Get in Touch
             </span>
           </div>
-          <h2 className="font-display font-black text-4xl sm:text-5xl md:text-6xl tracking-[-0.04em] mb-4 leading-[1.05]">
+          <h2 className="font-display font-black text-4xl sm:text-5xl md:text-6xl tracking-[-0.035em] mb-4 leading-[1.05]">
             Contact <span className="text-primary">Us</span>
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
@@ -101,7 +101,7 @@ export function ContactSection() {
             return (
               <div
                 key={feature.label}
-                className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full bg-white border border-border"
+                className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full bg-white border border-border/80"
               >
                 <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                   <Icon className="h-2.5 w-2.5 text-white" strokeWidth={3} />
@@ -116,7 +116,7 @@ export function ContactSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 sm:gap-6">
           <div className="lg:col-span-2 space-y-3 sm:space-y-4">
-            <div className="bg-white rounded-3xl border border-border shadow-soft-sm p-5 sm:p-6">
+            <div className="bg-white rounded-2xl border border-border/80 shadow-soft-sm p-5 sm:p-6">
               <h3 className="font-display font-black text-lg sm:text-xl mb-3 sm:mb-4 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 How to Reach Us
@@ -165,7 +165,7 @@ export function ContactSection() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-primary to-red-800 rounded-3xl border border-red-700 p-5 sm:p-6 text-white">
+            <div className="bg-gradient-to-br from-primary to-red-800 rounded-2xl border border-red-700 p-5 sm:p-6 text-white">
               <div className="flex items-start gap-3">
                 <div className="shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/20 flex items-center justify-center">
                   <Send className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
@@ -201,7 +201,7 @@ export function ContactSection() {
 
             <Link
               href="/book-consultation"
-              className="block bg-gradient-to-br from-blue-50 to-indigo-50/60 rounded-3xl border border-blue-200/70 p-5 sm:p-6 hover:border-blue-500 hover:shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all cursor-pointer press group"
+              className="block bg-gradient-to-br from-blue-50 to-indigo-50/60 rounded-2xl border border-blue-200/70 p-5 sm:p-6 hover:border-blue-500 hover:shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all cursor-pointer press group"
             >
               <div className="flex items-start gap-3">
                 <div className="shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -217,7 +217,7 @@ export function ContactSection() {
                   </p>
                   <span className="inline-flex items-center gap-1 text-xs font-black text-blue-600 group-hover:gap-2 transition-all">
                     Schedule now
-                    <span aria-hidden>→</span>
+                    <span aria-hidden>&rarr;</span>
                   </span>
                 </div>
               </div>
@@ -225,7 +225,7 @@ export function ContactSection() {
           </div>
 
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-3xl border border-border shadow-soft-sm p-6 sm:p-8 lg:p-10 card-shine">
+            <div className="bg-white rounded-2xl border border-border/80 shadow-soft-md p-6 sm:p-8 lg:p-10 card-shine">
               <div className="flex items-start gap-3 mb-5 sm:mb-6">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-primary flex items-center justify-center shrink-0">
                   <WhatsAppIconLucide className="h-5 w-5 sm:h-6 sm:w-6 text-white" />

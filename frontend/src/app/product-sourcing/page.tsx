@@ -246,7 +246,7 @@ export default async function ProductSourcingPage() {
                     Premium Sourcing Service
                   </span>
                 </div>
-                <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-[-0.04em] mb-5 leading-[1.05]">
+                <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-[-0.035em] mb-5 leading-[1.05]">
                   Product <span className="text-primary">Sourcing</span>
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed mb-8 max-w-2xl font-medium">
@@ -257,7 +257,7 @@ export default async function ProductSourcingPage() {
                 <div className="flex flex-wrap gap-2.5 sm:gap-3">
                   <a
                     href="#inquire"
-                    className="inline-flex items-center gap-2 px-5 sm:px-6 h-12 sm:h-14 bg-primary text-white rounded-2xl font-black text-sm sm:text-base shadow-red hover:bg-red-700 transition-all duration-200 cursor-pointer press"
+                    className="inline-flex items-center gap-2 px-5 sm:px-6 h-12 sm:h-14 bg-primary text-white rounded-lg font-black text-sm sm:text-base shadow-red hover:bg-red-700 transition-all duration-200 cursor-pointer press"
                   >
                     <Search className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                     <span>Get a Quote</span>
@@ -265,7 +265,7 @@ export default async function ProductSourcingPage() {
                   </a>
                   <a
                     href="#services"
-                    className="inline-flex items-center gap-2 px-5 sm:px-6 h-12 sm:h-14 bg-white text-foreground rounded-2xl font-black text-sm sm:text-base border border-border hover:border-primary/30 transition-all duration-200 cursor-pointer press"
+                    className="inline-flex items-center gap-2 px-5 sm:px-6 h-12 sm:h-14 bg-white text-foreground rounded-lg font-black text-sm sm:text-base border border-border hover:border-primary/30 transition-all duration-200 cursor-pointer press shadow-sm"
                   >
                     <Package className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                     <span>Our Services</span>
@@ -285,7 +285,7 @@ export default async function ProductSourcingPage() {
               <div className="lg:col-span-6">
                 <div className="grid grid-cols-2 grid-rows-2 gap-3 sm:gap-4 h-72 sm:h-80 lg:h-[26rem] max-w-md sm:max-w-lg mx-auto lg:max-w-none">
                   {/* Large image — spans 2 rows */}
-                  <div className="row-span-2 relative rounded-3xl overflow-hidden border border-border shadow-soft-md bg-muted">
+                  <div className="row-span-2 relative rounded-2xl overflow-hidden border border-border shadow-soft-sm bg-muted">
                     <img
                       src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/001_Car_factory_assembly_line_-_Opel_factory_in_Gliwice%2C_Poland.jpg/1280px-001_Car_factory_assembly_line_-_Opel_factory_in_Gliwice%2C_Poland.jpg"
                       alt="Modern automotive assembly line at a manufacturing factory"
@@ -303,7 +303,7 @@ export default async function ProductSourcingPage() {
                   </div>
 
                   {/* Top right image */}
-                  <div className="relative rounded-3xl overflow-hidden border border-border shadow-soft-md bg-muted">
+                  <div className="relative rounded-2xl overflow-hidden border border-border shadow-soft-sm bg-muted">
                     <img
                       src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Container-Terminal_Bremerhaven_02.jpg/1280px-Container-Terminal_Bremerhaven_02.jpg"
                       alt="Container cranes and stacked cargo at a shipping port terminal"
@@ -318,7 +318,7 @@ export default async function ProductSourcingPage() {
                   </div>
 
                   {/* Bottom right image */}
-                  <div className="relative rounded-3xl overflow-hidden border border-border shadow-soft-md bg-muted">
+                  <div className="relative rounded-2xl overflow-hidden border border-border shadow-soft-sm bg-muted">
                     <img
                       src="https://upload.wikimedia.org/wikipedia/commons/4/49/Inspektor_QC_India_membuat_FAI_%28First_Article_Inspection%29.png"
                       alt="Quality control inspector performing first article inspection on a product"
@@ -340,7 +340,7 @@ export default async function ProductSourcingPage() {
         {/* Overview */}
         <section
           id="overview"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-muted/30 scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-muted/30 scroll-mt-24"
         >
           <div className="container mx-auto max-w-7xl">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -350,7 +350,7 @@ export default async function ProductSourcingPage() {
                   Why Choose Us
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 Trusted by <span className="text-primary">Businesses</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -375,8 +375,8 @@ export default async function ProductSourcingPage() {
             </div>
 
             {/* Categories */}
-            <div className="bg-white rounded-3xl border border-border shadow-soft-sm p-6 sm:p-8">
-              <h3 className="font-display font-black text-xl sm:text-2xl mb-4 text-center">
+            <div className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-6 sm:p-8">
+              <h3 className="font-display font-black text-xl sm:text-2xl mb-4 text-center tracking-[-0.035em]">
                 Categories We Source
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -388,7 +388,7 @@ export default async function ProductSourcingPage() {
                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                       <PackageCheck className="h-4 w-4 text-primary" />
                     </div>
-                    <span className="text-xs sm:text-sm font-bold text-foreground">
+                    <span className="text-xs sm:text-sm font-semibold text-foreground">
                       {cat}
                     </span>
                   </div>
@@ -401,7 +401,7 @@ export default async function ProductSourcingPage() {
         {/* Services */}
         <section
           id="services"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
         >
           <div className="container mx-auto max-w-7xl">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -411,7 +411,7 @@ export default async function ProductSourcingPage() {
                   What We Do
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 Our <span className="text-primary">Services</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -430,7 +430,7 @@ export default async function ProductSourcingPage() {
         {/* Service Models */}
         <section
           id="models"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-muted/30 scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-muted/30 scroll-mt-24"
         >
           <div className="container mx-auto max-w-7xl">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -440,7 +440,7 @@ export default async function ProductSourcingPage() {
                   Flexible Engagement
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 Service <span className="text-primary">Models</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -455,14 +455,14 @@ export default async function ProductSourcingPage() {
                 return (
                   <div
                     key={model.title}
-                    className="bg-white rounded-3xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-6 sm:p-7"
+                    className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-6 sm:p-7"
                   >
                     <div className="flex items-center gap-3 mb-5">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary flex items-center justify-center">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary flex items-center justify-center">
                         <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-display font-black text-lg sm:text-xl">
+                        <h3 className="font-display font-black text-lg sm:text-xl tracking-[-0.035em]">
                           {model.title}
                         </h3>
                         <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">
@@ -502,7 +502,7 @@ export default async function ProductSourcingPage() {
         {/* Process */}
         <section
           id="process"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-muted/30 scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-muted/30 scroll-mt-24"
         >
           <div className="container mx-auto max-w-7xl">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -512,7 +512,7 @@ export default async function ProductSourcingPage() {
                   How It Works
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 The <span className="text-primary">Process</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -526,20 +526,20 @@ export default async function ProductSourcingPage() {
                 return (
                   <div
                     key={step.step}
-                    className="relative bg-white rounded-3xl border-2 border-primary/20 shadow-soft-md hover:shadow-soft-lg hover:border-primary/50 transition-all duration-200 p-7 sm:p-8 overflow-hidden"
+                    className="relative bg-white rounded-2xl border-2 border-primary/20 shadow-soft-md hover:shadow-soft-lg hover:border-primary/50 transition-all duration-200 p-7 sm:p-8 overflow-hidden"
                   >
                     {/* Top accent bar */}
                     <div className="absolute top-0 inset-x-0 h-2 bg-primary" />
 
                     <div className="flex items-center justify-between mb-5 mt-1">
-                      <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-red">
+                      <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center shadow-red">
                         <Icon className="h-7 w-7 text-white" />
                       </div>
                       <div className="text-5xl font-black text-primary">
                         {step.step}
                       </div>
                     </div>
-                    <h3 className="font-display font-black text-xl mb-2">
+                    <h3 className="font-display font-black text-xl mb-2 tracking-[-0.035em]">
                       {step.title}
                     </h3>
                     <p className="text-base text-muted-foreground leading-relaxed font-medium">
@@ -555,7 +555,7 @@ export default async function ProductSourcingPage() {
         {/* How Costs Work */}
         <section
           id="costs"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
         >
           <div className="container mx-auto max-w-5xl">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -565,7 +565,7 @@ export default async function ProductSourcingPage() {
                   Transparent Pricing
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 How <span className="text-primary">Costs Work</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -580,12 +580,12 @@ export default async function ProductSourcingPage() {
                 return (
                   <div
                     key={item.title}
-                    className="bg-white rounded-3xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-5 sm:p-6"
+                    className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-5 sm:p-6"
                   >
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                       <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                     </div>
-                    <h3 className="font-display font-black text-base sm:text-lg mb-2">
+                    <h3 className="font-display font-black text-base sm:text-lg mb-2 tracking-[-0.035em]">
                       {item.title}
                     </h3>
                     <p className="text-sm text-muted-foreground leading-relaxed font-medium">
@@ -597,8 +597,8 @@ export default async function ProductSourcingPage() {
             </div>
 
             {/* Value Proposition */}
-            <div className="bg-muted/30 rounded-3xl p-6 sm:p-8">
-              <h3 className="font-display font-black text-xl sm:text-2xl text-center mb-6">
+            <div className="bg-muted/30 rounded-2xl p-6 sm:p-8">
+              <h3 className="font-display font-black text-xl sm:text-2xl text-center mb-6 tracking-[-0.035em]">
                 Our Value <span className="text-primary">Proposition</span>
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -606,7 +606,7 @@ export default async function ProductSourcingPage() {
                   const Icon = vp.icon;
                   return (
                     <div key={vp.title} className="text-center">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
                         <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                       </div>
                       <h4 className="font-black text-sm mb-1">{vp.title}</h4>
@@ -625,7 +625,7 @@ export default async function ProductSourcingPage() {
                 download
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 sm:px-6 h-12 bg-primary text-white rounded-2xl font-black text-sm shadow-red hover:bg-red-700 transition-all duration-200 cursor-pointer press"
+                className="inline-flex items-center gap-2 px-5 sm:px-6 h-12 bg-primary text-white rounded-lg font-black text-sm shadow-red hover:bg-red-700 transition-all duration-200 cursor-pointer press"
               >
                 <FileText className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                 <span>Download Company Profile (PDF)</span>
@@ -660,7 +660,7 @@ export default async function ProductSourcingPage() {
         {/* FAQ */}
         <section
           id="faq"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
         >
           <div className="container mx-auto max-w-3xl">
             <FAQAccordion
@@ -680,7 +680,7 @@ export default async function ProductSourcingPage() {
         {/* Inquire */}
         <section
           id="inquire"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
         >
           <div className="container mx-auto max-w-3xl">
             <div className="text-center mb-10 sm:mb-12">
@@ -690,7 +690,7 @@ export default async function ProductSourcingPage() {
                   Start Sourcing
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 Submit an <span className="text-primary">Inquiry</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -699,7 +699,7 @@ export default async function ProductSourcingPage() {
               </p>
             </div>
 
-            <div className="bg-white rounded-3xl border border-border shadow-soft-md p-6 sm:p-8 lg:p-10">
+            <div className="bg-white rounded-2xl border border-border shadow-soft-md p-6 sm:p-8 lg:p-10">
               <SourcingInquiryForm />
             </div>
           </div>
@@ -721,14 +721,14 @@ function MetricCard({
   label: string;
 }) {
   return (
-    <div className="text-center p-5 sm:p-7 rounded-3xl bg-white border border-border shadow-soft-sm">
-      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+    <div className="text-center p-5 sm:p-7 rounded-2xl bg-white border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200">
+      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4">
         <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
       </div>
       <div className="text-3xl sm:text-4xl md:text-5xl font-black text-primary mb-1 sm:mb-2 leading-none">
         {value}
       </div>
-      <div className="text-xs sm:text-sm text-muted-foreground font-bold">
+      <div className="text-xs sm:text-sm text-muted-foreground font-semibold">
         {label}
       </div>
     </div>
@@ -738,9 +738,9 @@ function MetricCard({
 function ServiceCard({ service }: { service: (typeof SERVICES)[number] }) {
   const Icon = service.icon;
   return (
-    <div className="bg-white rounded-3xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-6 sm:p-7">
+    <div className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-6 sm:p-7">
       <div className="flex items-center justify-between mb-5">
-        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary flex items-center justify-center">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary flex items-center justify-center">
           <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
         </div>
         <div className="text-right">
@@ -752,7 +752,7 @@ function ServiceCard({ service }: { service: (typeof SERVICES)[number] }) {
           </div>
         </div>
       </div>
-      <h3 className="font-display font-black text-xl sm:text-2xl text-foreground mb-2.5">
+      <h3 className="font-display font-black text-xl sm:text-2xl text-foreground mb-2.5 tracking-[-0.035em]">
         {service.title}
       </h3>
       <p className="text-sm text-muted-foreground leading-relaxed mb-5 font-medium">

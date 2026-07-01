@@ -339,7 +339,7 @@ const REQUIREMENTS = [
   "Highest degree certificate/diploma (scanned color copy)",
   "Foreigner Physical Examination Form (provided by our agency)",
   "Non-criminal record certificate",
-  "English proficiency (IELTS ≥ 5.0 or equivalent, or Duolingo where applicable)",
+  "English proficiency (IELTS >= 5.0 or equivalent, or Duolingo where applicable)",
   "Completed university application form (provided after program selection)",
   "Guarantee letter (for applicants under 18)",
   "Additional documents if required by specific universities",
@@ -382,7 +382,7 @@ const DETAILED_PROCESS = [
   {
     step: "07",
     title: "Service Fee Payment",
-    description: "Pay the service/project fee ($2,500–$3,500) to proceed.",
+    description: "Pay the service/project fee ($2,500-$3,500) to proceed.",
   },
   {
     step: "08",
@@ -399,31 +399,31 @@ const DETAILED_PROCESS = [
 
 const STUDENT_NOTES = [
   {
-    icon: "💰",
+    icon: "\ud83d\udcb0",
     title: "Cost of Living",
     description:
       "Generally lower than Europe and the US. Utilities and daily expenses are affordable. Costs vary depending on city and institution.",
   },
   {
-    icon: "📊",
+    icon: "\ud83d\udcca",
     title: "Economic Stability",
     description:
       "China has a stable economy with prices of everyday goods remaining relatively stable over time.",
   },
   {
-    icon: "💼",
+    icon: "\ud83d\udcbc",
     title: "Working While Studying",
     description:
       "International students are not allowed to freely work. Limited work/internship opportunities may be available depending on university policies.",
   },
   {
-    icon: "🛡️",
+    icon: "\ud83d\udee1\ufe0f",
     title: "Safety & Student Life",
     description:
       "China is considered very safe with advanced infrastructure and campus facilities. Exposure to international academic environments.",
   },
   {
-    icon: "🗣️",
+    icon: "\ud83d\udce3\ufe0f",
     title: "Language",
     description:
       "Learning Chinese (Mandarin) is strongly recommended for daily life, integration, and future opportunities.",
@@ -454,7 +454,7 @@ export default async function StudyInChinaPage() {
                     Premium Education Service
                   </span>
                 </div>
-                <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-[-0.04em] mb-5 leading-[1.05]">
+                <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-[-0.035em] mb-5 leading-[1.05]">
                   Study in <span className="text-primary">China</span>
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed mb-8 max-w-2xl font-medium">
@@ -465,7 +465,7 @@ export default async function StudyInChinaPage() {
                 <div className="flex flex-col gap-3 w-full sm:flex-row sm:flex-wrap sm:gap-3 sm:w-auto">
                   <a
                     href="#apply"
-                    className="inline-flex items-center justify-center gap-2 w-full px-5 sm:px-6 h-12 sm:h-14 sm:w-auto bg-primary text-white rounded-xl sm:rounded-2xl font-black text-sm sm:text-base shadow-red hover:bg-red-700 transition-all duration-200 cursor-pointer press"
+                    className="inline-flex items-center justify-center gap-2 w-full px-5 sm:px-6 h-12 sm:h-14 sm:w-auto bg-primary text-white rounded-xl sm:rounded-lg font-black text-sm sm:text-base shadow-red hover:bg-red-700 transition-all duration-200 cursor-pointer press"
                   >
                     <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                     <span>Start Application</span>
@@ -473,7 +473,7 @@ export default async function StudyInChinaPage() {
                   </a>
                   <a
                     href="#universities"
-                    className="inline-flex items-center justify-center gap-2 w-full px-5 sm:px-6 h-12 sm:h-14 sm:w-auto bg-slate-900 text-white rounded-xl sm:rounded-2xl font-black text-sm sm:text-base border border-slate-900 hover:bg-slate-800 hover:border-slate-800 transition-all duration-200 cursor-pointer press shadow-md"
+                    className="inline-flex items-center justify-center gap-2 w-full px-5 sm:px-6 h-12 sm:h-14 sm:w-auto bg-slate-900 text-white rounded-xl sm:rounded-lg font-black text-sm sm:text-base border border-slate-900 hover:bg-slate-800 hover:border-slate-800 transition-all duration-200 cursor-pointer press shadow-md"
                   >
                     <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                     <span>View Universities</span>
@@ -493,7 +493,7 @@ export default async function StudyInChinaPage() {
               <div className="lg:col-span-6">
                 <div className="grid grid-cols-2 grid-rows-2 gap-3 sm:gap-4 h-72 sm:h-80 lg:h-[26rem] max-w-md sm:max-w-lg mx-auto lg:max-w-none">
                   {/* Large image — spans 2 rows */}
-                  <div className="row-span-2 relative rounded-3xl overflow-hidden border border-border shadow-soft-md bg-muted">
+                  <div className="row-span-2 relative rounded-2xl overflow-hidden border border-border shadow-soft-sm bg-muted">
                     <img
                       src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Tsinghua%20University%20Beijing%20campus%20grand%20entrance%20gate%20traditional%20Chinese%20architecture%20autumn%20golden%20trees%20students%20walking%20photorealistic%20high%20quality&image_size=portrait_4_3"
                       alt="Tsinghua University campus entrance in Beijing"
@@ -511,7 +511,7 @@ export default async function StudyInChinaPage() {
                   </div>
 
                   {/* Top right image */}
-                  <div className="relative rounded-3xl overflow-hidden border border-border shadow-soft-md bg-muted">
+                  <div className="relative rounded-2xl overflow-hidden border border-border shadow-soft-sm bg-muted">
                     <img
                       src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Chinese%20university%20students%20walking%20on%20campus%20modern%20buildings%20cherry%20blossom%20spring%20photorealistic%20high%20quality&image_size=square"
                       alt="International students on a Chinese university campus"
@@ -526,7 +526,7 @@ export default async function StudyInChinaPage() {
                   </div>
 
                   {/* Bottom right image */}
-                  <div className="relative rounded-3xl overflow-hidden border border-border shadow-soft-md bg-muted">
+                  <div className="relative rounded-2xl overflow-hidden border border-border shadow-soft-sm bg-muted">
                     <img
                       src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=modern%20Chinese%20university%20library%20building%20glass%20facade%20blue%20sky%20photorealistic%20high%20quality&image_size=square"
                       alt="Modern Chinese university library building"
@@ -548,7 +548,7 @@ export default async function StudyInChinaPage() {
         {/* Overview */}
         <section
           id="overview"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-muted/30 scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-muted/30 scroll-mt-24"
         >
           <div className="container mx-auto max-w-7xl">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -558,7 +558,7 @@ export default async function StudyInChinaPage() {
                   Why Choose Us
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 A Record of <span className="text-primary">Success</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -587,12 +587,12 @@ export default async function StudyInChinaPage() {
               {PROCESS_STEPS.map((step) => (
                 <div
                   key={step.step}
-                  className="bg-white rounded-3xl border border-border shadow-soft-sm p-5 sm:p-6"
+                  className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-5 sm:p-6"
                 >
                   <div className="text-3xl font-black text-primary mb-3">
                     {step.step}
                   </div>
-                  <h3 className="font-display font-black text-lg mb-2">
+                  <h3 className="font-display font-black text-lg mb-2 tracking-[-0.035em]">
                     {step.title}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed font-medium">
@@ -607,7 +607,7 @@ export default async function StudyInChinaPage() {
         {/* Services */}
         <section
           id="services"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
         >
           <div className="container mx-auto max-w-7xl">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -617,7 +617,7 @@ export default async function StudyInChinaPage() {
                   What We Do
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 Our <span className="text-primary">Services</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -637,7 +637,7 @@ export default async function StudyInChinaPage() {
         {/* Fees & Pricing */}
         <section
           id="fees"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
         >
           <div className="container mx-auto max-w-7xl">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -647,7 +647,7 @@ export default async function StudyInChinaPage() {
                   Transparent Pricing
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 Fees & <span className="text-primary">Pricing</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -661,21 +661,21 @@ export default async function StudyInChinaPage() {
               {FEES.map((fee) => (
                 <div
                   key={fee.name}
-                  className={`bg-white rounded-3xl border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-6 sm:p-7 relative ${fee.highlight ? "border-primary shadow-soft-md" : "border-border"}`}
+                  className={`bg-white rounded-2xl border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-6 sm:p-7 relative ${fee.highlight ? "border-primary shadow-soft-md" : "border-border"}`}
                 >
                   {fee.highlight && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-primary text-white text-[10px] font-black uppercase tracking-wider">
                       Core Service
                     </div>
                   )}
-                  <h3 className="font-display font-black text-lg sm:text-xl mb-2">
+                  <h3 className="font-display font-black text-lg sm:text-xl mb-2 tracking-[-0.035em]">
                     {fee.name}
                   </h3>
                   <div className="mb-3">
                     <span className="text-3xl sm:text-4xl font-black text-primary">
                       {fee.price}
                     </span>
-                    <span className="text-sm text-muted-foreground font-bold ml-2">
+                    <span className="text-sm text-muted-foreground font-semibold ml-2">
                       {fee.priceNote}
                     </span>
                   </div>
@@ -717,7 +717,7 @@ export default async function StudyInChinaPage() {
                 download
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 sm:px-6 h-12 bg-primary text-white rounded-2xl font-black text-sm shadow-red hover:bg-red-700 transition-all duration-200 cursor-pointer press"
+                className="inline-flex items-center gap-2 px-5 sm:px-6 h-12 bg-primary text-white rounded-lg font-black text-sm shadow-red hover:bg-red-700 transition-all duration-200 cursor-pointer press"
               >
                 <FileText className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                 <span>Download Full Guide (PDF)</span>
@@ -729,7 +729,7 @@ export default async function StudyInChinaPage() {
         {/* Universities */}
         <section
           id="universities"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-muted/30 scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-muted/30 scroll-mt-24"
         >
           <div className="container mx-auto max-w-7xl">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -739,7 +739,7 @@ export default async function StudyInChinaPage() {
                   Partner Universities
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 Top <span className="text-primary">Universities</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -755,7 +755,7 @@ export default async function StudyInChinaPage() {
         {/* Scholarship Types */}
         <section
           id="scholarships"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
         >
           <div className="container mx-auto max-w-5xl">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -765,7 +765,7 @@ export default async function StudyInChinaPage() {
                   Scholarship Options
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 Types of <span className="text-primary">Scholarships</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -778,7 +778,7 @@ export default async function StudyInChinaPage() {
               {SCHOLARSHIP_TYPES.map((sch) => (
                 <div
                   key={sch.type}
-                  className="bg-white rounded-3xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-5 sm:p-6"
+                  className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-5 sm:p-6"
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div
@@ -786,7 +786,7 @@ export default async function StudyInChinaPage() {
                     >
                       {sch.type}
                     </div>
-                    <h3 className="font-display font-black text-base sm:text-lg leading-tight">
+                    <h3 className="font-display font-black text-base sm:text-lg leading-tight tracking-[-0.035em]">
                       {sch.title}
                     </h3>
                   </div>
@@ -843,7 +843,7 @@ export default async function StudyInChinaPage() {
         {/* Requirements & Process */}
         <section
           id="requirements"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-muted/30 scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-muted/30 scroll-mt-24"
         >
           <div className="container mx-auto max-w-5xl">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -853,7 +853,7 @@ export default async function StudyInChinaPage() {
                   Get Prepared
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 Requirements & <span className="text-primary">Process</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -864,8 +864,8 @@ export default async function StudyInChinaPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
               {/* Requirements */}
-              <div className="bg-white rounded-3xl border border-border shadow-soft-sm p-6 sm:p-7">
-                <h3 className="font-display font-black text-xl mb-4">
+              <div className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-6 sm:p-7">
+                <h3 className="font-display font-black text-xl mb-4 tracking-[-0.035em]">
                   Document Checklist
                 </h3>
                 <ul className="space-y-2.5">
@@ -885,8 +885,8 @@ export default async function StudyInChinaPage() {
               </div>
 
               {/* Process */}
-              <div className="bg-white rounded-3xl border border-border shadow-soft-sm p-6 sm:p-7">
-                <h3 className="font-display font-black text-xl mb-4">
+              <div className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-6 sm:p-7">
+                <h3 className="font-display font-black text-xl mb-4 tracking-[-0.035em]">
                   Application Process
                 </h3>
                 <ol className="space-y-3">
@@ -911,14 +911,14 @@ export default async function StudyInChinaPage() {
 
             {/* Student Life Notes */}
             <div className="mt-8">
-              <h3 className="font-display font-black text-xl text-center mb-6">
+              <h3 className="font-display font-black text-xl text-center mb-6 tracking-[-0.035em]">
                 Living in China
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {STUDENT_NOTES.map((note) => (
                   <div
                     key={note.title}
-                    className="bg-white rounded-2xl border border-border shadow-soft-sm p-5"
+                    className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-5"
                   >
                     <div className="text-2xl mb-2">{note.icon}</div>
                     <h4 className="font-black text-sm mb-1.5">{note.title}</h4>
@@ -935,7 +935,7 @@ export default async function StudyInChinaPage() {
         {/* Apply */}
         <section
           id="apply"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
         >
           <div className="container mx-auto max-w-3xl">
             <div className="text-center mb-10 sm:mb-12">
@@ -945,7 +945,7 @@ export default async function StudyInChinaPage() {
                   Get Started
                 </span>
               </div>
-              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.04em] mb-4 leading-[1.05]">
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05]">
                 Apply to <span className="text-primary">Study in China</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
@@ -954,7 +954,7 @@ export default async function StudyInChinaPage() {
               </p>
             </div>
 
-            <div className="bg-white rounded-3xl border border-border shadow-soft-md p-6 sm:p-8 lg:p-10">
+            <div className="bg-white rounded-2xl border border-border shadow-soft-md p-6 sm:p-8 lg:p-10">
               <StudyApplicationForm />
             </div>
           </div>
@@ -963,7 +963,7 @@ export default async function StudyInChinaPage() {
         {/* FAQ */}
         <section
           id="faq"
-          className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-24"
         >
           <div className="container mx-auto max-w-3xl">
             <FAQAccordion
@@ -997,14 +997,14 @@ function MetricCard({
   label: string;
 }) {
   return (
-    <div className="text-center p-5 sm:p-7 rounded-3xl bg-white border border-border shadow-soft-sm">
-      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+    <div className="text-center p-5 sm:p-7 rounded-2xl bg-white border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200">
+      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4">
         <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
       </div>
       <div className="text-3xl sm:text-4xl md:text-5xl font-black text-primary mb-1 sm:mb-2 leading-none">
         {value}
       </div>
-      <div className="text-xs sm:text-sm text-muted-foreground font-bold">
+      <div className="text-xs sm:text-sm text-muted-foreground font-semibold">
         {label}
       </div>
     </div>
@@ -1014,9 +1014,9 @@ function MetricCard({
 function ServiceCard({ service }: { service: (typeof SERVICES)[number] }) {
   const Icon = service.icon;
   return (
-    <div className="bg-white rounded-3xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-6 sm:p-7">
+    <div className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-6 sm:p-7">
       <div className="flex items-center justify-between mb-5">
-        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary flex items-center justify-center">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary flex items-center justify-center">
           <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
         </div>
         <div className="text-right">
@@ -1028,7 +1028,7 @@ function ServiceCard({ service }: { service: (typeof SERVICES)[number] }) {
           </div>
         </div>
       </div>
-      <h3 className="font-display font-black text-xl sm:text-2xl text-foreground mb-2.5">
+      <h3 className="font-display font-black text-xl sm:text-2xl text-foreground mb-2.5 tracking-[-0.035em]">
         {service.title}
       </h3>
       <p className="text-sm text-muted-foreground leading-relaxed mb-5 font-medium">
