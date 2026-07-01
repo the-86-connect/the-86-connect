@@ -31,10 +31,8 @@ import {
   AlertTriangle,
   Eye,
   EyeOff,
-  ExternalLink,
   Settings,
   CalendarCheck,
-  Video,
   MessageSquare,
 } from "lucide-react";
 import { useUserAuth } from "@/context/user-auth-context";
@@ -1266,17 +1264,10 @@ function ConsultationCard({
     "bg-slate-50 text-slate-600 border-slate-200";
   const statusLabel =
     consultation.status.charAt(0).toUpperCase() + consultation.status.slice(1);
-  const MeetingIcon = consultation.meetingType === "online" ? Video : Phone;
-  const meetingLabel =
-    consultation.meetingType === "online" ? "Video" : "Phone";
 
   const canCancel = ["pending", "confirmed", "rescheduled"].includes(
     consultation.status,
   );
-  const canJoin =
-    consultation.meetingType === "online" &&
-    Boolean(consultation.meetingUrl) &&
-    ["confirmed", "rescheduled"].includes(consultation.status);
   const isCancelling = cancellingId === consultation.id;
 
   return (
@@ -1318,21 +1309,6 @@ function ConsultationCard({
                 {formatConsultationTime(consultation.preferredTime)}
               </span>
             </span>
-            <span className="inline-flex items-center gap-1">
-              <MeetingIcon className="h-3.5 w-3.5" />
-              <span className="font-medium">{meetingLabel}</span>
-            </span>
-            {canJoin && (
-              <a
-                href={consultation.meetingUrl ?? "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-semibold"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                Join meeting
-              </a>
-            )}
           </div>
 
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground">

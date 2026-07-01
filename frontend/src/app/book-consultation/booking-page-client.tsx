@@ -14,9 +14,7 @@ import {
   Video,
   Phone,
   Calendar,
-  Clock,
   ArrowLeft,
-  ChevronDown,
   UserCheck,
   RefreshCw,
 } from "lucide-react";
@@ -35,6 +33,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { BookingDatePicker } from "@/components/ui/booking-date-picker";
+import { BookingTimeSlots } from "@/components/ui/booking-time-slots";
 import { cn } from "@/lib/utils";
 
 const SERVICE_OPTIONS = [
@@ -83,6 +83,39 @@ function getMaxDateISO(): string {
   const d = new Date();
   d.setMonth(d.getMonth() + 3);
   return d.toISOString().split("T")[0];
+}
+
+/**
+ * Convert a time string stored in China Standard Time (UTC+8) to the user's
+ * local timezone. Returns a Date object representing the local time.
+ *
+ * @param dateStr - ISO date prefix, e.g. "2026-07-02"
+ * @param timeStr - China time "HH:MM", e.g. "12:00"
+ */
+function chinaTimeToLocal(dateStr: string, timeStr: string): Date {
+  // Interpret the given date+time as China Standard Time (UTC+8)
+  return new Date(`${dateStr}T${timeStr}:00+08:00`);
+}
+
+/**
+ * Format a Date as a short local time string, e.g. "4:00 AM"
+ */
+function formatLocalTime(d: Date): string {
+  return d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+/**
+ * Format a China time "HH:MM" as a 12-hour string, e.g. "12:00 PM"
+ */
+function formatChinaTime(timeStr: string): string {
+  const hour = parseInt(timeStr.split(":")[0], 10);
+  const ampm = hour < 12 ? "AM" : "PM";
+  const h12 = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+  return `${h12}:00 ${ampm}`;
 }
 
 export function BookingPageClient() {
@@ -146,21 +179,21 @@ export function BookingPageClient() {
   }, [isAuthenticated, user, setValue]);
 
   const selectedService = watch("service");
-  const selectedMeeting = watch("meetingType");
+  const selectedMeeting = watch("meetingType"); // kept for form default, not shown in UI
   const selectedSlotId = watch("availabilitySlotId");
   const messageValue = watch("message") ?? "";
 
   // Unique sorted list of dates that have at least one available slot
   const availableDates = useMemo(() => {
     const set = new Set<string>();
-    availableSlots.forEach((s) => set.add(s.date));
+    availableSlots.forEach((s) => set.add(s.date.split("T")[0]));
     return Array.from(set).sort();
   }, [availableSlots]);
 
-  // Slots available for the selected date
+  // Slots available for the selected date (match by date part only)
   const timesForDate = useMemo(() => {
     if (!selectedDate) return [];
-    return availableSlots.filter((s) => s.date === selectedDate);
+    return availableSlots.filter((s) => s.date.split("T")[0] === selectedDate);
   }, [availableSlots, selectedDate]);
 
   // The currently selected slot object (for the booking summary)
@@ -205,12 +238,12 @@ export function BookingPageClient() {
           </div>
         </div>
         <h1 className="font-display font-black text-3xl sm:text-4xl mb-3">
-          Booking Received!
+          Booking Submitted!
         </h1>
         <p className="text-muted-foreground max-w-md mb-6 leading-relaxed">
-          Thank you for booking a consultation with 86 Connect. Our team will
-          review your request and contact you within 24 hours to confirm the
-          details and meeting link.
+          Your consultation request has been submitted successfully. Please
+          check your WhatsApp, account, or email — we&apos;ll contact you soon
+          to confirm.
         </p>
 
         <a
@@ -407,85 +440,24 @@ export function BookingPageClient() {
             </div>
           </div>
 
-          {/* Meeting Type */}
-          <div className="space-y-2">
-            <span className="text-sm font-bold leading-none">
-              Meeting Type <span className="text-primary">*</span>
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {MEETING_OPTIONS.map((option) => {
-                const isSelected = selectedMeeting === option.value;
-                const Icon = option.icon;
-                return (
-                  <button
-                    type="button"
-                    key={option.value}
-                    onClick={() =>
-                      setValue("meetingType", option.value, {
-                        shouldValidate: true,
-                      })
-                    }
-                    className={cn(
-                      "group relative text-left p-3.5 rounded-2xl border-2 transition-all duration-300 cursor-pointer press overflow-hidden",
-                      isSelected
-                        ? "border-primary bg-primary/5 shadow-glow-sm"
-                        : "border-border bg-card hover:border-primary/40 hover:shadow-3d-sm",
-                    )}
-                  >
-                    <div className="relative flex items-center gap-3">
-                      <div
-                        className={cn(
-                          "shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300",
-                          isSelected
-                            ? "bg-gradient-to-br from-primary to-red-700 shadow-glow"
-                            : "bg-primary/10",
-                        )}
-                      >
-                        <Icon
-                          className={cn(
-                            "h-4 w-4 transition-colors",
-                            isSelected ? "text-white" : "text-primary",
-                          )}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-bold text-foreground">
-                          {option.label}
-                        </div>
-                        <div className="text-[11px] text-muted-foreground mt-0.5">
-                          {option.description}
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Date + Time */}
           {slotsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-              <div className="space-y-2">
-                <Label>
+            <div className="space-y-5">
+              <div>
+                <Label className="mb-2 block">
                   <span className="inline-flex items-center gap-1.5">
                     <Calendar className="h-3.5 w-3.5" />
                     Available Dates <span className="text-primary">*</span>
                   </span>
                 </Label>
-                <div className="h-12 rounded-xl border-2 border-border bg-white flex items-center justify-center text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Loading available times…
+                <div className="h-64 rounded-2xl border-2 border-border bg-white flex items-center justify-center">
+                  <div className="text-center">
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" />
+                    <p className="text-sm font-semibold text-muted-foreground">
+                      Loading available dates…
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5" />
-                    Available Times <span className="text-primary">*</span>
-                  </span>
-                </Label>
-                <div className="h-12 rounded-xl border-2 border-border bg-white" />
               </div>
             </div>
           ) : slotsError || availableSlots.length === 0 ? (
@@ -513,102 +485,48 @@ export function BookingPageClient() {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-              {/* Date dropdown */}
-              <div className="space-y-2">
-                <Label>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5" />
-                    Available Dates <span className="text-primary">*</span>
-                  </span>
-                </Label>
-                <div className="relative group">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/60 group-focus-within:text-primary pointer-events-none transition-colors z-10" />
-                  <select
-                    id="selectedDate"
-                    aria-invalid={!!errors.availabilitySlotId}
-                    className={cn(
-                      "w-full h-12 rounded-xl border-2 border-border bg-white pl-10 pr-10 text-sm font-semibold text-foreground transition-all cursor-pointer appearance-none",
-                      "focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 focus:shadow-glow-sm",
-                      errors.availabilitySlotId &&
-                        "border-destructive focus:border-destructive focus:ring-destructive/10",
-                    )}
-                    value={selectedDate}
-                    onChange={(e) => {
-                      setSelectedDate(e.target.value);
-                      setValue("availabilitySlotId", "", {
-                        shouldValidate: false,
-                      });
-                    }}
-                  >
-                    <option value="" className="text-muted-foreground">
-                      Select a date
-                    </option>
-                    {availableDates.map((dateIso) => {
-                      const d = new Date(dateIso + "T00:00:00");
-                      const label = d.toLocaleDateString("en-US", {
-                        weekday: "short",
-                        month: "short",
-                        day: "numeric",
-                      });
-                      return (
-                        <option key={dateIso} value={dateIso}>
-                          {label}
-                        </option>
-                      );
-                    })}
-                  </select>
-                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary pointer-events-none transition-colors" />
-                </div>
-              </div>
+            <div className="space-y-5">
+              {/* Date picker — horizontal scrollable */}
+              <BookingDatePicker
+                availableDates={availableDates}
+                selectedDate={selectedDate}
+                onDateSelect={(d) => {
+                  setSelectedDate(d);
+                  setValue("availabilitySlotId", "", { shouldValidate: false });
+                }}
+              />
 
-              {/* Time dropdown */}
-              <div className="space-y-2">
-                <Label>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5" />
-                    Available Times <span className="text-primary">*</span>
-                  </span>
-                </Label>
-                <div className="relative group">
-                  <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/60 group-focus-within:text-primary pointer-events-none transition-colors z-10" />
-                  <select
-                    id="availabilitySlotId"
-                    aria-invalid={!!errors.availabilitySlotId}
-                    disabled={!selectedDate}
-                    className={cn(
-                      "w-full h-12 rounded-xl border-2 border-border bg-white pl-10 pr-10 text-sm font-semibold text-foreground transition-all cursor-pointer appearance-none",
-                      "focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 focus:shadow-glow-sm",
-                      "disabled:opacity-50 disabled:cursor-not-allowed",
-                      errors.availabilitySlotId &&
-                        "border-destructive focus:border-destructive focus:ring-destructive/10",
-                    )}
-                    {...register("availabilitySlotId")}
-                    value={selectedSlotId}
-                  >
-                    <option value="" className="text-muted-foreground">
-                      {selectedDate ? "Select a time" : "Pick a date first"}
-                    </option>
-                    {timesForDate.map((slot) => {
-                      const hour = parseInt(slot.startTime.split(":")[0], 10);
-                      const ampm = hour < 12 ? "AM" : "PM";
-                      const displayHour =
-                        hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-                      return (
-                        <option key={slot.id} value={slot.id}>
-                          {displayHour}:00 {ampm}
-                        </option>
-                      );
-                    })}
-                  </select>
-                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary pointer-events-none transition-colors" />
+              {/* Time slot buttons — shown when a date is selected */}
+              {selectedDate && (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-black text-foreground">
+                    Available times{" "}
+                    <span className="text-muted-foreground text-xs font-semibold ml-1">
+                      (China time zone)
+                    </span>
+                  </h3>
+                  <BookingTimeSlots
+                    slots={timesForDate}
+                    selectedSlotId={selectedSlotId}
+                    onSlotSelect={(id) =>
+                      setValue("availabilitySlotId", id, { shouldValidate: true })
+                    }
+                    timeFormatter={(slot) => {
+                      const datePart = slot.date.split("T")[0];
+                      const localDate = chinaTimeToLocal(datePart, slot.startTime);
+                      return {
+                        primary: formatLocalTime(localDate),
+                        secondary: `${formatChinaTime(slot.startTime)} CST`,
+                      };
+                    }}
+                  />
+                  {errors.availabilitySlotId && (
+                    <p className="text-xs font-bold text-destructive mt-1">
+                      {errors.availabilitySlotId.message}
+                    </p>
+                  )}
                 </div>
-                {errors.availabilitySlotId && (
-                  <p className="text-xs font-bold text-destructive">
-                    {errors.availabilitySlotId.message}
-                  </p>
-                )}
-              </div>
+              )}
             </div>
           )}
 
@@ -652,15 +570,23 @@ export function BookingPageClient() {
                 {" · "}
                 {selectedMeeting === "online" ? "Online meeting" : "Phone call"}
                 {(selectedSlot?.date ?? selectedDate) &&
-                  ` · ${new Date(
-                    (selectedSlot?.date ?? selectedDate) + "T00:00:00",
-                  ).toLocaleDateString("en-US", {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                  })}`}
+                  (() => {
+                    const raw = selectedSlot?.date ?? selectedDate;
+                    const datePart = raw.split("T")[0];
+                    return ` · ${new Date(datePart + "T00:00:00").toLocaleDateString("en-US", {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric",
+                    })}`;
+                  })()}
                 {selectedSlot &&
                   ` · ${(() => {
+                    const datePart = selectedSlot.date.split("T")[0];
+                    const localDate = chinaTimeToLocal(datePart, selectedSlot.startTime);
+                    return formatLocalTime(localDate);
+                  })()}`}
+                {selectedSlot &&
+                  ` · CST ${(() => {
                     const h = parseInt(selectedSlot.startTime.split(":")[0], 10);
                     const a = h < 12 ? "AM" : "PM";
                     const dh = h > 12 ? h - 12 : h === 0 ? 12 : h;
@@ -701,9 +627,9 @@ export function BookingPageClient() {
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           {
-            icon: Clock,
-            title: "30-Minute Session",
-            description: "Enough time to cover your key questions",
+            icon: Video,
+            title: "15–30 Min Session",
+            description: "Zoom · VooV · Tencent · Google Meet",
           },
           {
             icon: CheckCircle2,

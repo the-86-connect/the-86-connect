@@ -178,14 +178,17 @@ availabilityAdminRouter.post("/bulk", async (req, res) => {
 
     const { dateFrom, dateTo, timeFrom, timeTo, daysOfWeek } = parsed.data;
 
-    // Generate list of hourly time slots from timeFrom to timeTo (exclusive)
+    // Generate list of hourly time slots from timeFrom to timeTo (exclusive at hour boundary)
+    // If timeTo has non-zero minutes (e.g., "23:59"), round up to include the final hour slot
     const timeSlots: { startTime: string; endTime: string }[] = [];
     const startHour = parseInt(timeFrom.split(":")[0], 10);
-    const endHour = parseInt(timeTo.split(":")[0], 10);
+    const endMinutes = parseInt(timeTo.split(":")[1], 10);
+    const endHour =
+      parseInt(timeTo.split(":")[0], 10) + (endMinutes > 0 ? 1 : 0);
     for (let h = startHour; h < endHour; h++) {
       timeSlots.push({
         startTime: `${String(h).padStart(2, "0")}:00`,
-        endTime: `${String(h + 1).padStart(2, "0")}:00`,
+        endTime: `${String((h + 1) % 24).padStart(2, "0")}:00`,
       });
     }
 

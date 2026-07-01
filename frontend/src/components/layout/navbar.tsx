@@ -161,18 +161,20 @@ export function Navbar() {
     const baseClasses =
       "relative px-1 py-2 text-sm font-bold tracking-wide transition-colors duration-200 cursor-pointer press";
 
+    // White text when navbar is transparent (over hero image),
+    // dark text when navbar has white background (scrolled)
+    const idleColor = scrolled
+      ? "text-foreground/70 hover:text-foreground"
+      : "text-white/85 hover:text-white";
+    const activeColor = scrolled ? "text-primary" : "text-white";
+
     if (link.href) {
       return (
         <Link
           key={link.label}
           href={link.href}
           aria-current={active ? "page" : undefined}
-          className={cn(
-            baseClasses,
-            active
-              ? "text-primary"
-              : "text-foreground/70 hover:text-foreground",
-          )}
+          className={cn(baseClasses, active ? activeColor : idleColor)}
         >
           {link.label}
           <span
@@ -199,11 +201,7 @@ export function Navbar() {
         type="button"
         onClick={handleClick}
         aria-current={active ? "page" : undefined}
-        className={cn(
-          baseClasses,
-          "group",
-          active ? "text-primary" : "text-foreground/70 hover:text-foreground",
-        )}
+        className={cn(baseClasses, "group", active ? activeColor : idleColor)}
       >
         {link.label}
         <span
@@ -254,7 +252,12 @@ export function Navbar() {
             <div className="hidden lg:flex items-center gap-3">
               <Link
                 href={isAuthenticated ? "/account" : "/login"}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-foreground/80 hover:text-primary transition-colors duration-200 cursor-pointer press"
+                className={cn(
+                  "inline-flex items-center gap-2 px-4 py-2 text-sm font-bold transition-colors duration-200 cursor-pointer press",
+                  scrolled
+                    ? "text-foreground/80 hover:text-primary"
+                    : "text-white/85 hover:text-white",
+                )}
               >
                 {isAuthenticated ? (
                   <>
@@ -274,7 +277,12 @@ export function Navbar() {
                   if (isHome) handleScrollClick("contact");
                   else window.location.href = "/#contact";
                 }}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:bg-red-700 transition-colors duration-200 cursor-pointer press"
+                className={cn(
+                  "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-colors duration-200 cursor-pointer press",
+                  scrolled
+                    ? "bg-primary text-white hover:bg-red-700"
+                    : "bg-white text-slate-900 hover:bg-white/90",
+                )}
               >
                 <span>Get Started</span>
                 <Mail className="h-4 w-4" />

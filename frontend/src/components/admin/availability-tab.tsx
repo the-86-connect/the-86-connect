@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   CalendarClock,
-  Plus,
   Trash2,
   RefreshCw,
   Loader2,
@@ -17,15 +16,17 @@ import {
   CalendarDays,
   Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
+  AdminSlotCalendar,
+  type SlotDateInfo,
+} from "@/components/ui/admin-slot-calendar";
+import {
   fetchAdminSlots,
   fetchAdminSlotStats,
-  createSlot,
   bulkCreateSlots,
   deleteSlot,
   updateSlotStatus,
@@ -97,19 +98,11 @@ export function AvailabilityTab() {
   const [dateTo, setDateTo] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  // Single slot form
-  const [singleDate, setSingleDate] = useState("");
-  const [singleStart, setSingleStart] = useState("");
-  const [singleEnd, setSingleEnd] = useState("");
-  const [creating, setCreating] = useState(false);
-
-  // Bulk generate form
-  const [bulkDateFrom, setBulkDateFrom] = useState("");
-  const [bulkDateTo, setBulkDateTo] = useState("");
-  const [bulkTimeFrom, setBulkTimeFrom] = useState("09:00");
-  const [bulkTimeTo, setBulkTimeTo] = useState("17:00");
-  const [bulkDays, setBulkDays] = useState<number[]>([1, 2, 3, 4, 5]);
-  const [bulkCreating, setBulkCreating] = useState(false);
+  // Calendar-based selection state
+  const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
+  const [calTimeFrom, setCalTimeFrom] = useState("12:00");
+  const [calTimeTo, setCalTimeTo] = useState("23:59");
+  const [calCreating, setCalCreating] = useState(false);
 
   // Row actions
   const [actioningId, setActioningId] = useState<string | null>(null);
@@ -184,44 +177,6 @@ export function AvailabilityTab() {
       );
     };
   }, [fetchSlots, fetchStats]);
-
-  /* ---------------- Single slot creation ---------------- */
-
-  const handleCreateSingle = async () => {
-    if (!singleDate || !singleStart || !singleEnd) {
-      toast.error("Missing fields", {
-        description: "Date, start time, and end time are required.",
-      });
-      return;
-    }
-    if (singleStart >= singleEnd) {
-      toast.error("Invalid time range", {
-        description: "Start time must be before end time.",
-      });
-      return;
-    }
-    setCreating(true);
-    try {
-      await createSlot({
-        date: singleDate,
-        startTime: singleStart,
-        endTime: singleEnd,
-      });
-      toast.success("Slot created", {
-        description: `${formatDateShort(singleDate)} · ${formatTime(singleStart)}`,
-      });
-      setSingleDate("");
-      setSingleStart("");
-      setSingleEnd("");
-      await refreshAll();
-    } catch (err) {
-      toast.error("Failed to create slot", {
-        description: err instanceof Error ? err.message : "Please try again.",
-      });
-    } finally {
-      setCreating(false);
-    }
-  };
 
   /* ---------------- Bulk slot generation ---------------- */
 
@@ -371,6 +326,97 @@ export function AvailabilityTab() {
 
   /* ---------------- Derived ---------------- */
 
+  // Aggregate slot statuses per date for the calendar
+  const slotDates = useMemo<SlotDateInfo[]>(() => {
+    const map = new Map<string, Set<string>>();
+    slots.forEach((s) => {
+      const datePart = s.date.split("T")[0];
+      if (!map.has(datePart)) map.set(datePart, new Set());
+      map.get(datePart)!.add(s.status);
+    });
+    return Array.from(map.entries()).map(([date, statuses]) => ({
+      date,
+      statuses,
+    }));
+  }, [slots]);
+
+  const handleDateToggle = (dateIso: string) => {
+    setSelectedDates((prev) => {
+      const next = new Set(prev);
+      if (next.has(dateIso)) next.delete(dateIso);
+      else next.add(dateIso);
+      return next;
+    });
+  };
+
+  const handleRangeSelect = (from: string, to: string) => {
+    const [f, t] = [from, to].sort();
+    const start = new Date(f + "T00:00:00");
+    const end = new Date(t + "T00:00:00");
+    setSelectedDates((prev) => {
+      const next = new Set(prev);
+      const cursor = new Date(start);
+      while (cursor <= end) {
+        const iso = cursor.toISOString().slice(0, 10);
+        next.add(iso);
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      return next;
+    });
+  };
+
+  const handleCreateForSelectedDates = async () => {
+    if (selectedDates.size === 0) {
+      toast.error("No dates selected", {
+        description: "Click dates on the calendar first.",
+      });
+      return;
+    }
+    if (!calTimeFrom || !calTimeTo || calTimeFrom >= calTimeTo) {
+      toast.error("Invalid time range", {
+        description: "Set a valid start and end time.",
+      });
+      return;
+    }
+
+    // Find the first and last selected dates for the bulk API
+    const sorted = Array.from(selectedDates).sort();
+    const dateFrom = sorted[0];
+    const dateTo = sorted[sorted.length - 1];
+
+    // Generate hourly time slots
+    const [fromH] = calTimeFrom.split(":").map(Number);
+    const [toH] = calTimeTo.split(":").map(Number);
+    const daysOfWeek = new Set<number>();
+    selectedDates.forEach((d) => {
+      daysOfWeek.add(new Date(d + "T00:00:00").getDay());
+    });
+
+    setCalCreating(true);
+    try {
+      const result = await bulkCreateSlots({
+        dateFrom,
+        dateTo,
+        timeFrom: calTimeFrom,
+        timeTo: calTimeTo,
+        daysOfWeek: Array.from(daysOfWeek),
+      });
+      toast.success("Slots created", {
+        description: `Created ${result.created} · Skipped ${result.skipped} existing · Total ${result.total} attempted.`,
+      });
+      setSelectedDates(new Set());
+      await refreshAll();
+    } catch (err) {
+      toast.error("Failed to create slots", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    } finally {
+      setCalCreating(false);
+    }
+  };
+
+  const clearSelectedDates = () => setSelectedDates(new Set());
+
   const STAT_CARDS = useMemo(
     () => [
       {
@@ -415,58 +461,44 @@ export function AvailabilityTab() {
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-primary text-white text-[10px] font-black uppercase tracking-wider">
-              Admin
-            </span>
-            <h1 className="font-display font-black text-2xl sm:text-3xl">
-              Availability Slots
-            </h1>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Manage consultation availability — create, block, or remove slots.
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
+      {/* Actions */}
+      <div className="flex items-start justify-end gap-3 flex-wrap">
+        <button
+          type="button"
           onClick={refreshAll}
-          className="gap-1.5"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/70 backdrop-blur-xl border border-slate-200/60 text-slate-700 hover:bg-white hover:text-foreground shadow-sm transition-all cursor-pointer"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Refresh
-        </Button>
+        </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {STAT_CARDS.map((card) => {
           const Icon = card.icon;
           return (
             <div
               key={card.label}
               className={cn(
-                "rounded-xl border p-3 backdrop-blur-xl",
+                "rounded-lg border p-2.5 backdrop-blur-xl",
                 card.tint,
               )}
             >
-              <div className="flex items-center gap-2 mb-1.5">
+              <div className="flex items-center gap-1.5 mb-1">
                 <div
                   className={cn(
-                    "w-7 h-7 rounded-lg flex items-center justify-center",
+                    "w-6 h-6 rounded-md flex items-center justify-center",
                     card.iconBg,
                   )}
                 >
-                  <Icon className={cn("h-3.5 w-3.5", card.iconColor)} />
+                  <Icon className={cn("h-3 w-3", card.iconColor)} />
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   {card.label}
                 </span>
               </div>
-              <div className="text-xl sm:text-2xl font-black text-foreground">
+              <div className="text-lg font-black text-foreground">
                 {card.value}
               </div>
             </div>
@@ -476,69 +508,82 @@ export function AvailabilityTab() {
 
       {/* Creation panels */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Single slot */}
-        <div className="bg-white/70 backdrop-blur-xl border border-slate-200/60 rounded-2xl p-4 space-y-3">
-          <div className="flex items-center gap-2">
+        {/* Calendar-based slot creation */}
+        <div className="bg-white/70 backdrop-blur-xl border border-slate-200/60 rounded-2xl p-4 space-y-3 shadow-sm">
+          <div className="flex items-center gap-2 pb-1 border-b border-slate-200/50">
             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Plus className="h-3.5 w-3.5 text-primary" />
+              <CalendarDays className="h-3.5 w-3.5 text-primary" />
             </div>
-            <h3 className="font-bold text-sm">Add single slot</h3>
+            <h3 className="font-bold text-sm">Select dates on calendar</h3>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div className="space-y-1">
-              <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Date
-              </Label>
-              <Input
-                type="date"
-                value={singleDate}
-                min={todayISO()}
-                onChange={(e) => setSingleDate(e.target.value)}
-                className="h-9 text-xs"
-              />
+          <AdminSlotCalendar
+            slotDates={slotDates}
+            selectedDates={selectedDates}
+            onDateToggle={handleDateToggle}
+            onRangeSelect={handleRangeSelect}
+          />
+
+          {/* Time range + action */}
+          {selectedDates.size > 0 && (
+            <div className="space-y-3 pt-2 border-t border-slate-200/50">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-foreground">
+                  {selectedDates.size} date{selectedDates.size > 1 ? "s" : ""} selected
+                </span>
+                <button
+                  type="button"
+                  onClick={clearSelectedDates}
+                  className="text-[10px] font-bold text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                >
+                  Clear
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Time from
+                  </Label>
+                  <Input
+                    type="time"
+                    value={calTimeFrom}
+                    onChange={(e) => setCalTimeFrom(e.target.value)}
+                    className="h-9 text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Time to
+                  </Label>
+                  <Input
+                    type="time"
+                    value={calTimeTo}
+                    onChange={(e) => setCalTimeTo(e.target.value)}
+                    className="h-9 text-xs"
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleCreateForSelectedDates}
+                disabled={calCreating}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-gradient-to-r from-primary to-red-700 text-white shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 disabled:opacity-60 disabled:cursor-not-allowed transition-all cursor-pointer w-full"
+              >
+                {calCreating ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <CalendarDays className="h-3.5 w-3.5" />
+                )}
+                {calCreating
+                  ? "Creating..."
+                  : `Create slots for ${selectedDates.size} date${selectedDates.size > 1 ? "s" : ""}`}
+              </button>
             </div>
-            <div className="space-y-1">
-              <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Start
-              </Label>
-              <Input
-                type="time"
-                value={singleStart}
-                onChange={(e) => setSingleStart(e.target.value)}
-                className="h-9 text-xs"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                End
-              </Label>
-              <Input
-                type="time"
-                value={singleEnd}
-                onChange={(e) => setSingleEnd(e.target.value)}
-                className="h-9 text-xs"
-              />
-            </div>
-          </div>
-          <Button
-            type="button"
-            size="sm"
-            onClick={handleCreateSingle}
-            disabled={creating}
-            className="gap-1.5 w-full sm:w-auto"
-          >
-            {creating ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Plus className="h-3.5 w-3.5" />
-            )}
-            {creating ? "Adding..." : "Add slot"}
-          </Button>
+          )}
         </div>
 
         {/* Bulk generate */}
-        <div className="bg-white/70 backdrop-blur-xl border border-slate-200/60 rounded-2xl p-4 space-y-3">
-          <div className="flex items-center gap-2">
+        <div className="bg-white/70 backdrop-blur-xl border border-slate-200/60 rounded-2xl p-4 space-y-3 shadow-sm">
+          <div className="flex items-center gap-2 pb-1 border-b border-slate-200/50">
             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
               <Zap className="h-3.5 w-3.5 text-primary" />
             </div>
@@ -607,8 +652,8 @@ export function AvailabilityTab() {
                     className={cn(
                       "px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer",
                       active
-                        ? "bg-primary text-white shadow-sm"
-                        : "bg-muted text-muted-foreground hover:text-foreground",
+                        ? "bg-gradient-to-r from-primary to-red-700 text-white shadow-sm"
+                        : "bg-slate-100/80 text-slate-600 hover:text-foreground hover:bg-slate-200/80",
                     )}
                   >
                     {d.label}
@@ -617,12 +662,11 @@ export function AvailabilityTab() {
               })}
             </div>
           </div>
-          <Button
+          <button
             type="button"
-            size="sm"
             onClick={handleBulkCreate}
             disabled={bulkCreating}
-            className="gap-1.5 w-full sm:w-auto"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-gradient-to-r from-primary to-red-700 text-white shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 disabled:opacity-60 disabled:cursor-not-allowed transition-all cursor-pointer w-full sm:w-auto"
           >
             {bulkCreating ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -630,15 +674,15 @@ export function AvailabilityTab() {
               <Zap className="h-3.5 w-3.5" />
             )}
             {bulkCreating ? "Generating..." : "Generate slots"}
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white/70 backdrop-blur-xl border border-slate-200/60 rounded-2xl p-3 sm:p-4 space-y-3">
+      <div className="bg-white/70 backdrop-blur-xl border border-slate-200/60 rounded-2xl p-3 sm:p-4 shadow-sm">
         <div className="flex flex-wrap items-center gap-2">
           {/* Status tabs */}
-          <div className="flex items-center gap-1 p-1 bg-muted/60 rounded-lg">
+          <div className="inline-flex items-center gap-1 p-1 bg-slate-100/80 rounded-lg">
             {STATUS_FILTERS.map((opt) => (
               <button
                 key={opt.value}
@@ -648,7 +692,7 @@ export function AvailabilityTab() {
                   "px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer",
                   statusFilter === opt.value
                     ? "bg-white shadow-sm text-primary"
-                    : "text-muted-foreground hover:text-foreground",
+                    : "text-slate-600 hover:text-foreground",
                 )}
               >
                 {opt.label}
@@ -673,19 +717,18 @@ export function AvailabilityTab() {
               aria-label="Filter to date"
             />
             {(dateFrom || dateTo || statusFilter !== "all") && (
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
+                type="button"
                 onClick={() => {
                   setDateFrom("");
                   setDateTo("");
                   setStatusFilter("all");
                 }}
-                className="h-8 px-2 text-xs gap-1"
+                className="inline-flex items-center gap-1 h-8 px-2 rounded-md text-xs font-bold text-slate-600 hover:text-foreground hover:bg-slate-100/80 transition-all cursor-pointer"
               >
                 <X className="h-3 w-3" />
                 Clear
-              </Button>
+              </button>
             )}
           </div>
         </div>
@@ -693,25 +736,23 @@ export function AvailabilityTab() {
 
       {/* Bulk actions bar */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-primary/5 border border-primary/15">
-          <span className="text-xs font-bold text-foreground">
+        <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-red-50/70 backdrop-blur-xl border border-red-200/60 shadow-sm">
+          <span className="text-xs font-bold text-red-700">
             {selectedIds.size} selected
           </span>
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
+              type="button"
               onClick={() => setSelectedIds(new Set())}
-              className="h-8 text-xs gap-1"
+              className="inline-flex items-center h-8 px-3 rounded-md text-xs font-bold text-slate-600 hover:text-foreground hover:bg-white/80 transition-all cursor-pointer"
             >
               Clear
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
+            </button>
+            <button
+              type="button"
               onClick={handleBulkDelete}
               disabled={bulkDeleting}
-              className="h-8 text-xs gap-1.5"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-xs font-bold bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm transition-all cursor-pointer"
             >
               {bulkDeleting ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -719,7 +760,7 @@ export function AvailabilityTab() {
                 <Trash2 className="h-3.5 w-3.5" />
               )}
               Delete {selectedIds.size}
-            </Button>
+            </button>
           </div>
         </div>
       )}
@@ -737,15 +778,14 @@ export function AvailabilityTab() {
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
             <X className="h-8 w-8 text-destructive mb-2" />
             <p className="text-sm font-bold text-foreground">{error}</p>
-            <Button
-              variant="outline"
-              size="sm"
+            <button
+              type="button"
               onClick={refreshAll}
-              className="mt-3 gap-1.5"
+              className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/70 backdrop-blur-xl border border-slate-200/60 text-slate-700 hover:bg-white hover:text-foreground shadow-sm transition-all cursor-pointer"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               Retry
-            </Button>
+            </button>
           </div>
         ) : slots.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">

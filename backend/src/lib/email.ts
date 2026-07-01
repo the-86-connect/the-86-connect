@@ -183,7 +183,6 @@ export async function notifyUserConsultationUpdate(data: {
   preferredTime: string;
   consultationId: string;
   isReschedule?: boolean;
-  meetingUrl?: string | null;
 }) {
   const serviceLabel =
     data.service === "study"
@@ -235,17 +234,12 @@ export async function notifyUserConsultationUpdate(data: {
 
   const bodyIntro =
     data.status === "confirmed"
-      ? `Great news! Your consultation has been <strong>confirmed</strong>. Here are your meeting details:`
+      ? `Great news! Your consultation has been <strong>confirmed</strong>. We'll contact you via WhatsApp or email with the meeting details.`
       : data.status === "cancelled"
         ? `We're sorry to inform you that your consultation has been <strong>cancelled</strong>. If you'd like to reschedule, please book a new time or reply to this email.`
         : data.isReschedule
           ? `Your consultation has been <strong>rescheduled</strong>. Here are the updated details:`
           : `Your consultation status has been updated to <strong>${statusLabel}</strong>.`;
-
-  const meetingUrlRow =
-    data.meetingUrl && data.status === "confirmed"
-      ? `<tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Meeting Link</td><td style="padding:8px 12px;border:1px solid #e2e8f0;"><a href="${data.meetingUrl}" style="color:#2563eb;font-weight:600;">Join Meeting</a></td></tr>`
-      : "";
 
   return send({
     to: data.to,
@@ -259,7 +253,6 @@ export async function notifyUserConsultationUpdate(data: {
           <tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;width:150px;">Service</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${serviceLabel}</td></tr>
           <tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Status</td><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;color:${statusColor};">${statusLabel}</td></tr>
           ${data.status !== "cancelled" ? `<tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Date</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${dateStr}</td></tr><tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Time</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${timeStr}</td></tr>` : ""}
-          ${meetingUrlRow}
         </table>
         <p style="margin-top:20px;font-size:13px;color:#64748b;">
           If you have any questions, please reply to this email or <a href="https://wa.me/8617611533296" style="color:#25D366;">chat with us on WhatsApp</a>.

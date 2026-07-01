@@ -53,7 +53,6 @@ import {
 import { Skeleton, TableSkeleton } from "@/components/ui/skeleton";
 import { VideosTab } from "@/components/admin/videos-tab";
 import { OverviewTab } from "@/components/admin/overview-tab";
-import { ConsultationsTab } from "@/components/admin/consultations-tab";
 import { AvailabilityTab } from "@/components/admin/availability-tab";
 import { BulkActions } from "@/components/admin/bulk-actions";
 import { FiltersPanel } from "@/components/admin/filters-panel";
@@ -119,7 +118,6 @@ type TabType =
   | "overview"
   | "submissions"
   | "consultations"
-  | "availability"
   | "users"
   | "videos"
   | "sessions";
@@ -381,12 +379,15 @@ export default function AdminDashboardPage() {
         hash === "overview" ||
         hash === "submissions" ||
         hash === "consultations" ||
-        hash === "availability" ||
         hash === "users" ||
         hash === "videos" ||
         hash === "sessions"
       ) {
         setActiveTab(hash);
+      } else if (hash === "availability") {
+        // Legacy: availability is now a sub-tab inside Consultations
+        window.location.hash = "#consultations";
+        setActiveTab("consultations");
       } else {
         setActiveTab("overview");
       }
@@ -1102,13 +1103,11 @@ export default function AdminDashboardPage() {
                   ? "Submissions"
                   : activeTab === "consultations"
                     ? "Consultations"
-                    : activeTab === "availability"
-                      ? "Availability"
-                      : activeTab === "users"
-                        ? "Users"
-                        : activeTab === "videos"
-                          ? "Videos"
-                          : "Sessions"}
+                    : activeTab === "users"
+                      ? "Users"
+                      : activeTab === "videos"
+                        ? "Videos"
+                        : "Sessions"}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
@@ -1118,13 +1117,11 @@ export default function AdminDashboardPage() {
                 ? "Submissions"
                 : activeTab === "consultations"
                   ? "Consultations"
-                  : activeTab === "availability"
-                    ? "Availability"
-                    : activeTab === "users"
-                      ? "Users"
-                      : activeTab === "videos"
-                        ? "Videos"
-                        : "Sessions"}
+                  : activeTab === "users"
+                    ? "Users"
+                    : activeTab === "videos"
+                      ? "Videos"
+                      : "Sessions"}
           </h1>
           <p className="text-sm text-muted-foreground mt-1.5">
             {activeTab === "overview"
@@ -1132,14 +1129,12 @@ export default function AdminDashboardPage() {
               : activeTab === "submissions"
                 ? "Manage contact form submissions and inquiries"
                 : activeTab === "consultations"
-                  ? "Manage consultation booking requests"
-                  : activeTab === "availability"
-                    ? "Manage consultation availability slots"
-                    : activeTab === "users"
-                      ? "Manage registered users and their accounts"
-                      : activeTab === "videos"
-                        ? "Manage YouTube videos displayed on service pages"
-                        : "Active admin sessions and devices"}
+                  ? "Manage consultation availability slots and bookings"
+                  : activeTab === "users"
+                    ? "Manage registered users and their accounts"
+                    : activeTab === "videos"
+                      ? "Manage YouTube videos displayed on service pages"
+                      : "Active admin sessions and devices"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -1918,9 +1913,7 @@ export default function AdminDashboardPage() {
         </>
       )}
 
-      {activeTab === "consultations" && <ConsultationsTab />}
-
-      {activeTab === "availability" && <AvailabilityTab />}
+      {activeTab === "consultations" && <AvailabilityTab />}
 
       {activeTab === "videos" && <VideosTab />}
 

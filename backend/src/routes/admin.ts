@@ -1344,7 +1344,7 @@ adminRouter.get(
   },
 );
 
-// Update consultation (status, date, time, meeting type, admin notes) — protected
+// Update consultation (status, date, time, admin notes) — protected
 adminRouter.patch("/consultations/:id", authenticateToken, async (req, res) => {
   const id = String(req.params.id);
   const {
@@ -1353,7 +1353,6 @@ adminRouter.patch("/consultations/:id", authenticateToken, async (req, res) => {
     preferredTime,
     meetingType,
     adminNotes,
-    meetingUrl,
   } = req.body;
 
   const updateData: Record<string, unknown> = {};
@@ -1393,13 +1392,6 @@ adminRouter.patch("/consultations/:id", authenticateToken, async (req, res) => {
 
   if (adminNotes !== undefined) {
     updateData.adminNotes = adminNotes || null;
-  }
-
-  if (meetingUrl !== undefined) {
-    if (typeof meetingUrl !== "string" || meetingUrl.length > 500) {
-      return res.status(400).json({ error: "Invalid meeting URL" });
-    }
-    updateData.meetingUrl = meetingUrl || null;
   }
 
   if (Object.keys(updateData).length === 0) {
@@ -1461,7 +1453,6 @@ adminRouter.patch("/consultations/:id", authenticateToken, async (req, res) => {
         preferredTime: updated.preferredTime,
         consultationId: updated.id,
         isReschedule: isReschedule && !isStatusChanged,
-        meetingUrl: updated.meetingUrl,
       }).catch((err) =>
         console.error("Consultation user email error:", (err as Error).message),
       );

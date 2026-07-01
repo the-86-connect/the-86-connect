@@ -13,7 +13,6 @@ import {
   Menu,
   Film,
   CalendarCheck,
-  CalendarClock,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { cn } from "@/lib/utils";
@@ -29,7 +28,6 @@ const NAV_ITEMS: NavItem[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard, hash: "#overview" },
   { id: "submissions", label: "Submissions", icon: Inbox, hash: "#submissions" },
   { id: "consultations", label: "Consultations", icon: CalendarCheck, hash: "#consultations" },
-  { id: "availability", label: "Availability", icon: CalendarClock, hash: "#availability" },
   { id: "users", label: "Users", icon: Users, hash: "#users" },
   { id: "videos", label: "Videos", icon: Film, hash: "#videos" },
   { id: "sessions", label: "Sessions", icon: MonitorSmartphone, hash: "#sessions" },
