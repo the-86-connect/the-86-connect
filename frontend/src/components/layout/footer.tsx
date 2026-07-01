@@ -54,9 +54,9 @@ export function Footer() {
   };
 
   return (
-    <footer className="relative bg-[#0F172A] text-white">
+    <footer className="relative bg-[#0b0f1a] text-white border-t border-primary/20">
       {/* Top gradient accent line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 
       <div className="relative container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-14 sm:pt-16 pb-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 sm:gap-12 lg:gap-16">
@@ -89,7 +89,7 @@ export function Footer() {
                 {["J", "M", "A", "K"].map((letter) => (
                   <div
                     key={letter}
-                    className="w-7 h-7 rounded-full bg-[#0F172A] border-2 border-primary/40 flex items-center justify-center text-primary text-[10px] font-black"
+                    className="w-7 h-7 rounded-full bg-[#0b0f1a] border-2 border-primary/40 flex items-center justify-center text-primary text-[10px] font-black"
                   >
                     {letter}
                   </div>
@@ -156,10 +156,10 @@ export function Footer() {
                   href="mailto:beijingbridgepath@gmail.com"
                   className="group flex items-center gap-3 text-sm text-white/70 hover:text-primary transition-colors duration-300"
                 >
-                  <div className="shrink-0 w-8 h-8 rounded-lg bg-white/[0.04] group-hover:bg-primary flex items-center justify-center transition-all duration-300 border border-white/[0.08] group-hover:border-primary group-hover:shadow-lg group-hover:shadow-primary/20">
+                  <div className="shrink-0 w-7 h-7 rounded-lg bg-white/5 group-hover:bg-primary flex items-center justify-center transition-all border border-white/10 group-hover:border-primary">
                     <Mail className="h-3.5 w-3.5 text-primary group-hover:text-white transition-colors duration-300" />
                   </div>
-                  <span className="break-all font-semibold">
+                  <span className="break-all font-bold">
                     beijingbridgepath@gmail.com
                   </span>
                 </a>
@@ -169,10 +169,10 @@ export function Footer() {
                   href="tel:+8617611533296"
                   className="group flex items-center gap-3 text-sm text-white/70 hover:text-primary transition-colors duration-300"
                 >
-                  <div className="shrink-0 w-8 h-8 rounded-lg bg-white/[0.04] group-hover:bg-primary flex items-center justify-center transition-all duration-300 border border-white/[0.08] group-hover:border-primary group-hover:shadow-lg group-hover:shadow-primary/20">
+                  <div className="shrink-0 w-7 h-7 rounded-lg bg-white/5 group-hover:bg-primary flex items-center justify-center transition-all border border-white/10 group-hover:border-primary">
                     <Phone className="h-3.5 w-3.5 text-primary group-hover:text-white transition-colors duration-300" />
                   </div>
-                  <span className="font-semibold">+86 176 1153 3296</span>
+                  <span className="font-bold">+86 176 1153 3296</span>
                 </a>
               </li>
               <li>
@@ -182,17 +182,17 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="group flex items-center gap-3 text-sm text-white/70 hover:text-[#25D366] transition-colors duration-300"
                 >
-                  <div className="shrink-0 w-8 h-8 rounded-lg bg-white/[0.04] group-hover:bg-[#25D366] flex items-center justify-center transition-all duration-300 border border-white/[0.08] group-hover:border-[#25D366] group-hover:shadow-lg group-hover:shadow-[#25D366]/20">
+                  <div className="shrink-0 w-7 h-7 rounded-lg bg-white/5 group-hover:bg-[#25D366] flex items-center justify-center transition-all border border-white/10 group-hover:border-[#25D366]">
                     <MessageCircle className="h-3.5 w-3.5 text-[#25D366] group-hover:text-white transition-colors duration-300" />
                   </div>
-                  <span className="font-semibold">WhatsApp Chat</span>
+                  <span className="font-bold">WhatsApp Chat</span>
                 </a>
               </li>
               <li className="flex items-center gap-3 text-sm text-white/70">
-                <div className="shrink-0 w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center">
+                <div className="shrink-0 w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
                   <MapPin className="h-3.5 w-3.5 text-primary" />
                 </div>
-                <span className="font-semibold">Beijing, China</span>
+                <span className="font-bold">Beijing, China</span>
               </li>
             </ul>
           </div>
@@ -200,7 +200,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-12 pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/50 text-center sm:text-left font-semibold flex items-center gap-1.5 flex-wrap justify-center">
+          <p className="text-xs text-white/50 text-center sm:text-left font-bold flex items-center gap-1.5 flex-wrap justify-center">
             <span>
               &copy; {new Date().getFullYear()} 86 Connect. All rights reserved.
             </span>

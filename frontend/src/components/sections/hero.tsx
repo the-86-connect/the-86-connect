@@ -69,11 +69,11 @@ export function HeroSection() {
         <>
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/28 to-black/8 pointer-events-none z-[1]"
+            className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-black/10 pointer-events-none z-[1]"
           />
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/8 to-black/0 pointer-events-none z-[1]"
+            className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-black/0 pointer-events-none z-[1]"
           />
         </>
       )}
