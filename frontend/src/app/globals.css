@@ -80,8 +80,8 @@
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 
-  --border: #e2e8f0;
-  --input: #e2e8f0;
+  --border: #94a3b8;
+  --input: #94a3b8;
   --ring: #dc2626;
 }
 
@@ -110,6 +110,7 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
   }
   html {
     scroll-behavior: smooth;
@@ -121,6 +122,79 @@
     font-feature-settings: "kern" 1;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
+    padding-bottom: env(safe-area-inset-bottom);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    opacity: 0;
+    animation: page-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+  }
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="password"],
+  input[type="search"],
+  input[type="url"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+  @media (min-width: 768px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="password"],
+    input[type="search"],
+    input[type="url"],
+    textarea,
+    select {
+      font-size: inherit;
+    }
+  }
+  @media (max-width: 767px) {
+    body {
+      padding-bottom: calc(env(safe-area-inset-bottom) + 76px);
+      -webkit-text-size-adjust: 100%;
+    }
+  }
+  .page-transition {
+    animation: page-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes page-enter {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  #nprogress {
+    pointer-events: none;
+  }
+  #nprogress .bar {
+    background: linear-gradient(90deg, #dc2626, #ef4444);
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+  }
+  #nprogress .peg {
+    display: block;
+    position: absolute;
+    right: 0;
+    width: 100px;
+    height: 100%;
+    box-shadow: 0 0 10px #dc2626, 0 0 5px #dc2626;
+    opacity: 1;
+    transform: rotate(3deg) translate(0px, -4px);
+  }
+  .nprogress-custom-parent {
+    overflow: hidden;
+    position: relative;
   }
   h1,
   h2,
@@ -134,6 +208,9 @@
   ::selection {
     background: #dc2626;
     color: #ffffff;
+  }
+  img {
+    content-visibility: auto;
   }
 }
 
@@ -278,10 +355,22 @@
 
   /* ====== Layout utilities ====== */
   .section-padding {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
   }
   @media (min-width: 640px) {
+    .section-padding {
+      padding-top: 5.5rem;
+      padding-bottom: 5.5rem;
+    }
+  }
+  @media (min-width: 768px) {
+    .section-padding {
+      padding-top: 6rem;
+      padding-bottom: 6rem;
+    }
+  }
+  @media (min-width: 1024px) {
     .section-padding {
       padding-top: 7rem;
       padding-bottom: 7rem;
@@ -295,6 +384,12 @@
     padding-right: 1rem;
   }
   @media (min-width: 640px) {
+    .container-wide {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+  }
+  @media (min-width: 768px) {
     .container-wide {
       padding-left: 1.5rem;
       padding-right: 1.5rem;
@@ -841,22 +936,19 @@
     padding-top: env(safe-area-inset-top);
   }
 
-  /* Custom scrollbar — updated palette colors */
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+  /* Offset for fixed elements above mobile bottom tab bar */
+  @media (max-width: 767px) {
+    .above-mobile-tab {
+      bottom: calc(env(safe-area-inset-bottom) + 84px);
+    }
   }
-  ::-webkit-scrollbar-track {
-    background: #f1f5f9;
+  @media (min-width: 768px) {
+    .above-mobile-tab {
+      bottom: 0;
+    }
   }
-  ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%);
-    border-radius: 10px;
-    border: 2px solid #f1f5f9;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #b91c1c 0%, #991b1b 100%);
-  }
+
+
 
   .no-scrollbar::-webkit-scrollbar {
     display: none;

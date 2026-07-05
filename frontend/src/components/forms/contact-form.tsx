@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   GraduationCap,
   ShoppingCart,
-  Save,
   MessageCircle,
 } from "lucide-react";
 
@@ -27,6 +26,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useFormAutosave } from "@/hooks/use-form-autosave";
+import { checkCanSubmit, recordSubmission } from "@/lib/submit-throttle";
+import { CooldownMessage } from "./cooldown-message";
 
 const SERVICE_ICONS: Record<ServiceType, typeof GraduationCap> = {
   "Study in China": GraduationCap,
@@ -37,6 +38,7 @@ const SERVICE_ICONS: Record<ServiceType, typeof GraduationCap> = {
 export function ContactForm() {
   const { selectedService, setSelectedService } = useContact();
   const [submitted, setSubmitted] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
   const {
     register,
@@ -57,7 +59,7 @@ export function ContactForm() {
     },
   });
 
-  const { draftAvailable, lastSaved, clearDraft } =
+  const { clearDraft } =
     useFormAutosave<ContactFormData>({
       formKey: "contact",
       getValues,
@@ -74,8 +76,19 @@ export function ContactForm() {
   const currentService = watch("serviceInterest");
 
   const onSubmit = async (data: ContactFormData) => {
+    // Client-side rate limit check
+    const check = checkCanSubmit("contact");
+    if (!check.allowed) {
+      setCooldownSeconds(check.waitSeconds);
+      toast.error("Rate limit reached", {
+        description: `Please wait ${check.waitSeconds} seconds before submitting again.`,
+      });
+      return;
+    }
+
     try {
       await submitContactForm(data);
+      recordSubmission("contact");
       setSubmitted(true);
       toast.success("Message sent successfully!", {
         description: "We will get back to you within 1-2 business days.",
@@ -126,11 +139,11 @@ export function ContactForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-4 sm:space-y-5"
+      className="space-y-3.5 sm:space-y-5"
       noValidate
     >
       {/* Name + Email row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-5">
         <div className="space-y-2">
           <Label htmlFor="name">
             Full Name <span className="text-primary">*</span>
@@ -184,7 +197,7 @@ export function ContactForm() {
       </div>
 
       {/* Phone (optional) */}
-      <div className="space-y-2">
+      <div className="space-y-2 mt-2">
         <Label htmlFor="phone">
           Phone Number{" "}
           <span className="text-muted-foreground font-normal">(optional)</span>
@@ -216,9 +229,26 @@ export function ContactForm() {
           Service Interest <span className="text-primary">*</span>
         </span>
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3"
           role="radiogroup"
           aria-labelledby="service-label"
+          onKeyDown={(e) => {
+            const currentIndex = SERVICE_OPTIONS.indexOf(currentService);
+            let nextIndex = currentIndex;
+            if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+              nextIndex = (currentIndex + 1) % SERVICE_OPTIONS.length;
+            } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+              nextIndex =
+                (currentIndex - 1 + SERVICE_OPTIONS.length) %
+                SERVICE_OPTIONS.length;
+            }
+            if (nextIndex !== currentIndex && nextIndex >= 0) {
+              e.preventDefault();
+              setValue("serviceInterest", SERVICE_OPTIONS[nextIndex], {
+                shouldValidate: true,
+              });
+            }
+          }}
         >
           {SERVICE_OPTIONS.map((service) => {
             const isSelected = currentService === service;
@@ -229,14 +259,14 @@ export function ContactForm() {
                 key={service}
                 role="radio"
                 aria-checked={isSelected}
-                tabIndex={isSelected ? 0 : -1}
+                tabIndex={0}
                 onClick={() =>
                   setValue("serviceInterest", service, {
                     shouldValidate: true,
                   })
                 }
                 className={cn(
-                  "group relative text-left p-3.5 sm:p-4 rounded-2xl border-2 transition-all duration-300 cursor-pointer press overflow-hidden min-h-[56px]",
+                  "group relative text-left p-2.5 sm:p-3 rounded-xl border-2 transition-all duration-300 cursor-pointer press overflow-hidden min-h-[40px] sm:min-h-[44px]",
                   isSelected
                     ? "border-primary bg-primary/5 shadow-glow-sm"
                     : "border-border bg-card hover:border-primary/40 hover:shadow-3d-sm",
@@ -245,10 +275,10 @@ export function ContactForm() {
                 {isSelected && (
                   <div className="absolute -top-8 -right-8 w-24 h-24 bg-primary/10 rounded-full blur-2xl" />
                 )}
-                <div className="relative flex items-center gap-3">
+                <div className="relative flex items-center gap-2.5">
                   <div
                     className={cn(
-                      "shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
+                      "shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300",
                       isSelected
                         ? "bg-gradient-to-br from-primary to-red-700 shadow-glow"
                         : "bg-primary/10",
@@ -256,19 +286,19 @@ export function ContactForm() {
                   >
                     <Icon
                       className={cn(
-                        "h-5 w-5 transition-colors",
+                        "h-4 w-4 transition-colors",
                         isSelected ? "text-white" : "text-primary",
                       )}
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-bold text-foreground">
+                    <div className="text-[13px] font-bold text-foreground">
                       {service}
                     </div>
                   </div>
                   <div
                     className={cn(
-                      "shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+                      "shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all",
                       isSelected
                         ? "border-primary bg-primary"
                         : "border-muted-foreground/30",
@@ -307,7 +337,7 @@ export function ContactForm() {
           aria-invalid={!!errors.message}
           aria-required="true"
           aria-describedby={errors.message ? "message-error" : "message-count"}
-          className={cn("resize-none", errors.message && "border-destructive")}
+          className={cn("min-h-[110px] sm:min-h-[140px] resize-none", errors.message && "border-destructive")}
           {...register("message")}
         />
         <div className="flex items-center justify-between">
@@ -331,34 +361,20 @@ export function ContactForm() {
         </div>
       </div>
 
-      {/* Draft indicator */}
-      {draftAvailable && (
-        <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200/60">
-          <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold">
-            <Save className="h-3.5 w-3.5" />
-            <span>
-              Draft saved{lastSaved ? ` · ${timeAgo(lastSaved)}` : ""}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={clearDraft}
-            className="text-xs font-bold text-emerald-700/70 hover:text-emerald-800 transition-colors"
-          >
-            Discard
-          </button>
-        </div>
-      )}
-
       {/* Submit */}
+      {cooldownSeconds > 0 && (
+        <CooldownMessage
+          seconds={cooldownSeconds}
+          onComplete={() => setCooldownSeconds(0)}
+        />
+      )}
       <Button
         type="submit"
         variant="default"
         size="lg"
         className="relative w-full overflow-hidden lift-sm press"
-        disabled={isSubmitting}
+        disabled={isSubmitting || cooldownSeconds > 0}
       >
-        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
         {isSubmitting ? (
           <>
             <Loader2 className="h-5 w-5 animate-spin relative" />
@@ -378,12 +394,4 @@ export function ContactForm() {
       </p>
     </form>
   );
-}
-
-function timeAgo(date: Date): string {
-  const diff = Date.now() - date.getTime();
-  if (diff < 60000) return "just now";
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-  return `${Math.floor(diff / 86400000)}d ago`;
 }

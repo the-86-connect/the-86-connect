@@ -41,3 +41,22 @@ npm-debug.log*
 .cache/
 .turbo/
 *.tsbuildinfo
+
+# Test artifacts
+test_images/
+test_payload.json
+cookies.txt
+fresh_cookies.txt
+*.py
+
+# Design tools
+.arts/
+
+# Vercel
+.vercel/
+
+# Supabase local
+supabase/.temp/
+
+# Test coverage
+coverage/

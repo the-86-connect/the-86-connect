@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import {
@@ -68,7 +68,7 @@ export default function TrackApplicationPage() {
 
             {/* Form card */}
             <div className="bg-white rounded-3xl border border-border shadow-soft-md p-6 sm:p-8 lg:p-10 mb-8">
-              <Suspense fallback={null}>
+              <Suspense fallback={<TrackFormSkeleton />}>
                 <TrackingForm
                   config={{
                     referencePlaceholder: "STU-XXXXXX",
@@ -184,6 +184,19 @@ function HelpCard({
           <ArrowRight className="h-3 w-3" />
         </a>
       )}
+    </div>
+  );
+}
+
+function TrackFormSkeleton() {
+  return (
+    <div className="space-y-5 animate-pulse">
+      <div className="h-5 w-40 bg-muted rounded-md mx-auto" />
+      <div className="space-y-4">
+        <div className="h-11 bg-muted rounded-xl" />
+        <div className="h-11 bg-muted rounded-xl" />
+        <div className="h-12 bg-primary/20 rounded-xl" />
+      </div>
     </div>
   );
 }

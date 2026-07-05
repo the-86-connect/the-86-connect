@@ -5,8 +5,10 @@ import { HeroSection } from "@/components/sections/hero";
 import { ByTheNumbersSection } from "@/components/sections/by-the-numbers";
 import { StudyInChinaSection } from "@/components/sections/study-in-china";
 import { ProductSourcingSection } from "@/components/sections/product-sourcing";
+import { VideoGallery } from "@/components/sections/video-gallery";
 import { AboutUsSection } from "@/components/sections/about-us";
 import { ContactSection } from "@/components/sections/contact";
+import { fetchVideos } from "@/lib/api";
 
 export const metadata: Metadata = {
   title: {
@@ -20,7 +22,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  const videos = await fetchVideos();
+
   return (
     <>
       <Navbar />
@@ -29,6 +33,17 @@ export default function Home() {
         <ByTheNumbersSection />
         <StudyInChinaSection />
         <ProductSourcingSection />
+        {videos.length > 0 && (
+          <VideoGallery
+            videos={videos}
+            title={
+              <>
+                See <span className="text-primary">86 Connect</span> in Action
+              </>
+            }
+            subtitle="Watch our latest videos showcasing study abroad experiences in China and product sourcing success stories."
+          />
+        )}
         <AboutUsSection />
         <ContactSection />
       </main>

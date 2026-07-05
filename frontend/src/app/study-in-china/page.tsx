@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import {
   GraduationCap,
@@ -18,6 +19,7 @@ import {
   Search,
   FileText,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { PageNavbar } from "@/components/layout/page-navbar";
 import { Footer } from "@/components/layout/footer";
 import { StudyApplicationForm } from "@/components/forms/study-application-form";
@@ -64,6 +66,7 @@ const SERVICES = [
     ],
     stat: "98%",
     statLabel: "Success rate",
+    bgGradient: "bg-gradient-to-br from-sky-50 to-blue-50",
   },
   {
     icon: BookOpen,
@@ -78,6 +81,7 @@ const SERVICES = [
     ],
     stat: "200+",
     statLabel: "Partner universities",
+    bgGradient: "bg-gradient-to-br from-emerald-50 to-green-50",
   },
   {
     icon: Users,
@@ -92,6 +96,7 @@ const SERVICES = [
     ],
     stat: "24/7",
     statLabel: "Local support",
+    bgGradient: "bg-gradient-to-br from-violet-50 to-purple-50",
   },
 ];
 
@@ -226,24 +231,28 @@ const PROCESS_STEPS = [
     title: "Free Consultation",
     description:
       "We assess your goals, academic background, and budget to recommend the best path forward.",
+    bgGradient: "bg-gradient-to-br from-sky-50 to-blue-50",
   },
   {
     step: "02",
     title: "University Matching",
     description:
       "We shortlist universities and programs that match your profile and scholarship eligibility.",
+    bgGradient: "bg-gradient-to-br from-emerald-50 to-green-50",
   },
   {
     step: "03",
     title: "Application & Documents",
     description:
       "We help prepare, review, and submit your applications with all required documentation.",
+    bgGradient: "bg-gradient-to-br from-amber-50 to-yellow-50",
   },
   {
     step: "04",
     title: "Visa & Departure",
     description:
       "Once accepted, we guide you through visa, accommodation, and pre-departure orientation.",
+    bgGradient: "bg-gradient-to-br from-violet-50 to-purple-50",
   },
 ];
 
@@ -297,6 +306,7 @@ const SCHOLARSHIP_TYPES = [
     title: "Full Scholarship + Stipend",
     coverage: "Tuition + Accommodation + Monthly Stipend",
     color: "bg-green-50 text-green-700 border-green-200",
+    bgGradient: "from-green-50 to-emerald-100",
     description:
       "The most comprehensive scholarship covering all major costs plus a monthly living stipend.",
   },
@@ -305,6 +315,7 @@ const SCHOLARSHIP_TYPES = [
     title: "Full Scholarship",
     coverage: "Tuition + Accommodation",
     color: "bg-blue-50 text-blue-700 border-blue-200",
+    bgGradient: "from-blue-50 to-sky-100",
     description: "Covers both tuition fees and on-campus accommodation.",
   },
   {
@@ -312,6 +323,7 @@ const SCHOLARSHIP_TYPES = [
     title: "Tuition Scholarship",
     coverage: "Tuition Only",
     color: "bg-amber-50 text-amber-700 border-amber-200",
+    bgGradient: "from-amber-50 to-yellow-100",
     description:
       "Covers tuition fees. Student handles accommodation and living expenses.",
   },
@@ -320,6 +332,7 @@ const SCHOLARSHIP_TYPES = [
     title: "Partial Scholarship",
     coverage: "Varies",
     color: "bg-purple-50 text-purple-700 border-purple-200",
+    bgGradient: "from-purple-50 to-violet-100",
     description: "Partial coverage that varies by university and program.",
   },
   {
@@ -327,6 +340,7 @@ const SCHOLARSHIP_TYPES = [
     title: "First-Year Scholarship",
     coverage: "Tuition (First Year Only)",
     color: "bg-rose-50 text-rose-700 border-rose-200",
+    bgGradient: "from-rose-50 to-pink-100",
     description:
       "Tuition covered for the first year. Student funds subsequent years.",
   },
@@ -351,49 +365,58 @@ const DETAILED_PROCESS = [
     title: "Initial Consultation",
     description:
       "Meet with our team to assess your goals, academic background, and budget.",
+    color: "bg-sky-100 text-sky-700",
   },
   {
     step: "02",
     title: "Program Selection",
     description:
       "Select your preferred program and/or university from our partner network.",
+    color: "bg-blue-100 text-blue-700",
   },
   {
     step: "03",
     title: "Document Submission",
     description: "Submit all required documents for review and preparation.",
+    color: "bg-indigo-100 text-indigo-700",
   },
   {
     step: "04",
     title: "Application Fee",
     description:
       "Pay the $750 application fee to begin processing up to 5 applications.",
+    color: "bg-violet-100 text-violet-700",
   },
   {
     step: "05",
     title: "University Review",
     description: "Universities review and process your application.",
+    color: "bg-purple-100 text-purple-700",
   },
   {
     step: "06",
     title: "Pre-Admission Results",
     description: "Receive pre-admission decisions from applied universities.",
+    color: "bg-rose-100 text-rose-700",
   },
   {
     step: "07",
     title: "Service Fee Payment",
     description: "Pay the service/project fee ($2,500-$3,500) to proceed.",
+    color: "bg-amber-100 text-amber-700",
   },
   {
     step: "08",
     title: "Admission Letter & JW202",
     description:
       "Receive your official Admission Letter and JW202 immigration document.",
+    color: "bg-emerald-100 text-emerald-700",
   },
   {
     step: "09",
     title: "Visa Application",
     description: "Apply for your student visa with our documentation support.",
+    color: "bg-teal-100 text-teal-700",
   },
 ];
 
@@ -403,30 +426,35 @@ const STUDENT_NOTES = [
     title: "Cost of Living",
     description:
       "Generally lower than Europe and the US. Utilities and daily expenses are affordable. Costs vary depending on city and institution.",
+    bgGradient: "from-green-50 to-emerald-100",
   },
   {
     icon: "\ud83d\udcca",
     title: "Economic Stability",
     description:
       "China has a stable economy with prices of everyday goods remaining relatively stable over time.",
+    bgGradient: "from-blue-50 to-sky-100",
   },
   {
     icon: "\ud83d\udcbc",
     title: "Working While Studying",
     description:
       "International students are not allowed to freely work. Limited work/internship opportunities may be available depending on university policies.",
+    bgGradient: "from-amber-50 to-yellow-100",
   },
   {
     icon: "\ud83d\udee1\ufe0f",
     title: "Safety & Student Life",
     description:
       "China is considered very safe with advanced infrastructure and campus facilities. Exposure to international academic environments.",
+    bgGradient: "from-violet-50 to-purple-100",
   },
   {
     icon: "\ud83d\udce3\ufe0f",
     title: "Language",
     description:
       "Learning Chinese (Mandarin) is strongly recommended for daily life, integration, and future opportunities.",
+    bgGradient: "from-rose-50 to-pink-100",
   },
 ];
 
@@ -445,9 +473,9 @@ export default async function StudyInChinaPage() {
         {/* Hero */}
         <section className="relative pt-6 sm:pt-10 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-white overflow-hidden">
           <div className="container mx-auto max-w-7xl">
-            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <div className="grid md:grid-cols-12 gap-8 md:gap-10 lg:gap-12 items-center">
               {/* Left content */}
-              <div className="lg:col-span-6">
+              <div className="md:col-span-6">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/5 border border-primary/15 mb-5">
                   <Award className="h-3.5 w-3.5 text-primary" />
                   <span className="text-xs font-black uppercase tracking-wider text-primary">
@@ -462,7 +490,7 @@ export default async function StudyInChinaPage() {
                   scholarships, admissions, visas, and ongoing support — so you
                   can focus on your education.
                 </p>
-                <div className="flex flex-col gap-3 w-full sm:flex-row sm:flex-wrap sm:gap-3 sm:w-auto">
+                <div className="flex flex-col gap-3 w-full sm:flex-row sm:flex-wrap sm:gap-3 sm:w-auto md:flex-nowrap">
                   <a
                     href="#apply"
                     className="inline-flex items-center justify-center gap-2 w-full px-5 sm:px-6 h-12 sm:h-14 sm:w-auto bg-primary text-white rounded-xl sm:rounded-lg font-black text-sm sm:text-base shadow-red hover:bg-red-700 transition-all duration-200 cursor-pointer press"
@@ -490,17 +518,21 @@ export default async function StudyInChinaPage() {
               </div>
 
               {/* Right — campus image collage */}
-              <div className="lg:col-span-6">
-                <div className="grid grid-cols-2 grid-rows-2 gap-3 sm:gap-4 h-72 sm:h-80 lg:h-[26rem] max-w-md sm:max-w-lg mx-auto lg:max-w-none">
+              <div className="md:col-span-6">
+                <div className="grid grid-cols-2 grid-rows-2 gap-3 sm:gap-4 h-72 sm:h-80 md:h-72 lg:h-[26rem] max-w-md sm:max-w-lg md:max-w-none mx-auto">
                   {/* Large image — spans 2 rows */}
                   <div className="row-span-2 relative rounded-2xl overflow-hidden border border-border shadow-soft-sm bg-muted">
-                    <img
+                    <Image
                       src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Tsinghua%20University%20Beijing%20campus%20grand%20entrance%20gate%20traditional%20Chinese%20architecture%20autumn%20golden%20trees%20students%20walking%20photorealistic%20high%20quality&image_size=portrait_4_3"
                       alt="Tsinghua University campus entrance in Beijing"
-                      className="w-full h-full object-cover"
-                      loading="eager"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 767px) 100vw, (max-width: 1023px) 45vw, 33vw"
+                      priority
+                      quality={80}
+                      unoptimized
                     />
-                    <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                    <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/70 to-transparent z-10">
                       <p className="text-white font-black text-sm">
                         Tsinghua University
                       </p>
@@ -512,13 +544,16 @@ export default async function StudyInChinaPage() {
 
                   {/* Top right image */}
                   <div className="relative rounded-2xl overflow-hidden border border-border shadow-soft-sm bg-muted">
-                    <img
+                    <Image
                       src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Chinese%20university%20students%20walking%20on%20campus%20modern%20buildings%20cherry%20blossom%20spring%20photorealistic%20high%20quality&image_size=square"
                       alt="International students on a Chinese university campus"
-                      className="w-full h-full object-cover"
-                      loading="lazy"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 767px) 50vw, (max-width: 1023px) 22vw, 16vw"
+                      quality={75}
+                      unoptimized
                     />
-                    <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                    <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent z-10">
                       <p className="text-white font-black text-xs">
                         Campus Life
                       </p>
@@ -527,13 +562,16 @@ export default async function StudyInChinaPage() {
 
                   {/* Bottom right image */}
                   <div className="relative rounded-2xl overflow-hidden border border-border shadow-soft-sm bg-muted">
-                    <img
+                    <Image
                       src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=modern%20Chinese%20university%20library%20building%20glass%20facade%20blue%20sky%20photorealistic%20high%20quality&image_size=square"
                       alt="Modern Chinese university library building"
-                      className="w-full h-full object-cover"
-                      loading="lazy"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 767px) 50vw, (max-width: 1023px) 22vw, 16vw"
+                      quality={75}
+                      unoptimized
                     />
-                    <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                    <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent z-10">
                       <p className="text-white font-black text-xs">
                         Modern Facilities
                       </p>
@@ -567,7 +605,7 @@ export default async function StudyInChinaPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-12 sm:mb-16">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 mb-12 sm:mb-16">
               <MetricCard
                 icon={TrendingUp}
                 value="500+"
@@ -583,11 +621,11 @@ export default async function StudyInChinaPage() {
             </div>
 
             {/* Process steps */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 sm:gap-6">
               {PROCESS_STEPS.map((step) => (
                 <div
                   key={step.step}
-                  className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-5 sm:p-6"
+                  className={cn("rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-5 sm:p-6", step.bgGradient)}
                 >
                   <div className="text-3xl font-black text-primary mb-3">
                     {step.step}
@@ -774,11 +812,11 @@ export default async function StudyInChinaPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5">
               {SCHOLARSHIP_TYPES.map((sch) => (
                 <div
                   key={sch.type}
-                  className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-5 sm:p-6"
+                  className={cn("bg-gradient-to-br rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-5 sm:p-6", sch.bgGradient)}
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div
@@ -862,10 +900,10 @@ export default async function StudyInChinaPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
               {/* Requirements */}
-              <div className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-6 sm:p-7">
-                <h3 className="font-display font-black text-xl mb-4 tracking-[-0.035em]">
+              <div className="bg-gradient-to-br from-blue-50 to-sky-100 rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-6 sm:p-7">
+                <h3 className="font-display font-black text-xl mb-4 tracking-[-0.035em] text-blue-900">
                   Document Checklist
                 </h3>
                 <ul className="space-y-2.5">
@@ -885,14 +923,14 @@ export default async function StudyInChinaPage() {
               </div>
 
               {/* Process */}
-              <div className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-6 sm:p-7">
-                <h3 className="font-display font-black text-xl mb-4 tracking-[-0.035em]">
+              <div className="bg-gradient-to-br from-violet-50 to-purple-100 rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-6 sm:p-7">
+                <h3 className="font-display font-black text-xl mb-4 tracking-[-0.035em] text-violet-900">
                   Application Process
                 </h3>
                 <ol className="space-y-3">
                   {DETAILED_PROCESS.map((step) => (
                     <li key={step.step} className="flex items-start gap-3">
-                      <div className="shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center font-black text-sm text-primary">
+                      <div className={cn("shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm", step.color)}>
                         {step.step}
                       </div>
                       <div>
@@ -914,11 +952,11 @@ export default async function StudyInChinaPage() {
               <h3 className="font-display font-black text-xl text-center mb-6 tracking-[-0.035em]">
                 Living in China
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
                 {STUDENT_NOTES.map((note) => (
                   <div
                     key={note.title}
-                    className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-5"
+                    className={cn("bg-gradient-to-br rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md transition-all duration-200 p-5", note.bgGradient)}
                   >
                     <div className="text-2xl mb-2">{note.icon}</div>
                     <h4 className="font-black text-sm mb-1.5">{note.title}</h4>
@@ -1014,7 +1052,7 @@ function MetricCard({
 function ServiceCard({ service }: { service: (typeof SERVICES)[number] }) {
   const Icon = service.icon;
   return (
-    <div className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-6 sm:p-7">
+    <div className={cn("rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-6 sm:p-7", service.bgGradient)}>
       <div className="flex items-center justify-between mb-5">
         <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary flex items-center justify-center">
           <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />

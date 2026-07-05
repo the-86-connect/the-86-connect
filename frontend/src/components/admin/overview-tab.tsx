@@ -20,11 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-const API_URL =
-  typeof window === "undefined"
-    ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
-    : "";
+import { API_URL } from "@/lib/api";
 
 interface OverviewCounts {
   total: number;
@@ -203,7 +199,7 @@ export function OverviewTab({ onViewSubmissions }: { onViewSubmissions?: () => v
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         <StatCard
           label="Total Submissions"
           value={counts.total}
@@ -255,9 +251,9 @@ export function OverviewTab({ onViewSubmissions }: { onViewSubmissions?: () => v
       </div>
 
       {/* Activity + recent grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Activity counts */}
-        <div className="lg:col-span-1 space-y-4">
+        <div className="md:col-span-1 space-y-4">
           <div className="rounded-2xl bg-white/70 backdrop-blur-xl border border-slate-200/60 shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -313,7 +309,7 @@ export function OverviewTab({ onViewSubmissions }: { onViewSubmissions?: () => v
         </div>
 
         {/* Recent submissions */}
-        <div className="lg:col-span-2 rounded-2xl bg-white/70 backdrop-blur-xl border border-slate-200/60 shadow-sm overflow-hidden">
+        <div className="md:col-span-2 rounded-2xl bg-white/70 backdrop-blur-xl border border-slate-200/60 shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-200/60 flex items-center justify-between">
             <h3 className="font-semibold">Recent Submissions</h3>
             {onViewSubmissions && (
@@ -421,7 +417,7 @@ function StatCard({
     <div className="group p-5 rounded-2xl bg-white/60 backdrop-blur-xl border shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex items-center justify-between mb-3">
         <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center", c.bg)}>
-          <Icon className={cn("h-4.5 w-4.5", c.text)} />
+          <Icon className={cn("h-5 w-5", c.text)} />
         </div>
         <span
           className={cn(

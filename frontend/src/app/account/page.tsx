@@ -34,6 +34,8 @@ import {
   Settings,
   CalendarCheck,
   MessageSquare,
+  Bell,
+  BellDot,
 } from "lucide-react";
 import { useUserAuth } from "@/context/user-auth-context";
 import {
@@ -47,6 +49,11 @@ import {
   type UserSubmission,
   type UserConsultation,
   type UserExportData,
+  type UserNotification,
+  fetchNotifications,
+  getUnreadNotificationCount,
+  markNotificationRead,
+  markAllNotificationsRead,
 } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -333,6 +340,70 @@ export default function AccountPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<AccountTab>("submissions");
 
+  // Notification state
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState<UserNotification[]>([]);
+  const [showNotifs, setShowNotifs] = useState(false);
+  const [loadingNotifs, setLoadingNotifs] = useState(false);
+
+  // Poll for unread notification count
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const poll = async () => {
+      try {
+        const { unreadCount: count } = await getUnreadNotificationCount();
+        setUnreadCount(count);
+      } catch {
+        // ignore polling errors
+      }
+    };
+    poll();
+    const interval = setInterval(poll, 30000); // every 30 seconds
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
+  const loadNotifications = async () => {
+    setLoadingNotifs(true);
+    try {
+      const data = await fetchNotifications(20);
+      setNotifications(data.notifications);
+      setUnreadCount(data.unreadCount);
+    } catch {
+      // ignore
+    } finally {
+      setLoadingNotifs(false);
+    }
+  };
+
+  const handleMarkRead = async (id: string) => {
+    try {
+      await markNotificationRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
+      );
+      setUnreadCount((c) => Math.max(0, c - 1));
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleNotifToggle = () => {
+    if (!showNotifs) {
+      loadNotifications();
+    }
+    setShowNotifs((v) => !v);
+  };
+
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
     if (hash === "settings" || hash === "submissions" || hash === "bookings") {
@@ -561,14 +632,45 @@ export default function AccountPage() {
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="btn-glass btn-glass-danger inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl font-semibold text-sm cursor-pointer"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={handleNotifToggle}
+                className="btn-glass relative inline-flex items-center justify-center w-11 h-11 rounded-xl font-semibold text-sm cursor-pointer"
+                aria-label="Notifications"
+              >
+                {unreadCount > 0 ? (
+                  <BellDot className="h-5 w-5 text-accent" />
+                ) : (
+                  <Bell className="h-5 w-5" />
+                )}
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white shadow-sm">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </button>
+              {showNotifs && (
+                <NotificationDropdown
+                  notifications={notifications}
+                  loading={loadingNotifs}
+                  unreadCount={unreadCount}
+                  onMarkRead={handleMarkRead}
+                  onMarkAllRead={handleMarkAllRead}
+                  onClose={() => setShowNotifs(false)}
+                />
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="btn-glass btn-glass-danger inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl font-semibold text-sm cursor-pointer"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
+          </div>
         </div>
 
         <div className="mb-8 inline-flex p-1 rounded-2xl glass-card">
@@ -1211,6 +1313,137 @@ export default function AccountPage() {
               </div>
             </div>
           </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function NotificationDropdown({
+  notifications,
+  loading,
+  unreadCount,
+  onMarkRead,
+  onMarkAllRead,
+  onClose,
+}: {
+  notifications: UserNotification[];
+  loading: boolean;
+  unreadCount: number;
+  onMarkRead: (id: string) => void;
+  onMarkAllRead: () => void;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest("[data-notif-dropdown]")) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [onClose]);
+
+  return (
+    <div
+      data-notif-dropdown
+      className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+    >
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100">
+        <div className="flex items-center gap-2">
+          <h3 className="font-bold text-sm text-foreground">Notifications</h3>
+          {unreadCount > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold">
+              {unreadCount} new
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {unreadCount > 0 && (
+            <button
+              type="button"
+              onClick={onMarkAllRead}
+              className="text-xs font-semibold text-accent hover:text-red-700 transition-colors cursor-pointer"
+            >
+              Mark all read
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+          >
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+
+      <div className="max-h-80 overflow-y-auto">
+        {loading ? (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="py-10 text-center">
+            <Bell className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground font-medium">
+              No notifications
+            </p>
+            <p className="text-xs text-muted-foreground/70 mt-0.5">
+              Status updates will appear here
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-50">
+            {notifications.map((n) => (
+              <div
+                key={n.id}
+                className={cn(
+                  "px-5 py-3.5 transition-colors",
+                  !n.read && "bg-blue-50/40",
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={cn(
+                      "w-2 h-2 rounded-full mt-1.5 shrink-0",
+                      n.read ? "bg-transparent" : "bg-red-500",
+                    )}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p
+                        className={cn(
+                          "text-sm font-semibold",
+                          n.read
+                            ? "text-foreground"
+                            : "text-foreground",
+                        )}
+                      >
+                        {n.title}
+                      </p>
+                      {!n.read && (
+                        <button
+                          type="button"
+                          onClick={() => onMarkRead(n.id)}
+                          className="text-[11px] font-semibold text-accent hover:text-red-700 transition-colors shrink-0 cursor-pointer"
+                        >
+                          Mark read
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                      {n.message}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/60 mt-1.5">
+                      {formatDate(n.createdAt)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

@@ -102,7 +102,7 @@ export function CardSkeleton() {
 // Dashboard stats skeleton
 export function StatsSkeleton() {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="p-4 rounded-2xl border border-border space-y-2">
           <Skeleton className="h-4 w-16" />

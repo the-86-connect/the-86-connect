@@ -44,6 +44,12 @@ const NAV_LINKS: NavLink[] = [
     icon: ShoppingCart,
   },
   { label: "Contact", shortLabel: "Contact", target: "contact", icon: Mail },
+  {
+    label: "Track",
+    shortLabel: "Track",
+    href: "/study-in-china/track-application",
+    icon: Search,
+  },
 ];
 
 export function Navbar() {
@@ -156,17 +162,20 @@ export function Navbar() {
     );
   };
 
-  const renderDesktopLink = (link: NavLink) => {
+  const renderDesktopLink = (link: NavLink, compact = false) => {
     const active = isActive(link);
-    const baseClasses =
-      "relative px-1 py-2 text-sm font-bold tracking-wide transition-colors duration-200 cursor-pointer press";
+    const Icon = link.icon;
+    const baseClasses = cn(
+      "relative py-2 font-bold tracking-wide transition-colors duration-200 cursor-pointer press flex items-center",
+      compact ? "px-1 gap-1 text-xs" : "px-1 py-2 gap-1.5 text-sm",
+    );
 
-    // White text when navbar is transparent (over hero image),
-    // dark text when navbar has white background (scrolled)
     const idleColor = scrolled
       ? "text-foreground/70 hover:text-foreground"
       : "text-white/80 hover:text-white";
     const activeColor = scrolled ? "text-primary" : "text-white";
+
+    const displayLabel = compact && link.shortLabel ? link.shortLabel : link.label;
 
     if (link.href) {
       return (
@@ -176,7 +185,8 @@ export function Navbar() {
           aria-current={active ? "page" : undefined}
           className={cn(baseClasses, active ? activeColor : idleColor)}
         >
-          {link.label}
+          <Icon className={cn("shrink-0", compact ? "h-3.5 w-3.5" : "h-4 w-4")} />
+          <span className="whitespace-nowrap">{displayLabel}</span>
           <span
             className={cn(
               "absolute bottom-0 left-0 h-0.5 bg-primary rounded-full transition-all duration-300",
@@ -203,7 +213,8 @@ export function Navbar() {
         aria-current={active ? "page" : undefined}
         className={cn(baseClasses, active ? activeColor : idleColor)}
       >
-        {link.label}
+        <Icon className={cn("shrink-0", compact ? "h-3.5 w-3.5" : "h-4 w-4")} />
+        <span className="whitespace-nowrap">{displayLabel}</span>
         <span
           className={cn(
             "absolute bottom-0 left-0 h-0.5 bg-primary rounded-full transition-all duration-300",
@@ -225,9 +236,9 @@ export function Navbar() {
             : "bg-transparent",
         )}
       >
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20">
-            {/* Logo -- white when transparent (over dark hero), dark when scrolled (white bg) */}
+        <div className="container mx-auto max-w-7xl px-4 sm:px-5 md:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16 md:h-16 lg:h-20">
+            {/* Logo */}
             <Link
               href="/"
               className="group flex items-center press shrink-0"
@@ -238,79 +249,118 @@ export function Navbar() {
                 alt="86 Connect"
                 width={180}
                 height={49}
-                className="h-8 lg:h-9 w-auto group-hover:opacity-90 transition-opacity duration-300"
+                className="h-7 sm:h-8 md:h-8 lg:h-9 w-auto group-hover:opacity-90 transition-opacity duration-300"
                 priority
               />
             </Link>
 
-            {/* Desktop nav -- clean horizontal text links with underline indicator */}
-            <nav className="hidden lg:flex items-center gap-9">
-              {NAV_LINKS.map((link) => renderDesktopLink(link))}
-            </nav>
+            {/* Right side group */}
+            <div className="flex items-center gap-2 md:gap-2.5 lg:gap-3">
+              {/* Desktop nav — compact at md, full at lg */}
+              <nav className="hidden md:flex lg:hidden items-center gap-3 md:gap-4 overflow-x-auto no-scrollbar">
+                {NAV_LINKS.map((link) => renderDesktopLink(link, true))}
+              </nav>
+              <nav className="hidden lg:flex items-center gap-6 lg:gap-7 xl:gap-9">
+                {NAV_LINKS.map((link) => renderDesktopLink(link, false))}
+              </nav>
 
-            {/* Desktop CTA */}
-            <div className="hidden lg:flex items-center gap-3">
-              <Link
-                href={isAuthenticated ? "/account" : "/login"}
-                className={cn(
-                  "inline-flex items-center gap-2 px-4 py-2 text-sm font-bold transition-colors duration-200 cursor-pointer press",
-                  scrolled
-                    ? "text-foreground/80 hover:text-primary"
-                    : "text-white/85 hover:text-white",
-                )}
-              >
-                {isAuthenticated ? (
-                  <>
+              {/* Desktop CTA — compact at md, full at lg */}
+              <div className="hidden md:flex lg:hidden items-center gap-2">
+                <Link
+                  href={isAuthenticated ? "/account" : "/login"}
+                  className={cn(
+                    "inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors duration-200 cursor-pointer press",
+                    scrolled
+                      ? "text-foreground/70 hover:text-primary hover:bg-muted/50"
+                      : "text-white/85 hover:text-white hover:bg-white/10",
+                  )}
+                  aria-label={isAuthenticated ? "Account" : "Login"}
+                >
+                  {isAuthenticated ? (
                     <User className="h-4 w-4" />
-                    <span>Account</span>
-                  </>
-                ) : (
-                  <>
+                  ) : (
                     <UserRound className="h-4 w-4" />
-                    <span>Login</span>
-                  </>
-                )}
-              </Link>
+                  )}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isHome) handleScrollClick("contact");
+                    else window.location.href = "/#contact";
+                  }}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg font-bold text-xs transition-colors duration-200 cursor-pointer press whitespace-nowrap",
+                    scrolled
+                      ? "bg-primary text-white hover:bg-red-700"
+                      : "bg-white/95 text-slate-900 hover:bg-white",
+                  )}
+                >
+                  <span>Get Started</span>
+                </button>
+              </div>
+              <div className="hidden lg:flex items-center gap-3">
+                <Link
+                  href={isAuthenticated ? "/account" : "/login"}
+                  className={cn(
+                    "inline-flex items-center gap-2 px-4 py-2 text-sm font-bold transition-colors duration-200 cursor-pointer press",
+                    scrolled
+                      ? "text-foreground/80 hover:text-primary"
+                      : "text-white/85 hover:text-white",
+                  )}
+                >
+                  {isAuthenticated ? (
+                    <>
+                      <User className="h-4 w-4" />
+                      <span>Account</span>
+                    </>
+                  ) : (
+                    <>
+                      <UserRound className="h-4 w-4" />
+                      <span>Login</span>
+                    </>
+                  )}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isHome) handleScrollClick("contact");
+                    else window.location.href = "/#contact";
+                  }}
+                  className={cn(
+                    "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-colors duration-200 cursor-pointer press",
+                    scrolled
+                      ? "bg-primary text-white hover:bg-red-700"
+                      : "bg-white/95 text-slate-900 hover:bg-white",
+                  )}
+                >
+                  <span>Get Started</span>
+                  <Mail className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Mobile menu button - only on <md */}
               <button
                 type="button"
-                onClick={() => {
-                  if (isHome) handleScrollClick("contact");
-                  else window.location.href = "/#contact";
-                }}
-                className={cn(
-                  "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-colors duration-200 cursor-pointer press",
-                  scrolled
-                    ? "bg-primary text-white hover:bg-red-700"
-                    : "bg-white/95 text-slate-900 hover:bg-white",
-                )}
+                onClick={() => setIsOpen((v) => !v)}
+                className="md:hidden flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white border border-border shadow-soft-sm cursor-pointer press touch-manipulation"
+                aria-label={isOpen ? "Close menu" : "Open menu"}
+                aria-expanded={isOpen}
               >
-                <span>Get Started</span>
-                <Mail className="h-4 w-4" />
+                {isOpen ? (
+                  <X className="h-5 w-5 text-foreground" />
+                ) : (
+                  <Menu className="h-5 w-5 text-foreground" />
+                )}
               </button>
             </div>
-
-            {/* Mobile menu button */}
-            <button
-              type="button"
-              onClick={() => setIsOpen((v) => !v)}
-              className="lg:hidden flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-border shadow-soft-sm cursor-pointer press touch-manipulation"
-              aria-label={isOpen ? "Close menu" : "Open menu"}
-              aria-expanded={isOpen}
-            >
-              {isOpen ? (
-                <X className="h-5 w-5 text-foreground" />
-              ) : (
-                <Menu className="h-5 w-5 text-foreground" />
-              )}
-            </button>
           </div>
         </div>
       </header>
 
-      {/* Mobile slide-down menu */}
+      {/* Mobile slide-down menu - only on <md */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40 pt-16 px-3"
+          className="md:hidden fixed inset-0 z-40 pt-14 sm:pt-16 px-3"
           onClick={() => setIsOpen(false)}
         >
           <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" />
@@ -334,7 +384,7 @@ export function Navbar() {
                 onClick={() => setIsOpen(false)}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-bold text-[13px] transition-all duration-200 cursor-pointer press min-h-[46px] text-muted-foreground hover:text-foreground hover:bg-muted/70"
               >
-                <CalendarCheck className="h-4.5 w-4.5" />
+                <CalendarCheck className="h-5 w-5" />
                 Book a Consultation
               </Link>
               <Link
@@ -342,7 +392,7 @@ export function Navbar() {
                 onClick={() => setIsOpen(false)}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-bold text-[13px] transition-all duration-200 cursor-pointer press min-h-[46px] text-muted-foreground hover:text-foreground hover:bg-muted/70"
               >
-                <Search className="h-4.5 w-4.5" />
+                <Search className="h-5 w-5" />
                 Track Submission
               </Link>
               <Link
@@ -351,9 +401,9 @@ export function Navbar() {
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-bold text-[13px] transition-all duration-200 cursor-pointer press min-h-[46px] text-muted-foreground hover:text-foreground hover:bg-muted/70"
               >
                 {isAuthenticated ? (
-                  <User className="h-4.5 w-4.5" />
+                  <User className="h-5 w-5" />
                 ) : (
-                  <UserRound className="h-4.5 w-4.5" />
+                  <UserRound className="h-5 w-5" />
                 )}
                 {isAuthenticated ? "My Account" : "Login / Sign Up"}
               </Link>
@@ -374,27 +424,27 @@ export function Navbar() {
         </div>
       )}
 
-      {/* Mobile bottom tab bar */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 safe-bottom pointer-events-none">
-        <div className="mx-2 sm:mx-3 mb-2 sm:mb-3 pointer-events-auto">
-          <div className="bg-white rounded-3xl shadow-soft-xl px-1.5 py-1.5 sm:px-2 sm:py-2 border border-border">
-            <div className="grid grid-cols-6 gap-0.5 sm:gap-1">
+      {/* Mobile bottom tab bar - only on true mobile <md (768px) */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 safe-bottom pointer-events-none">
+        <div className="mx-1.5 sm:mx-3 mb-1.5 sm:mb-3 pointer-events-auto">
+          <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-soft-xl px-1 py-1 sm:px-2 sm:py-2 border border-border/60">
+            <div className="grid grid-cols-6 gap-0">
               {NAV_LINKS.map((link) => {
                 const Icon = link.icon;
                 const active = isActive(link);
                 const content = (
                   <>
-                    <Icon className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                    <Icon className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[10px] sm:text-[10px] font-bold leading-none relative z-10">
                       {link.shortLabel ?? link.label}
                     </span>
                   </>
                 );
                 const className = cn(
-                  "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                  "relative flex flex-col items-center justify-center gap-1 py-2 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[50px] sm:min-h-[56px]",
                   active
                     ? "text-primary"
-                    : "text-foreground/70 hover:text-foreground",
+                    : "text-foreground/55 hover:text-foreground",
                 );
 
                 const handleTabClick = () => {
@@ -422,14 +472,14 @@ export function Navbar() {
               })}
               <Link
                 href={isAuthenticated ? "/account" : "/login"}
-                className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-2xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/70 hover:text-foreground"
+                className="relative flex flex-col items-center justify-center gap-1 py-2 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[50px] sm:min-h-[56px] text-foreground/55 hover:text-foreground"
               >
                 {isAuthenticated ? (
-                  <User className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+                  <User className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
                 ) : (
-                  <UserRound className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+                  <UserRound className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
                 )}
-                <span className="text-[9px] sm:text-[10px] font-black leading-none relative z-10">
+                <span className="text-[10px] sm:text-[10px] font-bold leading-none relative z-10">
                   {isAuthenticated ? "Me" : "Login"}
                 </span>
               </Link>

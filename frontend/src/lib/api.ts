@@ -5,7 +5,7 @@ import type {
   ConsultationFormData,
 } from "@/lib/validation";
 
-const API_URL =
+export const API_URL =
   typeof window === "undefined"
     ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
     : "";
@@ -62,6 +62,18 @@ export interface UserProfile extends User {
   createdAt: string;
   submissions: UserSubmission[];
   consultations: UserConsultation[];
+}
+
+export interface UserNotification {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  referenceId: string;
+  referenceCode: string | null;
+  createdAt: string;
 }
 
 export interface TrackingStage {
@@ -436,7 +448,9 @@ export interface AdminAvailabilitySlot extends AvailabilitySlot {
     id: string;
     name: string;
     email: string;
+    phone: string | null;
     service: string;
+    message: string;
     status: string;
   } | null;
 }
@@ -446,6 +460,12 @@ export interface AvailabilityStats {
   available: number;
   booked: number;
   blocked: number;
+  bookingsByStatus: {
+    pending: number;
+    confirmed: number;
+    completed: number;
+    cancelled: number;
+  };
 }
 
 /** Fetch available slots for a date range (public, for booking page) */
@@ -476,6 +496,26 @@ export async function cancelConsultation(
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error(error.error || "Failed to cancel booking");
+  }
+
+  return response.json();
+}
+
+/** Admin: update consultation status (confirmed/cancelled/completed) */
+export async function updateConsultationStatus(
+  id: string,
+  status: "confirmed" | "cancelled" | "completed",
+): Promise<{ success: boolean }> {
+  const response = await fetch(`${API_URL}/api/admin/consultations/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to update consultation");
   }
 
   return response.json();
@@ -611,6 +651,132 @@ export async function bulkDeleteSlots(data: {
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error(error.error || "Failed to delete slots");
+  }
+
+  return response.json();
+}
+
+/** Bulk update consultation statuses (admin) */
+export async function bulkUpdateConsultationStatus(
+  ids: string[],
+  status: "confirmed" | "cancelled" | "completed",
+): Promise<{ updated: number }> {
+  const response = await fetch(
+    `${API_URL}/api/admin/consultations/bulk-status`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids, status }),
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to update consultations");
+  }
+
+  return response.json();
+}
+
+/** Bulk update slot statuses — block/unblock (admin) */
+export async function bulkUpdateSlotStatus(
+  ids: string[],
+  status: "available" | "blocked",
+): Promise<{ updated: number }> {
+  const response = await fetch(
+    `${API_URL}/api/admin/availability/bulk-status`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids, status }),
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to update slots");
+  }
+
+  return response.json();
+}
+
+/** Fetch user notifications */
+export async function fetchNotifications(
+  limit = 20,
+): Promise<{ notifications: UserNotification[]; unreadCount: number }> {
+  const response = await fetch(
+    `${API_URL}/api/auth/notifications?limit=${limit}`,
+    { credentials: "include" },
+  );
+  if (!response.ok) throw new Error("Failed to fetch notifications");
+  return response.json();
+}
+
+/** Get unread notification count (lightweight, for polling) */
+export async function getUnreadNotificationCount(): Promise<{
+  unreadCount: number;
+}> {
+  const response = await fetch(`${API_URL}/api/auth/notifications/count`, {
+    credentials: "include",
+  });
+  if (!response.ok) return { unreadCount: 0 };
+  return response.json();
+}
+
+/** Mark a single notification as read */
+export async function markNotificationRead(
+  id: string,
+): Promise<{ success: boolean }> {
+  const response = await fetch(
+    `${API_URL}/api/auth/notifications/${id}/read`,
+    {
+      method: "PATCH",
+      credentials: "include",
+    },
+  );
+  if (!response.ok) throw new Error("Failed to mark notification as read");
+  return response.json();
+}
+
+/** Mark all notifications as read */
+export async function markAllNotificationsRead(): Promise<{
+  success: boolean;
+  updated: number;
+}> {
+  const response = await fetch(`${API_URL}/api/auth/notifications/read-all`, {
+    method: "PATCH",
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error("Failed to mark notifications as read");
+  return response.json();
+}
+
+/** Admin: Book a slot for a client */
+export async function adminBookSlot(
+  slotId: string,
+  data: {
+    name: string;
+    email: string;
+    phone?: string;
+    service?: string;
+    message?: string;
+  },
+): Promise<{ success: boolean; id: string }> {
+  const response = await fetch(
+    `${API_URL}/api/admin/availability/${slotId}/book`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to book slot");
   }
 
   return response.json();

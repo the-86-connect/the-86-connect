@@ -15,7 +15,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const post = getPostBySlug(params.slug);
   if (!post) return { title: "Article Not Found" };
   return {
-    title: `${post.title} — 86 Connect`,
+    title: post.title,
     description: post.excerpt,
     alternates: { canonical: `/resources/${post.slug}` },
     robots: { index: true, follow: true },

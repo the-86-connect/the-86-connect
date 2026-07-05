@@ -24,7 +24,8 @@ type AuthedRequest = Request & { user: { userId: string } };
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
+  sameSite: "lax" as const,
+  domain: process.env.COOKIE_DOMAIN || (process.env.NODE_ENV === "production" ? ".the86connect.com" : undefined),
   maxAge: 24 * 60 * 60 * 1000,
   path: "/",
 };
@@ -42,8 +43,7 @@ authRouter.post("/register", async (req, res) => {
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing && existing.passwordHash) {
       return res.status(409).json({
-        error:
-          "An account with this email already exists. Please log in instead.",
+        error: "This email is already registered. Please try logging in instead.",
       });
     }
 
@@ -261,7 +261,13 @@ authRouter.get("/me", authenticateUser, async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    res.json({ user });
+
+    // Get unread notification count
+    const unreadNotifications = await prisma.notification.count({
+      where: { userId, read: false },
+    });
+
+    res.json({ user, unreadNotifications });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch profile" });
   }
@@ -316,7 +322,7 @@ authRouter.post("/forgot-password", async (req, res) => {
     );
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://the86connects.com";
-    const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
+    const resetUrl = `${baseUrl}/reset-password#token=${resetToken}`;
 
     // Fire-and-forget email
     notifyUserPasswordReset({
@@ -490,6 +496,83 @@ authRouter.get("/export", authenticateUser, async (req, res) => {
   } catch (error) {
     console.error("Export error:", (error as Error).message);
     res.status(500).json({ error: "Failed to export data" });
+  }
+});
+
+// Get user notifications (most recent first, limited)
+authRouter.get("/notifications", authenticateUser, async (req, res) => {
+  const userId = (req as AuthedRequest).user.userId;
+  const limit = Math.min(50, parseInt(req.query.limit as string) || 20);
+
+  try {
+    const [notifications, unreadCount] = await Promise.all([
+      prisma.notification.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+      }),
+      prisma.notification.count({ where: { userId, read: false } }),
+    ]);
+
+    res.json({ notifications, unreadCount });
+  } catch (error) {
+    console.error("Fetch notifications error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to fetch notifications" });
+  }
+});
+
+// Get unread notification count (lightweight, for polling)
+authRouter.get("/notifications/count", authenticateUser, async (req, res) => {
+  const userId = (req as AuthedRequest).user.userId;
+
+  try {
+    const count = await prisma.notification.count({
+      where: { userId, read: false },
+    });
+    res.json({ unreadCount: count });
+  } catch (error) {
+    console.error("Notification count error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to get notification count" });
+  }
+});
+
+// Mark a single notification as read
+authRouter.patch("/notifications/:id/read", authenticateUser, async (req, res) => {
+  const userId = (req as AuthedRequest).user.userId;
+  const id = String(req.params.id);
+
+  try {
+    const notification = await prisma.notification.findUnique({ where: { id } });
+    if (!notification || notification.userId !== userId) {
+      return res.status(404).json({ error: "Notification not found" });
+    }
+
+    await prisma.notification.update({
+      where: { id },
+      data: { read: true },
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Mark notification read error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to mark notification as read" });
+  }
+});
+
+// Mark all notifications as read
+authRouter.patch("/notifications/read-all", authenticateUser, async (req, res) => {
+  const userId = (req as AuthedRequest).user.userId;
+
+  try {
+    const result = await prisma.notification.updateMany({
+      where: { userId, read: false },
+      data: { read: true },
+    });
+
+    res.json({ success: true, updated: result.count });
+  } catch (error) {
+    console.error("Mark all read error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to mark all as read" });
   }
 });
 

@@ -2,14 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Loader2, ArrowLeft, CheckCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const API_URL =
-  typeof window === "undefined"
-    ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
-    : "";
+import { API_URL } from "@/lib/api";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -81,13 +78,15 @@ export default function ForgotPasswordPage() {
           ) : (
             <>
               <div className="text-center mb-8">
-                <div className="flex items-center justify-center gap-2.5 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-red-700 flex items-center justify-center shadow-red-sm">
-                    <span className="text-white font-black text-lg">86</span>
-                  </div>
-                  <span className="font-display font-black text-2xl tracking-tight">
-                    Connect
-                  </span>
+                <div className="flex items-center justify-center mb-4">
+                  <Image
+                    src="/logo-main.png"
+                    alt="86 Connect"
+                    width={180}
+                    height={49}
+                    className="h-10 w-auto"
+                    priority
+                  />
                 </div>
                 <h1 className="font-display font-black text-2xl tracking-tight">
                   Forgot Password?

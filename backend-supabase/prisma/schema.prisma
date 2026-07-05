@@ -1,0 +1,180 @@
+// Supabase PostgreSQL Schema
+// Same models as the main backend, datasource points to Supabase.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  name          String
+  phone         String?
+  passwordHash  String?        @map("password_hash")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  submissions   Submission[]
+  consultations Consultation[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Submission {
+  id              String          @id @default(uuid())
+  userId          String?         @map("user_id")
+  user            User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name            String
+  email           String
+  phone           String?
+  serviceInterest String          @map("service_interest")
+  submissionType  String          @default("contact") @map("submission_type")
+  message         String
+  status          String          @default("submitted")
+  statusHistory   Json?           @map("status_history")
+  read            Boolean         @default(false)
+  referenceCode   String?         @unique @map("reference_code")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  attachments     Attachment[]
+  notes           SubmissionNote[]
+
+  @@map("submissions")
+}
+
+model SubmissionNote {
+  id           String     @id @default(uuid())
+  submissionId String     @map("submission_id")
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  content      String
+  authorName   String     @default("Admin") @map("author_name")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  @@index([submissionId])
+  @@map("submission_notes")
+}
+
+model Attachment {
+  id              String     @id @default(uuid())
+  submissionId    String     @map("submission_id")
+  submission      Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  originalName    String     @map("original_name")
+  fileName        String     @map("file_name")
+  url             String
+  storageProvider String     @map("storage_provider")
+  mimeType        String     @map("mime_type")
+  size            Int
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  @@index([submissionId])
+  @@map("attachments")
+}
+
+model Video {
+  id        String   @id @default(uuid())
+  youtubeId String   @map("youtube_id")
+  title     String
+  page      String
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([page])
+  @@map("videos")
+}
+
+model Consultation {
+  id              String           @id @default(uuid())
+  userId          String?          @map("user_id")
+  user            User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name            String
+  email           String
+  phone           String?
+  service         String           @default("general")
+  meetingType     String           @default("online") @map("meeting_type")
+  preferredDate   DateTime         @map("preferred_date")
+  preferredTime   String           @map("preferred_time")
+  timezone        String           @default("UTC")
+  message         String           @default("")
+  status          String           @default("pending")
+  adminNotes      String?          @map("admin_notes")
+  meetingUrl      String?          @map("meeting_url")
+  read            Boolean          @default(false)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  availabilitySlot AvailabilitySlot?
+
+  @@index([status])
+  @@index([preferredDate])
+  @@index([userId])
+  @@map("consultations")
+}
+
+model Notification {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type          String
+  title         String
+  message       String
+  read          Boolean  @default(false)
+  referenceId   String   @map("reference_id")
+  referenceCode String?  @map("reference_code")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model AvailabilitySlot {
+  id              String        @id @default(uuid())
+  date            DateTime
+  startTime       String        @map("start_time")
+  endTime         String        @map("end_time")
+  status          String        @default("available")
+  consultationId  String?       @unique @map("consultation_id")
+  consultation    Consultation? @relation(fields: [consultationId], references: [id], onDelete: SetNull)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  @@unique([date, startTime])
+  @@index([date])
+  @@index([status])
+  @@map("availability_slots")
+}
+
+model LoginAttempt {
+  id          String   @id @default(uuid())
+  email       String
+  ip          String
+  type        String   @default("user")
+  attempts    Int      @default(1)
+  lockedUntil DateTime @default(now()) @map("locked_until")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([email, type])
+  @@index([ip])
+  @@index([lockedUntil])
+  @@map("login_attempts")
+}
+
+model AdminUser {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  name         String
+  passwordHash String    @map("password_hash")
+  role         String    @default("admin")
+  lastLoginAt  DateTime? @map("last_login_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("admin_users")
+}

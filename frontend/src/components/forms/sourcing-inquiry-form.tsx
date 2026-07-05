@@ -29,9 +29,11 @@ import {
 } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { FormSection, Field, Select, RadioGroup } from "./form-helpers";
 import { cn } from "@/lib/utils";
 import { useFormAutosave } from "@/hooks/use-form-autosave";
+import { checkCanSubmit, recordSubmission } from "@/lib/submit-throttle";
+import { CooldownMessage } from "./cooldown-message";
 
 interface PendingFile {
   id: string;
@@ -43,6 +45,7 @@ interface PendingFile {
 
 export function SourcingInquiryForm() {
   const [submitted, setSubmitted] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [setPasswordToken, setSetPasswordToken] = useState<string | null>(null);
   const [isNewUser, setIsNewUser] = useState(false);
   const [honeypot, setHoneypot] = useState("");
@@ -143,6 +146,16 @@ export function SourcingInquiryForm() {
   };
 
   const onSubmit = async (data: SourcingInquiryData) => {
+    // Client-side rate limit check
+    const check = checkCanSubmit("sourcing-inquiry");
+    if (!check.allowed) {
+      setCooldownSeconds(check.waitSeconds);
+      toast.error("Rate limit reached", {
+        description: `Please wait ${check.waitSeconds} seconds before submitting again.`,
+      });
+      return;
+    }
+
     try {
       if (hasUploadingFiles) {
         toast.error("Please wait for file uploads to complete");
@@ -157,6 +170,7 @@ export function SourcingInquiryForm() {
         },
         successfulAttachments,
       );
+      recordSubmission("sourcing-inquiry");
       setSubmitted(true);
       setFiles([]);
       setIsNewUser(Boolean(response.newUser));
@@ -574,9 +588,15 @@ export function SourcingInquiryForm() {
       )}
 
       {/* Submit */}
+      {cooldownSeconds > 0 && (
+        <CooldownMessage
+          seconds={cooldownSeconds}
+          onComplete={() => setCooldownSeconds(0)}
+        />
+      )}
       <button
         type="submit"
-        disabled={isSubmitting || hasUploadingFiles}
+        disabled={isSubmitting || hasUploadingFiles || cooldownSeconds > 0}
         className="w-full inline-flex items-center justify-center gap-2 h-14 bg-primary text-white rounded-2xl font-black text-base hover:bg-red-700 transition-all duration-200 cursor-pointer press disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {isSubmitting || hasUploadingFiles ? (
@@ -599,94 +619,6 @@ export function SourcingInquiryForm() {
         respond within 1-2 business days.
       </p>
     </form>
-  );
-}
-
-/* ============== Helper Components ============== */
-function FormSection({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-4">
-      <div>
-        <h3 className="font-display font-black text-lg text-foreground">
-          {title}
-        </h3>
-        {description && (
-          <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
-        )}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function Field({
-  label,
-  hint,
-  required,
-  error,
-  children,
-}: {
-  label?: string;
-  hint?: string;
-  required?: boolean;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-2">
-      {label && (
-        <Label>
-          {label} {required && <span className="text-primary">*</span>}
-          {hint && (
-            <span className="text-muted-foreground font-normal text-xs ml-1">
-              ({hint})
-            </span>
-          )}
-        </Label>
-      )}
-      {children}
-      {error && (
-        <p role="alert" className="text-xs font-bold text-destructive">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function Select({
-  id,
-  placeholder,
-  options,
-  ...props
-}: {
-  id: string;
-  placeholder: string;
-  options: string[];
-} & React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select
-      id={id}
-      className="flex h-12 w-full rounded-xl border-2 border-border bg-card px-4 py-2 text-base font-medium text-foreground transition-all duration-200 focus-visible:outline-none focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50"
-      {...props}
-    >
-      <option value="" disabled>
-        {placeholder}
-      </option>
-      {options.map((opt) => (
-        <option key={opt} value={opt}>
-          {opt}
-        </option>
-      ))}
-    </select>
   );
 }
 

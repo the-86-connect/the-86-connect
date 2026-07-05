@@ -7,7 +7,7 @@ import { FAQAccordion } from "@/components/sections/faq-accordion";
 import { FAQ_SECTIONS } from "@/data/faq";
 
 export const metadata: Metadata = {
-  title: "Frequently Asked Questions — Study in China & Product Sourcing",
+  title: "Frequently Asked Questions",
   description:
     "Find answers to common questions about studying in China (admissions, scholarships, visas) and product sourcing from China (suppliers, quality control, shipping).",
   alternates: {

@@ -115,7 +115,6 @@ export function PageNavbar({
 
   return (
     <>
-      {/* Desktop + mobile top nav */}
       <header
         className={cn(
           "fixed top-0 inset-x-0 z-50 transition-all duration-300",
@@ -124,10 +123,9 @@ export function PageNavbar({
             : "bg-transparent",
         )}
       >
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* Desktop layout */}
+        <div className="container mx-auto max-w-7xl px-4 sm:px-5 md:px-6 lg:px-8">
+          {/* Full desktop layout (lg+) */}
           <div className="hidden lg:flex items-center justify-between h-16 lg:h-20">
-            {/* Logo + back */}
             <div className="flex items-center gap-4 shrink-0">
               <Link
                 href="/"
@@ -144,18 +142,17 @@ export function PageNavbar({
                 aria-label="86 Connect home"
               >
                 <Image
-                  src={scrolled ? "/logo-main.png" : "/logo-white-nav.png"}
+                  src="/logo-main.png"
                   alt="86 Connect"
-                  width={180}
-                  height={49}
-                  className="h-9 w-auto group-hover:opacity-90 transition-opacity duration-200"
+                  width={160}
+                  height={44}
+                  className="h-8 w-auto group-hover:opacity-90 transition-opacity duration-200"
                   priority
                 />
               </Link>
             </div>
 
-            {/* Desktop sub-nav -- clean text links with underline */}
-            <nav className="flex items-center gap-8">
+            <nav className="flex items-center gap-6 xl:gap-8 overflow-x-auto no-scrollbar">
               {subLinks.map((link) => {
                 const isActive = activeSection === link.target;
                 return (
@@ -165,7 +162,7 @@ export function PageNavbar({
                     onClick={() => handleNavClick(link.target)}
                     aria-current={isActive ? "page" : undefined}
                     className={cn(
-                      "relative px-1 py-2 text-sm font-semibold tracking-[-0.01em] transition-colors duration-200 cursor-pointer press group",
+                      "relative px-1 py-2 text-sm font-semibold tracking-[-0.01em] transition-colors duration-200 cursor-pointer press group whitespace-nowrap",
                       isActive
                         ? "text-primary"
                         : "text-foreground/60 hover:text-foreground",
@@ -183,8 +180,7 @@ export function PageNavbar({
               })}
             </nav>
 
-            {/* Desktop CTA + Profile */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
               <Link
                 href={isAuthenticated ? "/account" : "/login"}
                 className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-foreground/60 hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors duration-200 cursor-pointer press"
@@ -206,26 +202,87 @@ export function PageNavbar({
             </div>
           </div>
 
-          {/* Mobile layout */}
-          <div className="lg:hidden flex items-center justify-between h-16 sm:h-18">
+          {/* Compact desktop layout (md) */}
+          <div className="hidden md:flex lg:hidden items-center justify-between h-14 md:h-16">
+            <Link
+              href="/"
+              className="flex items-center press shrink-0"
+              aria-label="86 Connect home"
+            >
+              <Image
+                src="/logo-main.png"
+                alt="86 Connect"
+                width={140}
+                height={38}
+                className="h-7 md:h-8 w-auto"
+                priority
+              />
+            </Link>
+
+            <nav className="flex items-center gap-2 md:gap-3 overflow-x-auto no-scrollbar flex-1 mx-3">
+              {subLinks.map((link) => {
+                const isActive = activeSection === link.target;
+                return (
+                  <button
+                    key={link.target}
+                    type="button"
+                    onClick={() => handleNavClick(link.target)}
+                    aria-current={isActive ? "page" : undefined}
+                    className={cn(
+                      "relative px-2 py-1.5 text-xs font-semibold tracking-[-0.01em] transition-colors duration-200 cursor-pointer press whitespace-nowrap rounded-md",
+                      isActive
+                        ? "text-primary bg-primary/5"
+                        : "text-foreground/60 hover:text-foreground hover:bg-muted/40",
+                    )}
+                  >
+                    {link.label}
+                  </button>
+                );
+              })}
+            </nav>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Link
+                href={isAuthenticated ? "/account" : "/login"}
+                className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-foreground/60 hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer press"
+                aria-label={isAuthenticated ? "Account" : "Login"}
+              >
+                {isAuthenticated ? (
+                  <User className="h-4 w-4" />
+                ) : (
+                  <UserRound className="h-4 w-4" />
+                )}
+              </Link>
+              <button
+                type="button"
+                onClick={() => handleNavClick(ctaTarget)}
+                className="inline-flex items-center px-3 py-2 bg-primary text-white rounded-lg font-semibold text-xs hover:bg-red-700 transition-all cursor-pointer press shadow-sm whitespace-nowrap"
+              >
+                {ctaLabel}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile layout (<md) */}
+          <div className="md:hidden flex items-center justify-between h-14 sm:h-16">
             <Link
               href="/"
               className="flex items-center press min-h-[44px]"
               aria-label="Back to home"
             >
               <Image
-                src={scrolled ? "/logo-main.png" : "/logo-white-nav.png"}
+                src="/logo-main.png"
                 alt="86 Connect"
-                width={160}
-                height={44}
-                className="h-8 w-auto"
+                width={140}
+                height={38}
+                className="h-7 w-auto"
                 priority
               />
             </Link>
             <button
               type="button"
               onClick={() => setIsOpen((v) => !v)}
-              className="flex items-center justify-center w-11 h-11 rounded-xl bg-white/90 backdrop-blur-sm border border-border/60 shadow-sm cursor-pointer press touch-manipulation"
+              className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/90 backdrop-blur-sm border border-border/60 shadow-sm cursor-pointer press touch-manipulation"
               aria-label={isOpen ? "Close menu" : "Open menu"}
               aria-expanded={isOpen}
             >
@@ -242,7 +299,7 @@ export function PageNavbar({
       {/* Mobile slide-down menu */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40 pt-16 px-3"
+          className="md:hidden fixed inset-0 z-40 pt-14 sm:pt-16 px-3"
           onClick={() => setIsOpen(false)}
         >
           <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" />
@@ -322,17 +379,17 @@ export function PageNavbar({
         </div>
       )}
 
-      {/* Mobile bottom tab bar */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 safe-bottom pointer-events-none">
-        <div className="mx-2 sm:mx-3 mb-2 sm:mb-3 pointer-events-auto">
-          <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-lg px-1.5 py-1.5 sm:px-2 sm:py-2 border border-border/40">
-            <div className="grid grid-cols-6 gap-0.5 sm:gap-1">
+      {/* Mobile bottom tab bar - only on <md (768px) */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 safe-bottom pointer-events-none">
+        <div className="mx-1.5 sm:mx-3 mb-1.5 sm:mb-3 pointer-events-auto">
+          <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-soft-xl px-1 py-1 sm:px-2 sm:py-2 border border-border/60">
+            <div className="grid grid-cols-6 gap-0">
               <Link
                 href="/"
-                className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/50 hover:text-foreground"
+                className="relative flex flex-col items-center justify-center gap-1 py-2 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[50px] sm:min-h-[56px] text-foreground/55 hover:text-foreground"
               >
-                <HomeIcon className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
+                <HomeIcon className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
+                <span className="text-[10px] sm:text-[10px] font-bold leading-none relative z-10">
                   Home
                 </span>
               </Link>
@@ -343,14 +400,14 @@ export function PageNavbar({
                     onClick={() => handleNavClick("services")}
                     aria-label="Services"
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      "relative flex flex-col items-center justify-center gap-1 py-2 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[50px] sm:min-h-[56px]",
                       activeSection === "services"
                         ? "text-primary"
-                        : "text-foreground/50 hover:text-foreground",
+                        : "text-foreground/55 hover:text-foreground",
                     )}
                   >
-                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
+                    <Briefcase className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[10px] sm:text-[10px] font-bold leading-none relative z-10">
                       Services
                     </span>
                   </button>
@@ -359,14 +416,14 @@ export function PageNavbar({
                     onClick={() => handleNavClick("universities")}
                     aria-label="Universities"
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      "relative flex flex-col items-center justify-center gap-1 py-2 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[50px] sm:min-h-[56px]",
                       activeSection === "universities"
                         ? "text-primary"
-                        : "text-foreground/50 hover:text-foreground",
+                        : "text-foreground/55 hover:text-foreground",
                     )}
                   >
-                    <Building2 className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
+                    <Building2 className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[10px] sm:text-[10px] font-bold leading-none relative z-10">
                       Uni
                     </span>
                   </button>
@@ -375,14 +432,14 @@ export function PageNavbar({
                     onClick={() => handleNavClick("apply")}
                     aria-label="Apply"
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      "relative flex flex-col items-center justify-center gap-1 py-2 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[50px] sm:min-h-[56px]",
                       activeSection === "apply"
                         ? "text-primary"
-                        : "text-foreground/50 hover:text-foreground",
+                        : "text-foreground/55 hover:text-foreground",
                     )}
                   >
-                    <FileCheck className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
+                    <FileCheck className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[10px] sm:text-[10px] font-bold leading-none relative z-10">
                       Apply
                     </span>
                   </button>
@@ -394,14 +451,14 @@ export function PageNavbar({
                     onClick={() => handleNavClick("services")}
                     aria-label="Services"
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      "relative flex flex-col items-center justify-center gap-1 py-2 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[50px] sm:min-h-[56px]",
                       activeSection === "services"
                         ? "text-primary"
-                        : "text-foreground/50 hover:text-foreground",
+                        : "text-foreground/55 hover:text-foreground",
                     )}
                   >
-                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
+                    <Briefcase className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[10px] sm:text-[10px] font-bold leading-none relative z-10">
                       Services
                     </span>
                   </button>
@@ -410,14 +467,14 @@ export function PageNavbar({
                     onClick={() => handleNavClick("models")}
                     aria-label="Models"
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      "relative flex flex-col items-center justify-center gap-1 py-2 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[50px] sm:min-h-[56px]",
                       activeSection === "models"
                         ? "text-primary"
-                        : "text-foreground/50 hover:text-foreground",
+                        : "text-foreground/55 hover:text-foreground",
                     )}
                   >
-                    <GitBranch className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
+                    <GitBranch className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[10px] sm:text-[10px] font-bold leading-none relative z-10">
                       Models
                     </span>
                   </button>
@@ -426,14 +483,14 @@ export function PageNavbar({
                     onClick={() => handleNavClick("inquire")}
                     aria-label="Get Quote"
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px]",
+                      "relative flex flex-col items-center justify-center gap-1 py-2 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[50px] sm:min-h-[56px]",
                       activeSection === "inquire"
                         ? "text-primary"
-                        : "text-foreground/50 hover:text-foreground",
+                        : "text-foreground/55 hover:text-foreground",
                     )}
                   >
-                    <Send className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                    <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
+                    <Send className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
+                    <span className="text-[10px] sm:text-[10px] font-bold leading-none relative z-10">
                       Quote
                     </span>
                   </button>
@@ -441,23 +498,23 @@ export function PageNavbar({
               )}
               <Link
                 href={trackHref}
-                className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/50 hover:text-foreground"
+                className="relative flex flex-col items-center justify-center gap-1 py-2 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[50px] sm:min-h-[56px] text-foreground/55 hover:text-foreground"
               >
-                <Search className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
+                <Search className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
+                <span className="text-[10px] sm:text-[10px] font-bold leading-none relative z-10">
                   Track
                 </span>
               </Link>
               <Link
                 href={isAuthenticated ? "/account" : "/login"}
-                className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[52px] sm:min-h-[56px] text-foreground/50 hover:text-foreground"
+                className="relative flex flex-col items-center justify-center gap-1 py-2 sm:py-2 rounded-xl transition-all duration-200 cursor-pointer press min-h-[50px] sm:min-h-[56px] text-foreground/55 hover:text-foreground"
               >
                 {isAuthenticated ? (
-                  <User className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+                  <User className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
                 ) : (
-                  <UserRound className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+                  <UserRound className="h-[18px] w-[18px] sm:h-5 sm:w-5 relative z-10" />
                 )}
-                <span className="text-[9px] sm:text-[10px] font-semibold leading-none relative z-10">
+                <span className="text-[10px] sm:text-[10px] font-bold leading-none relative z-10">
                   {isAuthenticated ? "Me" : "Login"}
                 </span>
               </Link>

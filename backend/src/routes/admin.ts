@@ -4,7 +4,11 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
-import { authenticateToken } from "../middleware/auth";
+import {
+  authenticateToken,
+  requireSuperadmin,
+  AdminRequest,
+} from "../middleware/auth";
 import { deleteFileFromStorage } from "../lib/storage";
 import {
   notifyAdminNewSubmission,
@@ -26,6 +30,7 @@ import {
 } from "../lib/session-tracker";
 import {
   adminLoginSchema,
+  adminRegisterSchema,
   adminUserCreateSchema,
   adminUserUpdateSchema,
   adminResetPasswordSchema,
@@ -38,57 +43,259 @@ import {
 
 export const adminRouter = Router();
 
-// Constant-time password comparison (prevents timing attacks)
-function safeCompare(a: string, b: string): boolean {
-  const bufA = Buffer.from(a);
-  const bufB = Buffer.from(b);
-  if (bufA.length !== bufB.length) return false;
-  return crypto.timingSafeEqual(bufA, bufB);
-}
-
-// Cookie options
+// Cookie options — shared across admin.the86connect.com and the86connect.com
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
+  sameSite: "lax" as const,
+  domain: process.env.COOKIE_DOMAIN || (process.env.NODE_ENV === "production" ? ".the86connect.com" : undefined),
   maxAge: 24 * 60 * 60 * 1000,
   path: "/",
 };
 
-// Login
-adminRouter.post("/login", (req, res) => {
+// Login — password-only admin authentication
+adminRouter.post("/login", async (req, res) => {
   const parsed = adminLoginSchema.safeParse(req.body);
 
   if (!parsed.success) {
     return res.status(400).json({ error: "Password is required" });
   }
 
-  // Check if IP is locked out (admin uses stricter: 3 attempts → 30 min)
-  const lockout = checkLoginLockout(req, "admin", "admin");
+  const { password } = parsed.data;
+  // Use a fixed admin identifier for rate limiting / tracking
+  const adminId = "admin";
+
+  // Check if IP is locked out (admin uses stricter: 3 attempts → 15 min)
+  const lockout = checkLoginLockout(req, adminId, "admin");
   if (lockout.locked && lockout.message) {
     return res.status(429).json({ error: lockout.message });
   }
 
-  if (!safeCompare(parsed.data.password, process.env.ADMIN_PASSWORD!)) {
-    recordFailedLogin(req, "admin", "admin");
+  try {
+    // Look up any admin user (first one found)
+    const adminUser = await prisma.adminUser.findFirst();
+
+    if (adminUser) {
+      // Per-admin authentication
+      const valid = await bcrypt.compare(password, adminUser.passwordHash);
+      if (!valid) {
+        recordFailedLogin(req, adminId, "admin");
+        return res.status(401).json({ error: "Incorrect password" });
+      }
+
+      // Success — clear tracking
+      resetLoginAttempts(req, adminId, "admin");
+
+      // Update last login timestamp
+      await prisma.adminUser
+        .update({
+          where: { id: adminUser.id },
+          data: { lastLoginAt: new Date() },
+        })
+        .catch((err) => {
+          console.error("Failed to update lastLoginAt:", (err as Error).message);
+        });
+
+      // Create a session
+      const session = createSession(req);
+
+      const token = jwt.sign(
+        {
+          adminId: adminUser.id,
+          email: adminUser.email,
+          role: adminUser.role,
+          sessionId: session.sessionId,
+        },
+        process.env.JWT_SECRET!,
+        { expiresIn: "24h" },
+      );
+
+      res.cookie("admin_token", token, cookieOptions);
+      return res.json({ success: true, name: adminUser.name, role: adminUser.role });
+    }
+
+    // No admin user found in DB — fall back to ADMIN_PASSWORD env var for bootstrapping
+    const adminCount = await prisma.adminUser.count();
+    if (adminCount === 0 && process.env.ADMIN_PASSWORD) {
+      // Constant-time comparison for the bootstrap password
+      const bufA = Buffer.from(password);
+      const bufB = Buffer.from(process.env.ADMIN_PASSWORD);
+      if (bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB)) {
+        resetLoginAttempts(req, adminId, "admin");
+
+        const session = createSession(req);
+
+        const token = jwt.sign(
+          { admin: true, sessionId: session.sessionId },
+          process.env.JWT_SECRET!,
+          { expiresIn: "24h" },
+        );
+
+        res.cookie("admin_token", token, cookieOptions);
+        return res.json({ success: true, name: "Admin", role: "admin" });
+      }
+    }
+
+    recordFailedLogin(req, adminId, "admin");
     return res.status(401).json({ error: "Incorrect password" });
+  } catch (error) {
+    console.error("Admin login error:", (error as Error).message);
+    return res.status(500).json({ error: "Login failed. Please try again." });
   }
-
-  // Success - clear any tracking for admin
-  resetLoginAttempts(req, "admin", "admin");
-
-  // Create a session — enforces the 4-device cap (oldest is evicted if exceeded)
-  const session = createSession(req);
-
-  const token = jwt.sign(
-    { admin: true, sessionId: session.sessionId },
-    process.env.JWT_SECRET!,
-    { expiresIn: "24h" },
-  );
-
-  res.cookie("admin_token", token, cookieOptions);
-  res.json({ success: true });
 });
+
+// Register a new admin user (superadmin only)
+adminRouter.post(
+  "/register",
+  authenticateToken,
+  requireSuperadmin,
+  async (req, res) => {
+    const parsed = adminRegisterSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0].message });
+    }
+
+    const { email, name, password, role } = parsed.data;
+
+    try {
+      const existing = await prisma.adminUser.findUnique({ where: { email } });
+      if (existing) {
+        return res
+          .status(409)
+          .json({ error: "An admin with this email already exists" });
+      }
+
+      const passwordHash = await bcrypt.hash(password, 10);
+      const adminUser = await prisma.adminUser.create({
+        data: {
+          email,
+          name,
+          passwordHash,
+          role,
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          lastLoginAt: true,
+          createdAt: true,
+        },
+      });
+
+      res.status(201).json({ success: true, admin: adminUser });
+    } catch (error) {
+      console.error("Admin register error:", (error as Error).message);
+      res.status(500).json({ error: "Failed to create admin user" });
+    }
+  },
+);
+
+// List all admin users (superadmin only)
+adminRouter.get(
+  "/admins",
+  authenticateToken,
+  requireSuperadmin,
+  async (_req, res) => {
+    try {
+      const admins = await prisma.adminUser.findMany({
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          lastLoginAt: true,
+          createdAt: true,
+        },
+      });
+
+      res.json({ admins });
+    } catch (error) {
+      console.error("List admins error:", (error as Error).message);
+      res.status(500).json({ error: "Failed to retrieve admin users" });
+    }
+  },
+);
+
+// Delete an admin user (superadmin only)
+adminRouter.delete(
+  "/admins/:id",
+  authenticateToken,
+  requireSuperadmin,
+  async (req, res) => {
+    const id = String(req.params.id);
+    const currentAdmin = (req as AdminRequest).admin;
+
+    if (currentAdmin && currentAdmin.id === id) {
+      return res.status(400).json({ error: "Cannot delete your own account" });
+    }
+
+    try {
+      const adminUser = await prisma.adminUser.findUnique({ where: { id } });
+      if (!adminUser) {
+        return res.status(404).json({ error: "Admin user not found" });
+      }
+
+      await prisma.adminUser.delete({ where: { id } });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete admin error:", (error as Error).message);
+      res.status(500).json({ error: "Failed to delete admin user" });
+    }
+  },
+);
+
+// Update an admin user (superadmin only)
+adminRouter.patch(
+  "/admins/:id",
+  authenticateToken,
+  requireSuperadmin,
+  async (req, res) => {
+    const id = String(req.params.id);
+    const { name, role, password } = req.body;
+
+    try {
+      const adminUser = await prisma.adminUser.findUnique({ where: { id } });
+      if (!adminUser) {
+        return res.status(404).json({ error: "Admin user not found" });
+      }
+
+      const data: Record<string, unknown> = {};
+      if (name !== undefined && typeof name === "string" && name.trim()) {
+        data.name = name.trim();
+      }
+      if (role !== undefined && ["admin", "superadmin"].includes(role)) {
+        data.role = role;
+      }
+      if (password !== undefined && typeof password === "string" && password.length >= 8) {
+        data.passwordHash = await bcrypt.hash(password, 10);
+      }
+
+      if (Object.keys(data).length === 0) {
+        return res.status(400).json({ error: "No valid fields to update" });
+      }
+
+      const updated = await prisma.adminUser.update({
+        where: { id },
+        data,
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          lastLoginAt: true,
+          createdAt: true,
+        },
+      });
+
+      res.json({ success: true, admin: updated });
+    } catch (error) {
+      console.error("Update admin error:", (error as Error).message);
+      res.status(500).json({ error: "Failed to update admin user" });
+    }
+  },
+);
 
 // Logout — revoke this device's session
 adminRouter.post("/logout", (req, res) => {
@@ -111,7 +318,13 @@ adminRouter.post("/logout", (req, res) => {
 
 // Verify auth status (lightweight — no DB query)
 adminRouter.get("/verify", authenticateToken, (_req, res) => {
-  res.json({ authenticated: true });
+  const admin = (_req as AdminRequest).admin;
+  res.json({
+    authenticated: true,
+    admin: admin
+      ? { email: admin.email, role: admin.role }
+      : { email: "admin", role: "admin" },
+  });
 });
 
 // Server-Sent Events stream for real-time admin updates
@@ -250,8 +463,8 @@ function buildSubmissionWhere(req: Request): Prisma.SubmissionWhereInput {
 
   if (dateFrom || dateTo) {
     where.createdAt = {};
-    if (dateFrom) where.createdAt.gte = new Date(dateFrom);
-    if (dateTo) where.createdAt.lte = new Date(dateTo);
+    if (dateFrom && !isNaN(Date.parse(dateFrom))) where.createdAt.gte = new Date(dateFrom);
+    if (dateTo && !isNaN(Date.parse(dateTo))) where.createdAt.lte = new Date(dateTo);
   }
 
   return where;
@@ -427,6 +640,52 @@ adminRouter.get("/submissions/export", authenticateToken, async (req, res) => {
   }
 });
 
+// Download a single attachment (protected, proxy with forced download)
+adminRouter.get(
+  "/download/:submissionId/:attachmentId",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { submissionId, attachmentId } = req.params as { submissionId: string; attachmentId: string };
+
+      const attachment = await prisma.attachment.findUnique({
+        where: { id: attachmentId },
+        select: {
+          id: true,
+          url: true,
+          originalName: true,
+          mimeType: true,
+          submissionId: true,
+        },
+      });
+
+      if (!attachment || attachment.submissionId !== submissionId) {
+        return res.status(404).json({ error: "Attachment not found" });
+      }
+
+      // Fetch the file from Cloudinary/R2
+      const response = await fetch(attachment.url);
+      if (!response.ok) {
+        return res.status(502).json({ error: "Failed to fetch file from storage" });
+      }
+
+      const buffer = Buffer.from(await response.arrayBuffer());
+
+      res.setHeader("Content-Type", attachment.mimeType);
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${encodeURIComponent(attachment.originalName)}"`,
+      );
+      res.setHeader("Content-Length", buffer.length);
+      res.setHeader("Cache-Control", "private, max-age=3600");
+      res.send(buffer);
+    } catch (error) {
+      console.error("Download error:", (error as Error).message);
+      res.status(500).json({ error: "Failed to download file" });
+    }
+  },
+);
+
 // Delete a submission by id (protected)
 adminRouter.delete("/submissions/:id", authenticateToken, async (req, res) => {
   const id = String(req.params.id);
@@ -547,6 +806,37 @@ adminRouter.patch(
       }).catch((err) =>
         console.error("Status change email error:", (err as Error).message),
       );
+
+      // Create in-app notification if submission has a linked user
+      if (submission.userId) {
+        const statusLabels: Record<string, string> = {
+          submitted: "Submitted",
+          under_review: "Under Review",
+          matched: "University Matched",
+          verified: "Documents Verified",
+          decision: "Admission Decision",
+          visa: "Visa & Pre-Departure",
+          received: "Inquiry Received",
+          sourcing: "Supplier Sourcing",
+          quotes: "Quotes Received",
+          sample: "Sample Evaluation",
+          confirmed: "Order Confirmed",
+          shipping: "Shipping Arranged",
+        };
+        const label = statusLabels[status] || status;
+        prisma.notification.create({
+          data: {
+            userId: submission.userId,
+            type: "submission_status",
+            title: "Application Status Updated",
+            message: `Your ${submission.serviceInterest} application (${submission.referenceCode}) is now: ${label}`,
+            referenceId: submission.id,
+            referenceCode: submission.referenceCode,
+          },
+        }).catch((err) =>
+          console.error("Notification create error:", (err as Error).message),
+        );
+      }
 
       res.json({ success: true, submission: updated });
 
@@ -1175,6 +1465,17 @@ adminRouter.patch("/videos/reorder", authenticateToken, async (req, res) => {
     return res.status(400).json({ error: "Items array is required" });
   }
 
+  const VALID_VIDEO_PAGES = ["study", "sourcing"] as const;
+  for (const item of items) {
+    if (
+      typeof item.id !== "string" || !item.id ||
+      typeof item.order !== "number" || !Number.isInteger(item.order) || item.order < 0 ||
+      typeof item.page !== "string" || !VALID_VIDEO_PAGES.includes(item.page as typeof VALID_VIDEO_PAGES[number])
+    ) {
+      return res.status(400).json({ error: "Invalid item in reorder array" });
+    }
+  }
+
   try {
     await prisma.$transaction(
       items.map((item: { id: string; order: number; page: string }) =>
@@ -1423,17 +1724,8 @@ adminRouter.patch("/consultations/:id", authenticateToken, async (req, res) => {
       select: consultationListSelect,
     });
 
-    // If status changed to "cancelled", free the linked availability slot
-    if (isStatusChanged && status === "cancelled") {
-      await prisma.availabilitySlot.updateMany({
-        where: { consultationId: id },
-        data: { status: "available", consultationId: null },
-      });
-      broadcastToAdmins("availability:updated", {
-        consultationId: id,
-        status: "available",
-      });
-    }
+    // Note: Slot is NOT freed on cancel — admin can delete it manually later.
+    // This keeps the cancelled slot visible in the admin availability table.
 
     broadcastToAdmins("consultation:updated", {
       ...updated,
@@ -1456,6 +1748,29 @@ adminRouter.patch("/consultations/:id", authenticateToken, async (req, res) => {
       }).catch((err) =>
         console.error("Consultation user email error:", (err as Error).message),
       );
+
+      // Create in-app notification if consultation has a linked user
+      if (updated.userId) {
+        const statusLabels: Record<string, string> = {
+          pending: "Pending",
+          confirmed: "Confirmed",
+          rescheduled: "Rescheduled",
+          completed: "Completed",
+          cancelled: "Cancelled",
+        };
+        const label = statusLabels[updated.status] || updated.status;
+        prisma.notification.create({
+          data: {
+            userId: updated.userId,
+            type: "consultation_update",
+            title: "Booking Update",
+            message: `Your consultation for ${updated.service} is now: ${label}`,
+            referenceId: updated.id,
+          },
+        }).catch((err) =>
+          console.error("Notification create error:", (err as Error).message),
+        );
+      }
     }
 
     res.json({ success: true, consultation: updated });
@@ -1617,6 +1932,150 @@ adminRouter.get(
     } catch (error) {
       console.error("Export consultations error:", (error as Error).message);
       res.status(500).json({ error: "Failed to export consultations" });
+    }
+  },
+);
+
+// Bulk update consultation statuses
+adminRouter.patch(
+  "/consultations/bulk-status",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { ids, status } = req.body;
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: "ids must be a non-empty array" });
+      }
+      if (
+        !status ||
+        !["confirmed", "cancelled", "completed"].includes(status)
+      ) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+
+      const result = await prisma.consultation.updateMany({
+        where: { id: { in: ids } },
+        data: { status },
+      });
+
+      broadcastToAdmins("availability:updated", {
+        bulkStatus: status,
+        count: result.count,
+      });
+
+      res.json({ updated: result.count });
+    } catch (error) {
+      console.error("Bulk status update error:", (error as Error).message);
+      res.status(500).json({ error: "Failed to update consultations" });
+    }
+  },
+);
+
+// Bulk update slot statuses (block/unblock)
+adminRouter.patch(
+  "/availability/bulk-status",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { ids, status } = req.body;
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: "ids must be a non-empty array" });
+      }
+      if (!status || !["available", "blocked"].includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+
+      const result = await prisma.availabilitySlot.updateMany({
+        where: {
+          id: { in: ids },
+          status: { in: ["available", "blocked"] },
+        },
+        data: { status },
+      });
+
+      broadcastToAdmins("availability:updated", {
+        bulkSlotStatus: status,
+        count: result.count,
+      });
+
+      res.json({ updated: result.count });
+    } catch (error) {
+      console.error("Bulk slot status error:", (error as Error).message);
+      res.status(500).json({ error: "Failed to update slots" });
+    }
+  },
+);
+
+// Admin: Book a slot for a client
+adminRouter.post(
+  "/availability/:id/book",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { name, email, phone, service, message } = req.body;
+
+      if (!name || !email) {
+        return res
+          .status(400)
+          .json({ error: "Name and email are required" });
+      }
+
+      const consultation = await prisma.$transaction(async (tx) => {
+        const slot = await tx.availabilitySlot.findUnique({
+          where: { id: String(req.params.id) },
+        });
+
+        if (!slot) {
+          throw new Error("SLOT_NOT_FOUND");
+        }
+        if (slot.status !== "available" || slot.consultationId) {
+          throw new Error("SLOT_ALREADY_BOOKED");
+        }
+
+        const newConsultation = await tx.consultation.create({
+          data: {
+            name,
+            email: email.toLowerCase(),
+            phone: phone || null,
+            service: service || "general",
+            meetingType: "online",
+            preferredDate: slot.date,
+            preferredTime: slot.startTime,
+            timezone: "UTC",
+            message: message || "Booked by admin",
+            status: "pending",
+          },
+        });
+
+        await tx.availabilitySlot.update({
+          where: { id: slot.id },
+          data: { status: "booked", consultationId: newConsultation.id },
+        });
+
+        return newConsultation;
+      });
+
+      broadcastToAdmins("availability:updated", {
+        id: req.params.id,
+        status: "booked",
+        consultationId: consultation.id,
+      });
+
+      res.status(201).json({
+        success: true,
+        id: consultation.id,
+        message: "Booking created successfully.",
+      });
+    } catch (error) {
+      const msg = (error as Error).message;
+      if (msg === "SLOT_NOT_FOUND") {
+        return res.status(404).json({ error: "Slot not found" });
+      }
+      if (msg === "SLOT_ALREADY_BOOKED") {
+        return res.status(409).json({ error: "Slot is already booked" });
+      }
+      console.error("Admin book slot error:", msg);
+      res.status(500).json({ error: "Failed to create booking" });
     }
   },
 );

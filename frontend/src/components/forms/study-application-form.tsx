@@ -13,7 +13,6 @@ import {
   GraduationCap,
   KeyRound,
   UserCircle,
-  Save,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -29,9 +28,11 @@ import {
 } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { FormSection, Field, Select, RadioGroup } from "./form-helpers";
 import { cn } from "@/lib/utils";
 import { useFormAutosave } from "@/hooks/use-form-autosave";
+import { checkCanSubmit, recordSubmission } from "@/lib/submit-throttle";
+import { CooldownMessage } from "./cooldown-message";
 
 const SCHOLARSHIP_OPTIONS = ["Yes", "No", "Not sure"] as const;
 
@@ -45,6 +46,7 @@ interface PendingFile {
 
 export function StudyApplicationForm() {
   const [submitted, setSubmitted] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [setPasswordToken, setSetPasswordToken] = useState<string | null>(null);
   const [isNewUser, setIsNewUser] = useState(false);
   const [honeypot, setHoneypot] = useState("");
@@ -67,6 +69,7 @@ export function StudyApplicationForm() {
     reset,
     watch,
     getValues,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<StudyApplicationData>({
     resolver: zodResolver(STUDY_APPLICATION_SCHEMA),
@@ -87,7 +90,7 @@ export function StudyApplicationForm() {
     },
   });
 
-  const { draftAvailable, lastSaved, clearDraft } =
+  const { clearDraft } =
     useFormAutosave<StudyApplicationData>({
       formKey: "study-application",
       getValues,
@@ -144,6 +147,16 @@ export function StudyApplicationForm() {
   };
 
   const onSubmit = async (data: StudyApplicationData) => {
+    // Client-side rate limit check
+    const check = checkCanSubmit("study-application");
+    if (!check.allowed) {
+      setCooldownSeconds(check.waitSeconds);
+      toast.error("Rate limit reached", {
+        description: `Please wait ${check.waitSeconds} seconds before submitting again.`,
+      });
+      return;
+    }
+
     try {
       if (hasUploadingFiles) {
         toast.error("Please wait for file uploads to complete");
@@ -158,6 +171,7 @@ export function StudyApplicationForm() {
         },
         successfulAttachments,
       );
+      recordSubmission("study-application");
       setSubmitted(true);
       setFiles([]);
       setIsNewUser(Boolean(response.newUser));
@@ -392,8 +406,9 @@ export function StudyApplicationForm() {
           >
             <RadioGroup
               name="scholarshipInterest"
-              options={SCHOLARSHIP_OPTIONS as unknown as string[]}
-              register={register}
+              options={SCHOLARSHIP_OPTIONS as unknown as readonly string[]}
+              value={watch("scholarshipInterest") || ""}
+              onChange={(v) => setValue("scholarshipInterest", v as "Yes" | "No" | "Not sure", { shouldValidate: true })}
             />
           </Field>
           <Field
@@ -531,29 +546,16 @@ export function StudyApplicationForm() {
         </Field>
       </FormSection>
 
-      {/* Draft indicator */}
-      {draftAvailable && (
-        <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200/60">
-          <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold">
-            <Save className="h-3.5 w-3.5" />
-            <span>
-              Draft saved{lastSaved ? ` · ${timeAgo(lastSaved)}` : ""}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={clearDraft}
-            className="text-xs font-bold text-emerald-700/70 hover:text-emerald-800 transition-colors"
-          >
-            Discard
-          </button>
-        </div>
-      )}
-
       {/* Submit */}
+      {cooldownSeconds > 0 && (
+        <CooldownMessage
+          seconds={cooldownSeconds}
+          onComplete={() => setCooldownSeconds(0)}
+        />
+      )}
       <button
         type="submit"
-        disabled={isSubmitting || hasUploadingFiles}
+        disabled={isSubmitting || hasUploadingFiles || cooldownSeconds > 0}
         className="w-full inline-flex items-center justify-center gap-2 h-14 bg-primary text-white rounded-2xl font-black text-base hover:bg-red-700 transition-all duration-200 cursor-pointer press disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {isSubmitting || hasUploadingFiles ? (
@@ -579,127 +581,4 @@ export function StudyApplicationForm() {
   );
 }
 
-/* ============== Helper Components ============== */
-function FormSection({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-4">
-      <div>
-        <h3 className="font-display font-black text-lg text-foreground">
-          {title}
-        </h3>
-        {description && (
-          <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
-        )}
-      </div>
-      {children}
-    </div>
-  );
-}
 
-function Field({
-  label,
-  hint,
-  required,
-  error,
-  children,
-}: {
-  label?: string;
-  hint?: string;
-  required?: boolean;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-2">
-      {label && (
-        <Label>
-          {label} {required && <span className="text-primary">*</span>}
-          {hint && (
-            <span className="text-muted-foreground font-normal text-xs ml-1">
-              ({hint})
-            </span>
-          )}
-        </Label>
-      )}
-      {children}
-      {error && (
-        <p role="alert" className="text-xs font-bold text-destructive">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function Select({
-  id,
-  placeholder,
-  options,
-  ...props
-}: {
-  id: string;
-  placeholder: string;
-  options: string[];
-} & React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select
-      id={id}
-      className="flex h-12 w-full rounded-xl border-2 border-border bg-card px-4 py-2 text-base font-medium text-foreground transition-all duration-200 focus-visible:outline-none focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50"
-      {...props}
-    >
-      <option value="" disabled>
-        {placeholder}
-      </option>
-      {options.map((opt) => (
-        <option key={opt} value={opt}>
-          {opt}
-        </option>
-      ))}
-    </select>
-  );
-}
-
-function RadioGroup({
-  name,
-  options,
-  register,
-}: {
-  name: keyof StudyApplicationData;
-  options: string[];
-  register: ReturnType<typeof useForm<StudyApplicationData>>["register"];
-}) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {options.map((opt) => (
-        <label
-          key={opt}
-          className="inline-flex items-center gap-2 px-4 h-12 rounded-xl border-2 border-border bg-card cursor-pointer hover:border-primary/40 transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/5"
-        >
-          <input
-            type="radio"
-            value={opt}
-            {...register(name)}
-            className="w-4 h-4 accent-primary"
-          />
-          <span className="text-sm font-bold text-foreground">{opt}</span>
-        </label>
-      ))}
-    </div>
-  );
-}
-
-function timeAgo(date: Date): string {
-  const diff = Date.now() - date.getTime();
-  if (diff < 60000) return "just now";
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-  return `${Math.floor(diff / 86400000)}d ago`;
-}

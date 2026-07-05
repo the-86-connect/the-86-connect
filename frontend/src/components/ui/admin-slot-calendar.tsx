@@ -114,7 +114,6 @@ export function AdminSlotCalendar({
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
-  const [rangeStart, setRangeStart] = useState<string | null>(null);
 
   const todayIso = useMemo(() => {
     const y = String(today.getFullYear());
@@ -136,42 +135,53 @@ export function AdminSlotCalendar({
   }, [viewYear, viewMonth]);
 
   const prevMonth = () => {
-    if (viewMonth === 0) { setViewMonth(11); setViewYear(viewYear - 1); }
-    else setViewMonth(viewMonth - 1);
+    const prevM = viewMonth === 0 ? 11 : viewMonth - 1;
+    const prevY = viewMonth === 0 ? viewYear - 1 : viewYear;
+    // Don't allow navigating before current month
+    if (
+      prevY < today.getFullYear() ||
+      (prevY === today.getFullYear() && prevM < today.getMonth())
+    )
+      return;
+    setViewMonth(prevM);
+    setViewYear(prevY);
   };
 
   const nextMonth = () => {
-    if (viewMonth === 11) { setViewMonth(0); setViewYear(viewYear + 1); }
-    else setViewMonth(viewMonth + 1);
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear(viewYear + 1);
+    } else setViewMonth(viewMonth + 1);
   };
 
   const handleDateClick = (dateIso: string) => {
     if (dateIso < todayIso) return;
-
-    if (rangeStart && rangeStart !== dateIso) {
-      // Finish range selection
-      onRangeSelect(rangeStart, dateIso);
-      setRangeStart(null);
-    } else {
-      // Toggle single date or start range
-      onDateToggle(dateIso);
-      setRangeStart(dateIso);
-    }
+    // Simple toggle — click to select/deselect individual dates
+    onDateToggle(dateIso);
   };
 
   return (
     <div className="select-none">
       {/* Month header */}
       <div className="flex items-center justify-between mb-3">
-        <button type="button" onClick={prevMonth}
-          className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
-          aria-label="Previous month">
+        <button
+          type="button"
+          onClick={prevMonth}
+          disabled={
+            viewYear === today.getFullYear() && viewMonth === today.getMonth()
+          }
+          className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+          aria-label="Previous month"
+        >
           <ChevronLeft className="h-4 w-4" />
         </button>
         <span className="text-sm font-black text-foreground">{monthLabel}</span>
-        <button type="button" onClick={nextMonth}
+        <button
+          type="button"
+          onClick={nextMonth}
           className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
-          aria-label="Next month">
+          aria-label="Next month"
+        >
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
@@ -179,7 +189,10 @@ export function AdminSlotCalendar({
       {/* Day headers */}
       <div className="grid grid-cols-7 mb-1">
         {DAYS_OF_WEEK.map((name) => (
-          <div key={name} className="text-center text-[10px] font-bold text-muted-foreground py-1">
+          <div
+            key={name}
+            className="text-center text-[10px] font-bold text-muted-foreground py-1"
+          >
             {name}
           </div>
         ))}
@@ -188,10 +201,16 @@ export function AdminSlotCalendar({
       {/* Days grid */}
       <div className="grid grid-cols-7 gap-1">
         {days.map((dayNum, idx) => {
-          if (dayNum === null) return <div key={`e-${idx}`} className="aspect-square" />;
+          if (dayNum === null)
+            return <div key={`e-${idx}`} className="aspect-square" />;
 
           const dateIso = isoDate(viewYear, viewMonth, dayNum);
-          const style = dateStatusStyle(dateIso, slotDates, selectedDates, todayIso);
+          const style = dateStatusStyle(
+            dateIso,
+            slotDates,
+            selectedDates,
+            todayIso,
+          );
           const isPast = dateIso < todayIso;
 
           return (
@@ -203,17 +222,22 @@ export function AdminSlotCalendar({
               className={cn(
                 "aspect-square rounded-lg text-xs font-bold transition-all duration-150 flex flex-col items-center justify-center relative",
                 style.bg || "text-foreground hover:bg-slate-50",
-                isPast && "text-muted-foreground/25 cursor-default line-through",
+                isPast &&
+                  "text-muted-foreground/25 cursor-default line-through",
               )}
               title={
-                isPast ? `${dateIso} (past)` :
-                selectedDates.has(dateIso) ? `${dateIso} (selected)` :
-                `Click to ${style.dot ? "deselect" : "select"} ${dateIso}`
+                isPast
+                  ? `${dateIso} (past)`
+                  : selectedDates.has(dateIso)
+                    ? `${dateIso} (selected)`
+                    : `Click to ${style.dot ? "deselect" : "select"} ${dateIso}`
               }
             >
               <span className={cn("leading-none", style.label)}>{dayNum}</span>
               {style.dot && !selectedDates.has(dateIso) && (
-                <span className={cn("w-1 h-1 rounded-full mt-0.5", style.dot)} />
+                <span
+                  className={cn("w-1 h-1 rounded-full mt-0.5", style.dot)}
+                />
               )}
             </button>
           );
@@ -248,7 +272,7 @@ export function AdminSlotCalendar({
 
       {/* Hint */}
       <p className="text-[10px] text-muted-foreground text-center mt-2 font-medium">
-        Click a date to select · Click another to select a range · Click selected to deselect
+        Click dates to select or deselect them
       </p>
     </div>
   );

@@ -8,24 +8,77 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+const MAX_LOGIN_ATTEMPTS = 3;
+const LOGIN_COOLDOWN_MS = 15 * 60 * 1000;
+const STORAGE_KEY = "admin_login_attempts";
+
+function checkLoginThrottle(): { blocked: boolean; remainingSeconds: number } {
+  try {
+    const data = JSON.parse(
+      sessionStorage.getItem(STORAGE_KEY) || '{"count":0,"blockUntil":0}',
+    );
+    if (Date.now() < data.blockUntil) {
+      return {
+        blocked: true,
+        remainingSeconds: Math.ceil((data.blockUntil - Date.now()) / 1000),
+      };
+    }
+    return { blocked: false, remainingSeconds: 0 };
+  } catch {
+    return { blocked: false, remainingSeconds: 0 };
+  }
+}
+
+function recordLoginAttempt(success: boolean) {
+  if (success) {
+    sessionStorage.removeItem(STORAGE_KEY);
+    return;
+  }
+  try {
+    const data = JSON.parse(
+      sessionStorage.getItem(STORAGE_KEY) || '{"count":0,"blockUntil":0}',
+    );
+    data.count++;
+    if (data.count >= MAX_LOGIN_ATTEMPTS) {
+      data.blockUntil = Date.now() + LOGIN_COOLDOWN_MS;
+    }
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // Storage unavailable — silently ignore
+  }
+}
+
 export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [blockedSeconds, setBlockedSeconds] = useState(0);
   const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const throttle = checkLoginThrottle();
+    if (throttle.blocked) {
+      setBlockedSeconds(throttle.remainingSeconds);
+      setError(
+        `Too many admin login attempts. Please try again in ${throttle.remainingSeconds} second(s).`,
+      );
+      return;
+    }
+
     setIsLoading(true);
     setError("");
 
     try {
       const success = await login(password);
       if (success) {
+        recordLoginAttempt(true);
         router.push("/admin");
       } else {
-        setError("Incorrect password. Please try again.");
+        recordLoginAttempt(false);
+        setError("Invalid password. Please try again.");
       }
     } catch {
       setError("Network error. Please check your connection and try again.");
@@ -33,6 +86,19 @@ export default function AdminLoginPage() {
       setIsLoading(false);
     }
   };
+
+  // Countdown timer for blocked state
+  if (blockedSeconds > 0) {
+    setTimeout(() => {
+      setBlockedSeconds((s) => {
+        if (s <= 1) {
+          setError("");
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-card to-muted px-4">
@@ -54,7 +120,7 @@ export default function AdminLoginPage() {
             </div>
             <h1 className="text-2xl font-bold tracking-tight">Admin Login</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Enter your password to access the dashboard
+              Enter the admin password to continue
             </p>
           </div>
 
@@ -90,7 +156,7 @@ export default function AdminLoginPage() {
               type="submit"
               variant="accent"
               className="w-full"
-              disabled={isLoading || !password}
+              disabled={isLoading || !password || blockedSeconds > 0}
             >
               {isLoading ? (
                 <>

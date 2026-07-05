@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import {
   Search,
   Truck,
@@ -66,6 +68,7 @@ const SERVICES = [
     ],
     stat: "50K+",
     statLabel: "Verified suppliers",
+    bgGradient: "from-blue-50 to-sky-100",
   },
   {
     icon: BarChart3,
@@ -80,6 +83,7 @@ const SERVICES = [
     ],
     stat: "100%",
     statLabel: "QC inspected",
+    bgGradient: "from-amber-50 to-yellow-100",
   },
   {
     icon: Truck,
@@ -94,6 +98,7 @@ const SERVICES = [
     ],
     stat: "150+",
     statLabel: "Countries shipped",
+    bgGradient: "from-emerald-50 to-green-100",
   },
 ];
 
@@ -153,6 +158,7 @@ const SERVICE_MODELS = [
       "Supplier banking details provided after quotation approval",
     ],
     note: "Clients pay suppliers directly to reduce overall tax burden. We continue to oversee the entire process from coordination to delivery.",
+    bgGradient: "from-violet-50 to-purple-100",
   },
   {
     icon: Package,
@@ -167,6 +173,7 @@ const SERVICE_MODELS = [
       "Managing international logistics and customs clearance at the destination port",
     ],
     note: "Payments handled through Beijing BridgePath's corporate account in China, ensuring transparency, tax compliance, and legal accountability. Every transaction governed by a formal contract.",
+    bgGradient: "from-rose-50 to-pink-100",
   },
 ];
 
@@ -176,24 +183,28 @@ const COST_INFO = [
     title: "CBM Calculation",
     description:
       "Once all goods have been received and verified at the warehouse, the total CBM (Cubic Meter) is calculated to determine the shipping cost.",
+    bgGradient: "from-blue-50 to-sky-100",
   },
   {
     icon: Tag,
     title: "Flat-Rate Shipping",
     description:
       "Clients are billed based on a flat rate (duty inclusive), ensuring there are no hidden fees or unexpected charges.",
+    bgGradient: "from-emerald-50 to-green-100",
   },
   {
     icon: Warehouse,
     title: "Warehouse & Delivery",
     description:
       "We coordinate pickup or delivery once goods arrive and are cleared at the destination port. Delivery fee after local warehouse is subject to real-time market conditions.",
+    bgGradient: "from-amber-50 to-yellow-100",
   },
   {
     icon: Percent,
     title: "Revenue Model",
     description:
       "We charge a percentage-based consulting and handling fee covering supplier coordination, quality inspection, project management, and logistics supervision.",
+    bgGradient: "from-violet-50 to-purple-100",
   },
 ];
 
@@ -237,9 +248,9 @@ export default async function ProductSourcingPage() {
         {/* Hero */}
         <section className="relative pt-6 sm:pt-10 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-white overflow-hidden">
           <div className="container mx-auto max-w-7xl">
-            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <div className="grid md:grid-cols-12 gap-8 md:gap-10 lg:gap-12 items-center">
               {/* Left content */}
-              <div className="lg:col-span-6">
+              <div className="md:col-span-6">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/5 border border-primary/15 mb-5">
                   <Zap className="h-3.5 w-3.5 text-primary" />
                   <span className="text-xs font-black uppercase tracking-wider text-primary">
@@ -282,17 +293,20 @@ export default async function ProductSourcingPage() {
               </div>
 
               {/* Right — sourcing image collage */}
-              <div className="lg:col-span-6">
-                <div className="grid grid-cols-2 grid-rows-2 gap-3 sm:gap-4 h-72 sm:h-80 lg:h-[26rem] max-w-md sm:max-w-lg mx-auto lg:max-w-none">
+              <div className="md:col-span-6">
+                <div className="grid grid-cols-2 grid-rows-2 gap-3 sm:gap-4 h-72 sm:h-80 md:h-72 lg:h-[26rem] max-w-md sm:max-w-lg md:max-w-none mx-auto">
                   {/* Large image — spans 2 rows */}
                   <div className="row-span-2 relative rounded-2xl overflow-hidden border border-border shadow-soft-sm bg-muted">
-                    <img
+                    <Image
                       src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/001_Car_factory_assembly_line_-_Opel_factory_in_Gliwice%2C_Poland.jpg/1280px-001_Car_factory_assembly_line_-_Opel_factory_in_Gliwice%2C_Poland.jpg"
                       alt="Modern automotive assembly line at a manufacturing factory"
-                      className="w-full h-full object-cover"
-                      loading="eager"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 767px) 100vw, (max-width: 1023px) 45vw, 33vw"
+                      priority
+                      quality={80}
                     />
-                    <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                    <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/70 to-transparent z-10">
                       <p className="text-white font-black text-sm">
                         Verified Factories
                       </p>
@@ -304,13 +318,15 @@ export default async function ProductSourcingPage() {
 
                   {/* Top right image */}
                   <div className="relative rounded-2xl overflow-hidden border border-border shadow-soft-sm bg-muted">
-                    <img
+                    <Image
                       src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Container-Terminal_Bremerhaven_02.jpg/1280px-Container-Terminal_Bremerhaven_02.jpg"
                       alt="Container cranes and stacked cargo at a shipping port terminal"
-                      className="w-full h-full object-cover"
-                      loading="lazy"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 767px) 50vw, (max-width: 1023px) 22vw, 16vw"
+                      quality={75}
                     />
-                    <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                    <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent z-10">
                       <p className="text-white font-black text-xs">
                         Global Logistics
                       </p>
@@ -319,13 +335,15 @@ export default async function ProductSourcingPage() {
 
                   {/* Bottom right image */}
                   <div className="relative rounded-2xl overflow-hidden border border-border shadow-soft-sm bg-muted">
-                    <img
+                    <Image
                       src="https://upload.wikimedia.org/wikipedia/commons/4/49/Inspektor_QC_India_membuat_FAI_%28First_Article_Inspection%29.png"
                       alt="Quality control inspector performing first article inspection on a product"
-                      className="w-full h-full object-cover"
-                      loading="lazy"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 767px) 50vw, (max-width: 1023px) 22vw, 16vw"
+                      quality={75}
                     />
-                    <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                    <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent z-10">
                       <p className="text-white font-black text-xs">
                         Quality Control
                       </p>
@@ -359,7 +377,7 @@ export default async function ProductSourcingPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-12 sm:mb-16">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 mb-12 sm:mb-16">
               <MetricCard
                 icon={Shield}
                 value="50K+"
@@ -449,13 +467,13 @@ export default async function ProductSourcingPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
               {SERVICE_MODELS.map((model) => {
                 const Icon = model.icon;
                 return (
                   <div
                     key={model.title}
-                    className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-6 sm:p-7"
+                    className={cn("bg-gradient-to-br rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-6 sm:p-7", model.bgGradient)}
                   >
                     <div className="flex items-center gap-3 mb-5">
                       <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary flex items-center justify-center">
@@ -520,13 +538,13 @@ export default async function ProductSourcingPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 sm:gap-6">
               {PROCESS_STEPS.map((step) => {
                 const Icon = step.icon;
                 return (
                   <div
                     key={step.step}
-                    className="relative bg-white rounded-2xl border-2 border-primary/20 shadow-soft-md hover:shadow-soft-lg hover:border-primary/50 transition-all duration-200 p-7 sm:p-8 overflow-hidden"
+                    className="relative bg-white rounded-2xl border-2 border-primary/20 shadow-soft-md hover:shadow-soft-lg hover:border-primary/50 transition-all duration-200 p-5 sm:p-6 md:p-6 lg:p-7 xl:p-8 overflow-hidden"
                   >
                     {/* Top accent bar */}
                     <div className="absolute top-0 inset-x-0 h-2 bg-primary" />
@@ -580,7 +598,7 @@ export default async function ProductSourcingPage() {
                 return (
                   <div
                     key={item.title}
-                    className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-5 sm:p-6"
+                    className={cn("bg-gradient-to-br rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-5 sm:p-6", item.bgGradient)}
                   >
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                       <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
@@ -601,12 +619,12 @@ export default async function ProductSourcingPage() {
               <h3 className="font-display font-black text-xl sm:text-2xl text-center mb-6 tracking-[-0.035em]">
                 Our Value <span className="text-primary">Proposition</span>
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 {VALUE_PROPS.map((vp) => {
                   const Icon = vp.icon;
                   return (
                     <div key={vp.title} className="text-center">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                      <div className="w-10 h-10 md:w-11 md:h-11 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
                         <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                       </div>
                       <h4 className="font-black text-sm mb-1">{vp.title}</h4>
@@ -738,7 +756,7 @@ function MetricCard({
 function ServiceCard({ service }: { service: (typeof SERVICES)[number] }) {
   const Icon = service.icon;
   return (
-    <div className="bg-white rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-6 sm:p-7">
+    <div className={cn("bg-gradient-to-br rounded-2xl border border-border shadow-soft-sm hover:shadow-soft-md hover:border-primary/30 transition-all duration-200 p-6 sm:p-7", service.bgGradient)}>
       <div className="flex items-center justify-between mb-5">
         <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary flex items-center justify-center">
           <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />

@@ -3,32 +3,105 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Lock, Loader2, ArrowLeft } from "lucide-react";
 import { useUserAuth } from "@/context/user-auth-context";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+const MAX_LOGIN_ATTEMPTS = 4;
+const LOGIN_COOLDOWN_MS = 5 * 60 * 1000;
+const STORAGE_KEY = "login_attempts";
+
+function checkLoginThrottle(): { blocked: boolean; remainingSeconds: number } {
+  try {
+    const data = JSON.parse(
+      sessionStorage.getItem(STORAGE_KEY) || '{"count":0,"blockUntil":0}',
+    );
+    if (Date.now() < data.blockUntil) {
+      return {
+        blocked: true,
+        remainingSeconds: Math.ceil((data.blockUntil - Date.now()) / 1000),
+      };
+    }
+    return { blocked: false, remainingSeconds: 0 };
+  } catch {
+    return { blocked: false, remainingSeconds: 0 };
+  }
+}
+
+function recordLoginAttempt(success: boolean) {
+  if (success) {
+    sessionStorage.removeItem(STORAGE_KEY);
+    return;
+  }
+  try {
+    const data = JSON.parse(
+      sessionStorage.getItem(STORAGE_KEY) || '{"count":0,"blockUntil":0}',
+    );
+    data.count++;
+    if (data.count >= MAX_LOGIN_ATTEMPTS) {
+      data.blockUntil = Date.now() + LOGIN_COOLDOWN_MS;
+    }
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // Storage unavailable — silently ignore
+  }
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [blockedSeconds, setBlockedSeconds] = useState(0);
   const { login } = useUserAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check client-side throttle
+    const throttle = checkLoginThrottle();
+    if (throttle.blocked) {
+      setBlockedSeconds(throttle.remainingSeconds);
+      setError(
+        `Too many login attempts. Please try again in ${throttle.remainingSeconds} second(s).`,
+      );
+      return;
+    }
+
     setIsLoading(true);
     setError("");
 
-    const success = await login(email, password);
-    if (success) {
-      router.push("/account");
-    } else {
-      setError("Invalid email or password. Please try again.");
+    try {
+      const success = await login(email, password);
+      if (success) {
+        recordLoginAttempt(true);
+        router.push("/account");
+      } else {
+        recordLoginAttempt(false);
+        setError("Invalid email or password. Please try again.");
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
+
+  // Countdown timer for blocked state
+  if (blockedSeconds > 0) {
+    setTimeout(() => {
+      setBlockedSeconds((s) => {
+        if (s <= 1) {
+          setError("");
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-card to-muted px-4 py-12">
@@ -43,13 +116,15 @@ export default function LoginPage() {
 
         <div className="p-8 rounded-2xl border-2 border-border border-b-[6px] border-b-primary/30 bg-card">
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2.5 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-red-700 flex items-center justify-center shadow-red-sm">
-                <span className="text-white font-black text-lg">86</span>
-              </div>
-              <span className="font-display font-black text-2xl tracking-tight">
-                Connect
-              </span>
+            <div className="flex items-center justify-center mb-4">
+              <Image
+                src="/logo-main.png"
+                alt="86 Connect"
+                width={180}
+                height={49}
+                className="h-10 w-auto"
+                priority
+              />
             </div>
             <h1 className="font-display font-black text-2xl tracking-tight">
               Welcome Back
@@ -114,7 +189,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={isLoading || !email || !password}
+              disabled={isLoading || !email || !password || blockedSeconds > 0}
               className="w-full inline-flex items-center justify-center gap-2 h-12 bg-primary text-white rounded-xl font-black hover:bg-red-700 transition-all duration-200 cursor-pointer press disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isLoading ? (

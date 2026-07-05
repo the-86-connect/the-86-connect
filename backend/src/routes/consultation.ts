@@ -161,7 +161,7 @@ consultationRouter.post("/", async (req, res) => {
 // User: Cancel their own consultation booking (frees the slot)
 consultationRouter.post("/:id/cancel", authenticateUser, async (req: Request, res: Response) => {
   const userId = (req as Request & { user?: { userId: string } }).user?.userId;
-  const consultationId = req.params.id;
+  const consultationId = String(req.params.id);
 
   if (!userId) {
     return res.status(401).json({ error: "Authentication required" });

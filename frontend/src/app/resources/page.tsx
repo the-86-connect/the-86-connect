@@ -6,7 +6,7 @@ import { Footer } from "@/components/layout/footer";
 import { BLOG_POSTS } from "@/data/blog";
 
 export const metadata: Metadata = {
-  title: "Resources & Guides — Study in China & Product Sourcing Blog",
+  title: "Resources & Guides",
   description:
     "Expert guides, tips, and insights about studying in China (scholarships, admissions, visas) and sourcing products from China (suppliers, quality control, logistics).",
   alternates: {

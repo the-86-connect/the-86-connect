@@ -25,7 +25,10 @@ availabilityPublicRouter.get("/", async (req, res) => {
     } = { status: "available" };
 
     if (dateFrom) {
-      where.date = { ...where.date, gte: new Date(dateFrom + "T00:00:00.000Z") };
+      where.date = {
+        ...where.date,
+        gte: new Date(dateFrom + "T00:00:00.000Z"),
+      };
     }
     if (dateTo) {
       where.date = { ...where.date, lte: new Date(dateTo + "T23:59:59.999Z") };
@@ -60,7 +63,10 @@ availabilityAdminRouter.get("/", async (req, res) => {
     const dateTo = req.query.dateTo as string | undefined;
     const status = req.query.status as string | undefined;
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(500, Math.max(1, parseInt(req.query.limit as string) || 200));
+    const limit = Math.min(
+      500,
+      Math.max(1, parseInt(req.query.limit as string) || 200),
+    );
     const skip = (page - 1) * limit;
 
     const where: {
@@ -71,8 +77,15 @@ availabilityAdminRouter.get("/", async (req, res) => {
     if (status && status !== "all") {
       where.status = status;
     }
+
+    // Default: only show today + future slots (past slots auto-excluded)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    where.date = { gte: today };
+
     if (dateFrom) {
-      where.date = { ...where.date, gte: new Date(dateFrom + "T00:00:00.000Z") };
+      const fromDate = new Date(dateFrom + "T00:00:00.000Z");
+      where.date.gte = fromDate > today ? fromDate : today;
     }
     if (dateTo) {
       where.date = { ...where.date, lte: new Date(dateTo + "T23:59:59.999Z") };
@@ -90,7 +103,9 @@ availabilityAdminRouter.get("/", async (req, res) => {
               id: true,
               name: true,
               email: true,
+              phone: true,
               service: true,
+              message: true,
               status: true,
             },
           },
@@ -109,14 +124,45 @@ availabilityAdminRouter.get("/", async (req, res) => {
 // GET /api/admin/availability/stats
 availabilityAdminRouter.get("/stats", async (_req, res) => {
   try {
-    const [total, available, booked, blocked] = await Promise.all([
-      prisma.availabilitySlot.count(),
-      prisma.availabilitySlot.count({ where: { status: "available" } }),
-      prisma.availabilitySlot.count({ where: { status: "booked" } }),
-      prisma.availabilitySlot.count({ where: { status: "blocked" } }),
-    ]);
+    const [total, available, booked, blocked, pending, confirmed, completed, cancelled] =
+      await Promise.all([
+        prisma.availabilitySlot.count(),
+        prisma.availabilitySlot.count({ where: { status: "available" } }),
+        prisma.availabilitySlot.count({ where: { status: "booked" } }),
+        prisma.availabilitySlot.count({ where: { status: "blocked" } }),
+        prisma.availabilitySlot.count({
+          where: {
+            status: "booked",
+            consultation: { status: "pending" },
+          },
+        }),
+        prisma.availabilitySlot.count({
+          where: {
+            status: "booked",
+            consultation: { status: "confirmed" },
+          },
+        }),
+        prisma.availabilitySlot.count({
+          where: {
+            status: "booked",
+            consultation: { status: "completed" },
+          },
+        }),
+        prisma.availabilitySlot.count({
+          where: {
+            status: "booked",
+            consultation: { status: "cancelled" },
+          },
+        }),
+      ]);
 
-    res.json({ total, available, booked, blocked });
+    res.json({
+      total,
+      available,
+      booked,
+      blocked,
+      bookingsByStatus: { pending, confirmed, completed, cancelled },
+    });
   } catch (error) {
     console.error("Slot stats error:", error);
     res.status(500).json({ error: "Failed to fetch stats" });
@@ -158,7 +204,9 @@ availabilityAdminRouter.post("/", async (req, res) => {
       "code" in error &&
       (error as { code: string }).code === "P2002"
     ) {
-      return res.status(409).json({ error: "A slot already exists for this date and time" });
+      return res
+        .status(409)
+        .json({ error: "A slot already exists for this date and time" });
     }
     console.error("Create slot error:", error);
     res.status(500).json({ error: "Failed to create slot" });
@@ -199,7 +247,11 @@ availabilityAdminRouter.post("/bulk", async (req, res) => {
     const cursor = new Date(startDate);
     while (cursor <= endDate) {
       // JS getDay(): 0=Sun, 1=Mon, ..., 6=Sat — matches our daysOfWeek convention
-      if (!daysOfWeek || daysOfWeek.length === 0 || daysOfWeek.includes(cursor.getUTCDay())) {
+      if (
+        !daysOfWeek ||
+        daysOfWeek.length === 0 ||
+        daysOfWeek.includes(cursor.getUTCDay())
+      ) {
         dates.push(new Date(cursor));
       }
       cursor.setUTCDate(cursor.getUTCDate() + 1);
@@ -215,11 +267,34 @@ availabilityAdminRouter.post("/bulk", async (req, res) => {
       })),
     );
 
-    // Use createMany with skipDuplicates to handle existing slots gracefully
-    // Note: skipDuplicates skips unique constraint violations (date+startTime)
+    // Filter out existing date+startTime combos to avoid unique constraint errors
+    const existingSlots = await prisma.availabilitySlot.findMany({
+      where: {
+        date: { gte: startDate, lte: endDate },
+        startTime: { in: timeSlots.map((t) => t.startTime) },
+      },
+      select: { date: true, startTime: true },
+    });
+    const existingSet = new Set(
+      existingSlots.map(
+        (s) => `${s.date.toISOString().slice(0, 10)}_${s.startTime}`,
+      ),
+    );
+    const newRecords = records.filter(
+      (r) =>
+        !existingSet.has(`${r.date.toISOString().slice(0, 10)}_${r.startTime}`),
+    );
+
+    if (newRecords.length === 0) {
+      return res.status(200).json({
+        created: 0,
+        skipped: records.length,
+        total: records.length,
+      });
+    }
+
     const result = await prisma.availabilitySlot.createMany({
-      data: records,
-      skipDuplicates: true,
+      data: newRecords,
     });
 
     const created = result.count;
@@ -280,35 +355,7 @@ availabilityAdminRouter.patch("/:id", async (req, res) => {
   }
 });
 
-// DELETE /api/admin/availability/:id — delete single slot (only if not booked)
-availabilityAdminRouter.delete("/:id", async (req, res) => {
-  try {
-    const slot = await prisma.availabilitySlot.findUnique({
-      where: { id: req.params.id },
-    });
-
-    if (!slot) {
-      return res.status(404).json({ error: "Slot not found" });
-    }
-
-    if (slot.status === "booked") {
-      return res.status(409).json({
-        error: "Cannot delete a booked slot. Cancel the consultation first.",
-      });
-    }
-
-    await prisma.availabilitySlot.delete({ where: { id: req.params.id } });
-
-    broadcastToAdmins("availability:deleted", { id: slot.id });
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Delete slot error:", error);
-    res.status(500).json({ error: "Failed to delete slot" });
-  }
-});
-
-// DELETE /api/admin/availability/bulk — bulk delete available/blocked slots
+// DELETE /api/admin/availability/bulk — bulk delete available/blocked/terminal slots
 availabilityAdminRouter.delete("/bulk", async (req, res) => {
   try {
     const parsed = availabilityBulkDeleteSchema.safeParse(req.body);
@@ -321,23 +368,41 @@ availabilityAdminRouter.delete("/bulk", async (req, res) => {
 
     const { ids, dateFrom, dateTo } = parsed.data;
 
-    const where: {
-      id?: { in: string[] };
-      date?: { gte?: Date; lte?: Date };
-      status: { in: string[] };
-    } = { status: { in: ["available", "blocked"] } };
+    const where: Record<string, unknown> = {};
 
     if (ids && ids.length > 0) {
       where.id = { in: ids };
     }
     if (dateFrom) {
-      where.date = { ...where.date, gte: new Date(dateFrom + "T00:00:00.000Z") };
+      where.date = { gte: new Date(dateFrom + "T00:00:00.000Z") };
     }
     if (dateTo) {
-      where.date = { ...where.date, lte: new Date(dateTo + "T23:59:59.999Z") };
+      where.date = { ...((where.date as Record<string, Date>) || {}), lte: new Date(dateTo + "T23:59:59.999Z") };
     }
 
-    const result = await prisma.availabilitySlot.deleteMany({ where });
+    // Fetch matching slots to filter out active booked ones
+    const slots = await prisma.availabilitySlot.findMany({
+      where,
+      include: { consultation: { select: { status: true } } },
+    });
+
+    const terminalStatuses = ["completed", "cancelled"];
+    const deletableIds = slots
+      .filter(
+        (s) =>
+          s.status !== "booked" || // available, blocked
+          (s.consultation && terminalStatuses.includes(s.consultation.status)) || // terminal booking
+          !s.consultation, // zombie: booked but no consultation
+      )
+      .map((s) => s.id);
+
+    if (deletableIds.length === 0) {
+      return res.json({ deleted: 0 });
+    }
+
+    const result = await prisma.availabilitySlot.deleteMany({
+      where: { id: { in: deletableIds } },
+    });
 
     broadcastToAdmins("availability:bulk-deleted", { count: result.count });
 
@@ -345,5 +410,42 @@ availabilityAdminRouter.delete("/bulk", async (req, res) => {
   } catch (error) {
     console.error("Bulk delete slots error:", error);
     res.status(500).json({ error: "Failed to delete slots" });
+  }
+});
+
+// DELETE /api/admin/availability/:id — delete single slot
+availabilityAdminRouter.delete("/:id", async (req, res) => {
+  try {
+    const slot = await prisma.availabilitySlot.findUnique({
+      where: { id: req.params.id },
+      include: { consultation: { select: { status: true } } },
+    });
+
+    if (!slot) {
+      return res.status(404).json({ error: "Slot not found" });
+    }
+
+    // Allow deletion of booked slots only if:
+    // - consultation is completed/cancelled, OR
+    // - slot has no consultation at all (zombie slot)
+    const terminalStatuses = ["completed", "cancelled"];
+    const isTerminalBooking =
+      slot.consultation && terminalStatuses.includes(slot.consultation.status);
+    const isZombieBooking = slot.status === "booked" && !slot.consultation;
+
+    if (slot.status === "booked" && !isTerminalBooking && !isZombieBooking) {
+      return res.status(409).json({
+        error: "Cannot delete an active booked slot. Cancel or complete the consultation first.",
+      });
+    }
+
+    await prisma.availabilitySlot.delete({ where: { id: req.params.id } });
+
+    broadcastToAdmins("availability:deleted", { id: slot.id });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Delete slot error:", error);
+    res.status(500).json({ error: "Failed to delete slot" });
   }
 });

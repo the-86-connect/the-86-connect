@@ -46,7 +46,6 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, children, ...props }, ref) => {
-    const isShine = variant === "default" || variant === "accent";
     if (asChild) {
       return (
         <Slot
@@ -64,9 +63,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         {...props}
       >
-        {isShine && (
-          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-        )}
         <span className="relative inline-flex items-center gap-2">
           {children}
         </span>

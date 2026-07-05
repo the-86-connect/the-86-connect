@@ -43,15 +43,23 @@ export function AdminSidebar() {
 
   // Load collapsed state from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("admin-sidebar-collapsed");
-    if (stored !== null) setCollapsed(stored === "true");
+    try {
+      const stored = localStorage.getItem("admin-sidebar-collapsed");
+      if (stored !== null) setCollapsed(stored === "true");
+    } catch {
+      // localStorage unavailable (private mode, quota exceeded) — use default
+    }
     setMounted(true);
   }, []);
 
   // Persist collapsed state
   useEffect(() => {
     if (mounted) {
-      localStorage.setItem("admin-sidebar-collapsed", String(collapsed));
+      try {
+        localStorage.setItem("admin-sidebar-collapsed", String(collapsed));
+      } catch {
+        // localStorage unavailable — silently ignore
+      }
     }
   }, [collapsed, mounted]);
 

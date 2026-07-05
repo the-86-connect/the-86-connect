@@ -37,6 +37,23 @@ export const adminLoginSchema = z.object({
 
 export type AdminLoginData = z.infer<typeof adminLoginSchema>;
 
+export const adminRegisterSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Invalid email")
+    .toLowerCase(),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(100),
+  role: z.enum(["admin", "superadmin"]).default("admin"),
+});
+
+export type AdminRegisterData = z.infer<typeof adminRegisterSchema>;
+
 /* ============== User Auth Schemas ============== */
 export const userLoginSchema = z.object({
   email: z
@@ -196,10 +213,10 @@ export const adminResetPasswordSchema = z.object({
 
 /* ============== File Attachment Schemas ============== */
 export const attachmentSchema = z.object({
-  url: z.string().url("Invalid attachment URL"),
-  originalName: z.string().min(1, "Original name is required"),
-  fileName: z.string().min(1, "File name is required"),
-  mimeType: z.string().min(1, "MIME type is required"),
+  url: z.string().url("Invalid attachment URL").max(2048, "URL must be under 2048 characters"),
+  originalName: z.string().min(1, "Original name is required").max(255, "File name must be under 255 characters"),
+  fileName: z.string().min(1, "File name is required").max(500, "File name must be under 500 characters"),
+  mimeType: z.string().min(1, "MIME type is required").max(100, "MIME type must be under 100 characters"),
   size: z.number().int().min(0, "File size must be positive"),
   storageProvider: z.enum(["cloudinary", "r2"]),
 });

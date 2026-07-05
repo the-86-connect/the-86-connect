@@ -1,6 +1,12 @@
 // Login attempt tracking — prevents brute force attacks
-// Admin: 3 failed attempts → 30 minute lockout
-// User: 5 failed attempts → 15 minute lockout
+// Admin: 3 failed attempts → 15 minute lockout
+// User: 4 failed attempts → 5 minute lockout
+//
+// Two-layer architecture:
+//   1. In-memory cache (fast, synchronous) — primary lookup path
+//   2. Database (durable, survives restarts) — persisted on every write
+
+import { prisma } from "./prisma";
 
 export type LoginType = "admin" | "user";
 
@@ -15,10 +21,10 @@ interface AttemptRecord {
 }
 
 const ADMIN_MAX_ATTEMPTS = 3;
-const ADMIN_LOCKOUT_MS = 30 * 60 * 1000; // 30 minutes
+const ADMIN_LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
 
-const USER_MAX_ATTEMPTS = 5;
-const USER_LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+const USER_MAX_ATTEMPTS = 4;
+const USER_LOCKOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 function getConfig(type: LoginType): { max: number; lockout: number } {
   return type === "admin"
@@ -53,6 +59,30 @@ function formatRemaining(ms: number): string {
   return minutes > 1 ? `${minutes} minutes` : `${minutes} minute`;
 }
 
+// Sync in-memory cache from DB record (called on cache miss)
+function applyDbRecordToMemory(
+  email: string,
+  ip: string,
+  type: LoginType,
+  dbRecord: { attempts: number; lockedUntil: Date },
+) {
+  const trackers = trackerMap.get(type)!;
+  const normalizedEmail = email.toLowerCase();
+
+  const emailRec: AttemptRecord = {
+    count: dbRecord.attempts,
+    lockedUntil: dbRecord.lockedUntil.getTime(),
+  };
+  trackers.emailAttempts.set(normalizedEmail, emailRec);
+
+  // Also populate IP tracking from the same DB record
+  const ipRec: AttemptRecord = {
+    count: dbRecord.attempts,
+    lockedUntil: dbRecord.lockedUntil.getTime(),
+  };
+  trackers.ipAttempts.set(ip, ipRec);
+}
+
 // Check if email or IP is locked before processing login
 export function checkLoginLockout(
   req: any,
@@ -60,25 +90,84 @@ export function checkLoginLockout(
   type: LoginType = "user",
 ): { locked: boolean; message?: string } {
   const clientIp = getClientIp(req);
+  const normalizedEmail = email.toLowerCase();
   const trackers = trackerMap.get(type)!;
 
-  const emailRecord = trackers.emailAttempts.get(email.toLowerCase());
-  if (emailRecord && isLocked(emailRecord)) {
-    return {
-      locked: true,
-      message: `Too many failed login attempts. This account is locked. Try again in ${formatRemaining(remainingLockoutMs(emailRecord))}.`,
-    };
+  // Check in-memory cache first
+  const emailRecord = trackers.emailAttempts.get(normalizedEmail);
+  if (emailRecord) {
+    if (isLocked(emailRecord)) {
+      return {
+        locked: true,
+        message: `Too many failed login attempts. This account is locked. Try again in ${formatRemaining(remainingLockoutMs(emailRecord))}.`,
+      };
+    }
   }
 
   const ipRecord = trackers.ipAttempts.get(clientIp);
-  if (ipRecord && isLocked(ipRecord)) {
-    return {
-      locked: true,
-      message: `Too many failed login attempts from this location. Try again in ${formatRemaining(remainingLockoutMs(ipRecord))}.`,
-    };
+  if (ipRecord) {
+    if (isLocked(ipRecord)) {
+      return {
+        locked: true,
+        message: `Too many failed login attempts from this location. Try again in ${formatRemaining(remainingLockoutMs(ipRecord))}.`,
+      };
+    }
+  }
+
+  // If neither email nor IP is in cache, the DB sync happens asynchronously.
+  // For the current request, allow through (no lock recorded in memory).
+  // The DB is queried asynchronously to populate the cache for next time.
+  if (!emailRecord && !ipRecord) {
+    syncFromDb(normalizedEmail, clientIp, type);
   }
 
   return { locked: false };
+}
+
+// Async DB sync — populates in-memory cache from DB on miss
+function syncFromDb(email: string, ip: string, type: LoginType) {
+  prisma.loginAttempt
+    .findUnique({
+      where: { email_type: { email, type } },
+    })
+    .then((record) => {
+      if (record) {
+        applyDbRecordToMemory(email, ip, type, record);
+      }
+    })
+    .catch(() => {
+      // Silently ignore DB errors in cache sync
+    });
+}
+
+// Persist a failed attempt to the database (fire-and-forget)
+function persistFailedAttempt(
+  email: string,
+  ip: string,
+  type: LoginType,
+  attempts: number,
+  lockedUntil: Date,
+) {
+  prisma.loginAttempt
+    .upsert({
+      where: { email_type: { email, type } },
+      update: { attempts, lockedUntil, ip },
+      create: { email, ip, type, attempts, lockedUntil },
+    })
+    .catch((err) => {
+      console.error("login-tracker DB upsert error:", (err as Error).message);
+    });
+}
+
+// Remove a record from the database (fire-and-forget)
+function persistReset(email: string, type: LoginType) {
+  prisma.loginAttempt
+    .deleteMany({
+      where: { email, type },
+    })
+    .catch((err) => {
+      console.error("login-tracker DB delete error:", (err as Error).message);
+    });
 }
 
 // Record a failed login attempt
@@ -92,7 +181,7 @@ export function recordFailedLogin(
   const trackers = trackerMap.get(type)!;
   const { max, lockout } = getConfig(type);
 
-  // Email tracking
+  // Email tracking (in-memory)
   const emailRec = trackers.emailAttempts.get(normalizedEmail) || {
     count: 0,
     lockedUntil: 0,
@@ -103,7 +192,7 @@ export function recordFailedLogin(
   }
   trackers.emailAttempts.set(normalizedEmail, emailRec);
 
-  // IP tracking
+  // IP tracking (in-memory)
   const ipRec = trackers.ipAttempts.get(clientIp) || {
     count: 0,
     lockedUntil: 0,
@@ -113,6 +202,15 @@ export function recordFailedLogin(
     ipRec.lockedUntil = Date.now() + lockout;
   }
   trackers.ipAttempts.set(clientIp, ipRec);
+
+  // Persist to DB (fire-and-forget)
+  persistFailedAttempt(
+    normalizedEmail,
+    clientIp,
+    type,
+    emailRec.count,
+    new Date(emailRec.lockedUntil),
+  );
 }
 
 // Clear tracking after successful login
@@ -122,9 +220,13 @@ export function resetLoginAttempts(
   type: LoginType = "user",
 ) {
   const clientIp = getClientIp(req);
+  const normalizedEmail = email.toLowerCase();
   const trackers = trackerMap.get(type)!;
-  trackers.emailAttempts.delete(email.toLowerCase());
+  trackers.emailAttempts.delete(normalizedEmail);
   trackers.ipAttempts.delete(clientIp);
+
+  // Remove from DB (fire-and-forget)
+  persistReset(normalizedEmail, type);
 }
 
 // Periodic cleanup — removes entries older than 2x lockout duration
@@ -144,6 +246,21 @@ export function startLoginTrackerCleanup() {
         }
       }
     }
+
+    // Also clean up expired DB records
+    const cutoff = new Date(
+      Date.now() - Math.max(ADMIN_LOCKOUT_MS, USER_LOCKOUT_MS) * 2,
+    );
+    prisma.loginAttempt
+      .deleteMany({
+        where: { lockedUntil: { lt: cutoff } },
+      })
+      .catch((err) => {
+        console.error(
+          "login-tracker DB cleanup error:",
+          (err as Error).message,
+        );
+      });
   }, 60 * 1000); // Run every minute
 }
 

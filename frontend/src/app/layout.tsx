@@ -1,26 +1,35 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito, DM_Sans } from "next/font/google";
-import { ContactProvider } from "@/context/contact-context";
-import { AuthProvider } from "@/context/auth-context";
-import { UserAuthProvider } from "@/context/user-auth-context";
-import { Toaster } from "@/components/ui/toaster";
-import { StructuredData } from "@/components/structured-data";
-import { CookieConsent } from "@/components/layout/cookie-consent";
-import { WhatsAppButton } from "@/components/layout/whatsapp-button";
+import localFont from "next/font/local";
+import { RouteLayout } from "@/components/layout/route-layout";
+import { NavigationProgress } from "@/components/layout/navigation-progress";
 import "./globals.css";
 
-const nunito = Nunito({
+const nunito = localFont({
   variable: "--font-nunito",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  src: [
+    { path: "../../public/fonts/nunito-400.ttf", weight: "400", style: "normal" },
+    { path: "../../public/fonts/nunito-500.ttf", weight: "500", style: "normal" },
+    { path: "../../public/fonts/nunito-600.ttf", weight: "600", style: "normal" },
+    { path: "../../public/fonts/nunito-700.ttf", weight: "700", style: "normal" },
+    { path: "../../public/fonts/nunito-800.ttf", weight: "800", style: "normal" },
+    { path: "../../public/fonts/nunito-900.ttf", weight: "900", style: "normal" },
+  ],
   display: "swap",
+  preload: true,
+  fallback: ["system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
 });
 
-const dmSans = DM_Sans({
+const dmSans = localFont({
   variable: "--font-dm-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  src: [
+    { path: "../../public/fonts/dmsans-400.ttf", weight: "400", style: "normal" },
+    { path: "../../public/fonts/dmsans-500.ttf", weight: "500", style: "normal" },
+    { path: "../../public/fonts/dmsans-600.ttf", weight: "600", style: "normal" },
+    { path: "../../public/fonts/dmsans-700.ttf", weight: "700", style: "normal" },
+  ],
   display: "swap",
+  preload: true,
+  fallback: ["system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
 });
 
 const SITE_URL = "https://the86connects.com";
@@ -30,6 +39,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: "#DC2626",
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {
@@ -111,19 +121,11 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${nunito.variable} ${dmSans.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans">
-        <AuthProvider>
-          <UserAuthProvider>
-            <ContactProvider>
-              <StructuredData />
-              {children}
-              <Toaster />
-              <CookieConsent />
-              <WhatsAppButton />
-            </ContactProvider>
-          </UserAuthProvider>
-        </AuthProvider>
+        <NavigationProgress />
+        <RouteLayout>{children}</RouteLayout>
       </body>
     </html>
   );

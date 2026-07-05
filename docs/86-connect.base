@@ -1,0 +1,27 @@
+filters:
+  and:
+    - file.inFolder("frontend/src/app")
+    - 'file.ext == "tsx"'
+
+formulas:
+  route: 'file.folder.replace("frontend/src/app", "")'
+  has_metadata: 'if(file.size > 0, "Yes", "No")'
+
+properties:
+  file.name:
+    displayName: "File"
+  formula.route:
+    displayName: "Route"
+  formula.has_metadata:
+    displayName: "Metadata"
+
+views:
+  - type: table
+    name: "All Pages"
+    order:
+      - formula.route
+      - file.name
+      - formula.has_metadata
+    groupBy:
+      property: formula.route
+      direction: ASC

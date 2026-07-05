@@ -49,7 +49,7 @@ export function CookieConsent() {
       role="dialog"
       aria-live="polite"
       aria-label="Cookie consent"
-      className="fixed inset-x-0 bottom-0 z-50 p-3 sm:p-5 safe-bottom pointer-events-none"
+      className="fixed inset-x-0 above-mobile-tab z-50 p-3 sm:p-5 safe-bottom pointer-events-none"
     >
       <div className="pointer-events-auto mx-auto max-w-3xl relative rounded-2xl glass-strong shadow-3d-2xl overflow-hidden border-2 border-white/85">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />

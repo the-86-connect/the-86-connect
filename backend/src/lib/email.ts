@@ -28,6 +28,7 @@ async function sendViaResend(payload: EmailPayload): Promise<boolean> {
         to: payload.to,
         subject: payload.subject,
         html: payload.html,
+        reply_to: NOTIFY_EMAIL || FROM_EMAIL,
       }),
     });
 

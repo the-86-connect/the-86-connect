@@ -11,11 +11,7 @@ import {
   Tag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const API_URL =
-  typeof window === "undefined"
-    ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
-    : "";
+import { API_URL } from "@/lib/api";
 
 interface Submission {
   id: string;

@@ -18,11 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const API_URL =
-  typeof window === "undefined"
-    ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
-    : "";
+import { API_URL } from "@/lib/api";
 
 interface AdminVideo {
   id: string;

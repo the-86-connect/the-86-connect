@@ -2,19 +2,33 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
+  const hostname = request.headers.get("host") || "";
+  const isAdminSubdomain = hostname.startsWith("admin.");
   const { pathname } = request.nextUrl;
 
-  // Protect /admin routes (except /admin/login)
-  // NOTE: we only block /admin when there's NO cookie at all. We do NOT
-  // redirect /admin/login → /admin when a cookie exists, because a cookie
-  // existing doesn't guarantee a valid session (the backend may have
-  // restarted, wiping the in-memory session store). That check is handled
-  // client-side by the login page to avoid infinite redirect loops.
-  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+  // ── Admin subdomain (admin.the86connect.com) ──
+  if (isAdminSubdomain) {
+    // Allow /admin/login without auth
+    if (pathname === "/admin/login") {
+      return NextResponse.next();
+    }
+    // Redirect non-admin paths to /admin
+    if (!pathname.startsWith("/admin")) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+    // Protect /admin/* except /admin/login
     const adminToken = request.cookies.get("admin_token")?.value;
     if (!adminToken) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
+    return NextResponse.next();
+  }
+
+  // ── Main site (the86connect.com) ──
+  // Block /admin/* — rewrite to 404 page
+  // Skip in dev (localhost) so admin panel can be tested without subdomain
+  if (pathname.startsWith("/admin") && !hostname.startsWith("localhost")) {
+    return NextResponse.rewrite(new URL("/404", request.url));
   }
 
   // Protect /account routes — requires user_token

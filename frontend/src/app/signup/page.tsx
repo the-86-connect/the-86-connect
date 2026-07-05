@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { z } from "zod";
 import {
   Eye,
@@ -19,6 +20,49 @@ import { useUserAuth } from "@/context/user-auth-context";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+
+const MAX_SIGNUP_ATTEMPTS = 3;
+const SIGNUP_COOLDOWN_MS = 5 * 60 * 1000;
+const STORAGE_KEY = "signup_attempts";
+
+function checkSignupThrottle(): {
+  blocked: boolean;
+  remainingSeconds: number;
+} {
+  try {
+    const data = JSON.parse(
+      sessionStorage.getItem(STORAGE_KEY) || '{"count":0,"blockUntil":0}',
+    );
+    if (Date.now() < data.blockUntil) {
+      return {
+        blocked: true,
+        remainingSeconds: Math.ceil((data.blockUntil - Date.now()) / 1000),
+      };
+    }
+    return { blocked: false, remainingSeconds: 0 };
+  } catch {
+    return { blocked: false, remainingSeconds: 0 };
+  }
+}
+
+function recordSignupAttempt(success: boolean) {
+  if (success) {
+    sessionStorage.removeItem(STORAGE_KEY);
+    return;
+  }
+  try {
+    const data = JSON.parse(
+      sessionStorage.getItem(STORAGE_KEY) || '{"count":0,"blockUntil":0}',
+    );
+    data.count++;
+    if (data.count >= MAX_SIGNUP_ATTEMPTS) {
+      data.blockUntil = Date.now() + SIGNUP_COOLDOWN_MS;
+    }
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // Storage unavailable — silently ignore
+  }
+}
 
 const signupSchema = z.object({
   name: z
@@ -60,6 +104,7 @@ export default function SignupPage() {
   >({});
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [blockedSeconds, setBlockedSeconds] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
 
   function validateField(field: keyof SignupForm, value: string) {
@@ -78,6 +123,16 @@ export default function SignupPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Check client-side throttle
+    const throttle = checkSignupThrottle();
+    if (throttle.blocked) {
+      setBlockedSeconds(throttle.remainingSeconds);
+      setError(
+        `Too many signup attempts. Please try again in ${throttle.remainingSeconds} second(s).`,
+      );
+      return;
+    }
 
     const result = signupSchema.safeParse(formData);
     if (!result.success) {
@@ -101,8 +156,10 @@ export default function SignupPage() {
         formData.phone || undefined,
       );
       if (ok) {
+        recordSignupAttempt(true);
         router.push("/account");
       } else {
+        recordSignupAttempt(false);
         setError("Registration failed. Please try again.");
       }
     } catch {
@@ -111,6 +168,19 @@ export default function SignupPage() {
       setIsLoading(false);
     }
   };
+
+  // Countdown timer for blocked state
+  if (blockedSeconds > 0) {
+    setTimeout(() => {
+      setBlockedSeconds((s) => {
+        if (s <= 1) {
+          setError("");
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-card to-muted px-4 py-12">
@@ -125,13 +195,15 @@ export default function SignupPage() {
 
         <div className="p-8 rounded-2xl border-2 border-border border-b-[6px] border-b-primary/30 bg-card">
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2.5 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-red-700 flex items-center justify-center shadow-red-sm">
-                <span className="text-white font-black text-lg">86</span>
-              </div>
-              <span className="font-display font-black text-2xl tracking-tight">
-                Connect
-              </span>
+            <div className="flex items-center justify-center mb-4">
+              <Image
+                src="/logo-main.png"
+                alt="86 Connect"
+                width={180}
+                height={49}
+                className="h-10 w-auto"
+                priority
+              />
             </div>
             <h1 className="font-display font-black text-2xl tracking-tight">
               Create Your Account
@@ -298,7 +370,8 @@ export default function SignupPage() {
                 isLoading ||
                 !formData.name ||
                 !formData.email ||
-                !formData.password
+                !formData.password ||
+                blockedSeconds > 0
               }
               className="w-full inline-flex items-center justify-center gap-2 h-12 bg-primary text-white rounded-xl font-black hover:bg-red-700 transition-all duration-200 cursor-pointer press disabled:opacity-60 disabled:cursor-not-allowed"
             >

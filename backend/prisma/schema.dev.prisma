@@ -19,6 +19,7 @@ model User {
   updatedAt     DateTime       @updatedAt
   submissions   Submission[]
   consultations Consultation[]
+  notifications Notification[]
 }
 
 model Submission {
@@ -107,6 +108,23 @@ model Consultation {
   @@map("consultations")
 }
 
+model Notification {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type          String   // "submission_status" | "consultation_update"
+  title         String
+  message       String
+  read          Boolean  @default(false)
+  referenceId   String   // submission.id or consultation.id
+  referenceCode String?  // for tracking link
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+}
+
 model AvailabilitySlot {
   id              String        @id @default(uuid())
   date            DateTime
@@ -121,4 +139,33 @@ model AvailabilitySlot {
   @@unique([date, startTime])
   @@index([date])
   @@index([status])
+}
+
+model LoginAttempt {
+  id          String   @id @default(uuid())
+  email       String
+  ip          String
+  type        String   @default("user") // "admin" | "user"
+  attempts    Int      @default(1)
+  lockedUntil DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([email, type])
+  @@index([ip])
+  @@index([lockedUntil])
+  @@map("login_attempts")
+}
+
+model AdminUser {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         String    @default("admin") // "admin" | "superadmin"
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("admin_users")
 }
