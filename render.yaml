@@ -1,9 +1,9 @@
 services:
   - type: web
     name: 86connect-backend
-    env: node
-    buildCommand: cd backend && npm ci && npx prisma generate --schema=prisma/schema.prisma && npm run build
-    startCommand: cd backend && npx prisma migrate deploy && npm start
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    rootDir: backend
     envVars:
       - key: NODE_ENV
         value: production
