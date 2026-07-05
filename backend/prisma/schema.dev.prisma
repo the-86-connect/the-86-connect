@@ -17,9 +17,12 @@ model User {
   passwordHash  String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
   submissions   Submission[]
   consultations Consultation[]
   notifications Notification[]
+
+  @@index([deletedAt])
 }
 
 model Submission {
@@ -37,8 +40,11 @@ model Submission {
   read            Boolean          @default(false)
   referenceCode   String?          @unique
   createdAt       DateTime         @default(now())
+  deletedAt       DateTime?
   attachments     Attachment[]
   notes           SubmissionNote[]
+
+  @@index([deletedAt])
 }
 
 model SubmissionNote {
@@ -100,11 +106,13 @@ model Consultation {
   read          Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
   availabilitySlot AvailabilitySlot?
 
   @@index([status])
   @@index([preferredDate])
   @@index([userId])
+  @@index([deletedAt])
   @@map("consultations")
 }
 

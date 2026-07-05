@@ -323,6 +323,8 @@ export default function SubmissionsTab({
   // Sync pendingStatus when selectedSubmission changes
   useEffect(() => {
     if (selectedSubmission) {
+      // Sync derived state from selected submission.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPendingStatus(selectedSubmission.status);
       setStatusUpdateError("");
     }
@@ -331,6 +333,8 @@ export default function SubmissionsTab({
   // Sync initialSearch from parent (cross-tab navigation)
   useEffect(() => {
     if (initialSearch) {
+      // Sync from parent prop on cross-tab navigation.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearch(initialSearch);
     }
   }, [initialSearch]);

@@ -45,7 +45,11 @@ export function AdminSidebar() {
   useEffect(() => {
     try {
       const stored = localStorage.getItem("admin-sidebar-collapsed");
-      if (stored !== null) setCollapsed(stored === "true");
+      if (stored !== null) {
+        // One-time localStorage hydration on mount.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setCollapsed(stored === "true");
+      }
     } catch {
       // localStorage unavailable (private mode, quota exceeded) — use default
     }

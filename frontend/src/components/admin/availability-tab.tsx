@@ -249,6 +249,8 @@ export function AvailabilityTab() {
 
   useEffect(() => {
     mountedRef.current = true;
+    // Data fetch; setState happens asynchronously after await.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshAll();
     return () => {
       mountedRef.current = false;

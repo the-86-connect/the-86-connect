@@ -24,6 +24,8 @@ export function ResetPasswordContent() {
   useEffect(() => {
     const hash = window.location.hash;
     if (hash.startsWith("#token=")) {
+      // One-time hash parse on mount; setState is intentional.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHashToken(hash.replace("#token=", ""));
     }
     setHashChecked(true);

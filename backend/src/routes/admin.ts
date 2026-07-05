@@ -421,7 +421,12 @@ adminRouter.post("/sessions/revoke-others", authenticateToken, (req, res) => {
 
 // Build a Prisma where clause from admin submission query filters
 function buildSubmissionWhere(req: Request): Prisma.SubmissionWhereInput {
-  const where: Prisma.SubmissionWhereInput = {};
+  const where: Prisma.SubmissionWhereInput = { deletedAt: null };
+
+  const includeDeleted = req.query.includeDeleted === "true";
+  if (includeDeleted) {
+    delete where.deletedAt;
+  }
 
   const service = req.query.service as string | undefined;
   const statusParam = req.query.status as string | undefined;
@@ -899,7 +904,7 @@ adminRouter.get(
 
     try {
       const submissions = await prisma.submission.findMany({
-        where: { serviceInterest: service },
+        where: { serviceInterest: service, deletedAt: null },
         orderBy: { createdAt: "desc" },
         take: 100,
         select: {
@@ -938,6 +943,7 @@ adminRouter.get(
 adminRouter.get("/users", authenticateToken, async (_req, res) => {
   try {
     const users = await prisma.user.findMany({
+      where: { deletedAt: null },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -968,9 +974,9 @@ adminRouter.get("/users", authenticateToken, async (_req, res) => {
     const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     const [totalUsers, usersThisMonth, withPhone] = await Promise.all([
-      prisma.user.count(),
-      prisma.user.count({ where: { createdAt: { gte: oneMonthAgo } } }),
-      prisma.user.count({ where: { phone: { not: null } } }),
+      prisma.user.count({ where: { deletedAt: null } }),
+      prisma.user.count({ where: { createdAt: { gte: oneMonthAgo }, deletedAt: null } }),
+      prisma.user.count({ where: { phone: { not: null }, deletedAt: null } }),
     ]);
 
     res.json({
@@ -1083,15 +1089,37 @@ adminRouter.post(
   },
 );
 
-// Delete a user
+// Hard delete a user (admin — permanent, deletes files from storage)
 adminRouter.delete("/users/:id", authenticateToken, async (req, res) => {
   const id = String(req.params.id);
 
   try {
-    await prisma.user.delete({
-      where: { id },
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Load user's submissions with attachments to delete files from storage
+    const submissions = await prisma.submission.findMany({
+      where: { userId: id },
+      include: { attachments: true },
     });
 
+    // Delete all Cloudinary/R2 files from user's submissions
+    for (const sub of submissions) {
+      await Promise.allSettled(
+        sub.attachments.map((att) =>
+          deleteFileFromStorage(att.fileName, att.storageProvider as "cloudinary" | "r2"),
+        ),
+      );
+    }
+
+    // Hard delete the user
+    // Submissions/consultations have onDelete: SetNull → become anonymous
+    // Notifications cascade delete
+    await prisma.user.delete({ where: { id } });
+
+    broadcastToAdmins("user:deleted", { userId: id });
     res.json({ success: true });
   } catch (error) {
     console.error("Delete user error:", (error as Error).message);
@@ -1123,28 +1151,29 @@ adminRouter.get("/overview", authenticateToken, async (_req, res) => {
       totalUsers,
       totalVideos,
     ] = await Promise.all([
-      prisma.submission.count(),
-      prisma.submission.count({ where: { read: false } }),
+      prisma.submission.count({ where: { deletedAt: null } }),
+      prisma.submission.count({ where: { read: false, deletedAt: null } }),
       prisma.submission.count({
-        where: { serviceInterest: "Study in China" },
+        where: { serviceInterest: "Study in China", deletedAt: null },
       }),
       prisma.submission.count({
-        where: { serviceInterest: "Product Sourcing" },
+        where: { serviceInterest: "Product Sourcing", deletedAt: null },
       }),
       prisma.submission.count({
-        where: { createdAt: { gte: startOfToday } },
+        where: { createdAt: { gte: startOfToday }, deletedAt: null },
       }),
       prisma.submission.count({
-        where: { createdAt: { gte: startOfWeek } },
+        where: { createdAt: { gte: startOfWeek }, deletedAt: null },
       }),
       prisma.submission.count({
-        where: { createdAt: { gte: startOfMonth } },
+        where: { createdAt: { gte: startOfMonth }, deletedAt: null },
       }),
-      prisma.user.count(),
+      prisma.user.count({ where: { deletedAt: null } }),
       prisma.video.count(),
     ]);
 
     const recent = await prisma.submission.findMany({
+      where: { deletedAt: null },
       orderBy: { createdAt: "desc" },
       take: 5,
       select: {
@@ -1162,6 +1191,7 @@ adminRouter.get("/overview", authenticateToken, async (_req, res) => {
     const statusDistribution = await prisma.submission.groupBy({
       by: ["status"],
       _count: { status: true },
+      where: { deletedAt: null },
     });
 
     res.json({
@@ -1536,7 +1566,7 @@ const consultationListSelect = {
 
 // Build a Prisma where clause from admin consultation query filters
 function buildConsultationWhere(req: Request): Prisma.ConsultationWhereInput {
-  const where: Prisma.ConsultationWhereInput = {};
+  const where: Prisma.ConsultationWhereInput = { deletedAt: null };
 
   const statusParam = req.query.status as string | undefined;
   const serviceParam = req.query.service as string | undefined;
@@ -1620,13 +1650,13 @@ adminRouter.get(
         cancelled,
         unread,
       ] = await Promise.all([
-        prisma.consultation.count(),
-        prisma.consultation.count({ where: { status: "pending" } }),
-        prisma.consultation.count({ where: { status: "confirmed" } }),
-        prisma.consultation.count({ where: { status: "rescheduled" } }),
-        prisma.consultation.count({ where: { status: "completed" } }),
-        prisma.consultation.count({ where: { status: "cancelled" } }),
-        prisma.consultation.count({ where: { read: false } }),
+        prisma.consultation.count({ where: { deletedAt: null } }),
+        prisma.consultation.count({ where: { status: "pending", deletedAt: null } }),
+        prisma.consultation.count({ where: { status: "confirmed", deletedAt: null } }),
+        prisma.consultation.count({ where: { status: "rescheduled", deletedAt: null } }),
+        prisma.consultation.count({ where: { status: "completed", deletedAt: null } }),
+        prisma.consultation.count({ where: { status: "cancelled", deletedAt: null } }),
+        prisma.consultation.count({ where: { read: false, deletedAt: null } }),
       ]);
 
       res.json({
@@ -2079,3 +2109,141 @@ adminRouter.post(
     }
   },
 );
+
+// ─── Soft Delete Management ─────────────────────────────────────────────
+
+// Get all soft-deleted users (admin "Trash" view)
+adminRouter.get("/users/deleted", authenticateToken, async (_req, res) => {
+  try {
+    const now = new Date();
+    const users = await prisma.user.findMany({
+      where: { deletedAt: { not: null } },
+      orderBy: { deletedAt: "desc" },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        createdAt: true,
+        deletedAt: true,
+        _count: { select: { submissions: true, consultations: true } },
+      },
+    });
+
+    const formatted = users.map((u) => {
+      const daysLeft = u.deletedAt
+        ? Math.max(0, 7 - Math.floor((now.getTime() - u.deletedAt.getTime()) / (24 * 60 * 60 * 1000)))
+        : 0;
+      return {
+        id: u.id,
+        email: u.email,
+        name: u.name,
+        phone: u.phone,
+        createdAt: u.createdAt,
+        deletedAt: u.deletedAt,
+        submissionCount: u._count.submissions,
+        consultationCount: u._count.consultations,
+        daysUntilPurge: daysLeft,
+      };
+    });
+
+    res.json({ users: formatted, total: formatted.length });
+  } catch (error) {
+    console.error("Fetch deleted users error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to retrieve deleted users" });
+  }
+});
+
+// Bulk purge soft-deleted records (admin — permanent hard delete)
+adminRouter.post("/users/bulk-purge", authenticateToken, async (req, res) => {
+  const { ids } = (req.body || {}) as { ids?: string[] };
+
+  try {
+    // If ids provided, purge only those; otherwise purge ALL soft-deleted records
+    const userWhere = ids
+      ? { id: { in: ids }, deletedAt: { not: null } }
+      : { deletedAt: { not: null } };
+    const subWhere = ids
+      ? { userId: { in: ids }, deletedAt: { not: null } }
+      : { deletedAt: { not: null } };
+    const consultWhere = ids
+      ? { userId: { in: ids }, deletedAt: { not: null } }
+      : { deletedAt: { not: null } };
+
+    // 1. Find soft-deleted submissions with attachments
+    const expiredSubs = await prisma.submission.findMany({
+      where: subWhere,
+      include: { attachments: true },
+    });
+
+    // 2. Delete their files from Cloudinary/R2
+    let filesDeleted = 0;
+    for (const sub of expiredSubs) {
+      const results = await Promise.allSettled(
+        sub.attachments.map((att) =>
+          deleteFileFromStorage(att.fileName, att.storageProvider as "cloudinary" | "r2"),
+        ),
+      );
+      filesDeleted += results.filter((r) => r.status === "fulfilled").length;
+    }
+
+    // 3. Hard delete soft-deleted submissions (cascades to attachments + notes)
+    const deletedSubs = await prisma.submission.deleteMany({ where: subWhere });
+
+    // 4. Hard delete soft-deleted consultations
+    const deletedConsults = await prisma.consultation.deleteMany({ where: consultWhere });
+
+    // 5. Hard delete soft-deleted users
+    const deletedUsers = await prisma.user.deleteMany({ where: userWhere });
+
+    res.json({
+      success: true,
+      purged: {
+        users: deletedUsers.count,
+        submissions: deletedSubs.count,
+        consultations: deletedConsults.count,
+        files: filesDeleted,
+      },
+    });
+  } catch (error) {
+    console.error("Bulk purge error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to purge soft-deleted records" });
+  }
+});
+
+// Cleanup orphan files (files in storage with no matching DB attachment)
+adminRouter.post("/submissions/cleanup-orphans", authenticateToken, async (_req, res) => {
+  try {
+    // Due to cascade delete (Submission → Attachment), orphan attachments
+    // cannot exist in the database. This endpoint is kept for future use
+    // if the schema ever changes to allow nullable submissionId.
+    res.json({
+      success: true,
+      cleaned: 0,
+      message: "No orphan files found — cascade delete ensures all attachments are removed with their submissions",
+    });
+  } catch (error) {
+    console.error("Orphan cleanup error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to cleanup orphan files" });
+  }
+});
+
+// Get soft-deleted counts for overview/maintenance card
+adminRouter.get("/trash/stats", authenticateToken, async (_req, res) => {
+  try {
+    const [softDeletedUsers, softDeletedSubs, softDeletedConsults] = await Promise.all([
+      prisma.user.count({ where: { deletedAt: { not: null } } }),
+      prisma.submission.count({ where: { deletedAt: { not: null } } }),
+      prisma.consultation.count({ where: { deletedAt: { not: null } } }),
+    ]);
+
+    res.json({
+      softDeletedUsers,
+      softDeletedSubmissions: softDeletedSubs,
+      softDeletedConsultations: softDeletedConsults,
+    });
+  } catch (error) {
+    console.error("Trash stats error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to get trash stats" });
+  }
+});

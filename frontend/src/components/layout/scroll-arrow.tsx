@@ -33,6 +33,8 @@ export function ScrollArrow() {
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
+    // Initial scroll position check on mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);

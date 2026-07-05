@@ -40,8 +40,27 @@ import { FAQ_SECTIONS } from "@/data/faq";
 export const metadata: Metadata = {
   title: "Product Sourcing from China — Suppliers, Procurement & Logistics",
   description:
-    "Source quality products from China with 86 Connect. Supplier finding, procurement management, and logistics support. 50,000+ verified suppliers, 150+ countries shipped.",
+    "Source quality products from China with 86 Connect. We handle supplier finding and vetting, procurement management, quality control inspections, and logistics. 50,000+ verified suppliers, shipping to 150+ countries. Free consultation available.",
   alternates: { canonical: "/product-sourcing" },
+  keywords: [
+    "Product Sourcing from China", "China product sourcing", "China supplier finding", "China procurement",
+    "China manufacturer sourcing", "Import from China", "China wholesale sourcing", "China logistics",
+    "China quality control", "China sourcing agent", "China factory sourcing", "China supply chain",
+    "China purchasing agent", "China trade", "China B2B sourcing",
+  ],
+  openGraph: {
+    title: "Product Sourcing from China — Suppliers, Procurement & Logistics | 86 Connect",
+    description:
+      "Source quality products from China with 86 Connect. 50,000+ verified suppliers, shipping to 150+ countries. Supplier finding, procurement, quality control, and logistics — all covered.",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Product Sourcing from China with 86 Connect" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Product Sourcing from China — Suppliers, Procurement & Logistics",
+    description:
+      "Source quality products from China. 50,000+ verified suppliers, shipping to 150+ countries. End-to-end procurement support.",
+    images: ["/og-image.jpg"],
+  },
 };
 
 const SUB_LINKS = [

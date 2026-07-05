@@ -114,62 +114,7 @@ export function TrackingForm({ config }: TrackingFormProps) {
     }
   }, [searchParams, setValue]);
 
-  // Auto-submit when both ref and email are pre-filled from URL
-  useEffect(() => {
-    const ref = searchParams.get("ref");
-    const email = searchParams.get("email");
-    if (ref && email && !autoSubmittedRef.current) {
-      autoSubmittedRef.current = true;
-      // Small delay to let the form register the values
-      const timer = setTimeout(() => {
-        const values = getValues();
-        if (values.referenceId && values.email) {
-          onSubmit(values);
-        }
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
-
-  // Fetch user submissions when authenticated and no URL params
-  useEffect(() => {
-    if (authLoading || !isAuthenticated) return;
-    const ref = searchParams.get("ref");
-    const email = searchParams.get("email");
-    // Skip fetching if URL params are present (auto-track will handle it)
-    if (ref && email) return;
-
-    const fetchSubmissions = async () => {
-      setIsLoadingSubmissions(true);
-      try {
-        const data = await getUserProfile();
-        const filtered = data.user.submissions.filter(
-          (s) => s.submissionType === config.submissionType,
-        );
-        setUserSubmissions(filtered);
-      } catch {
-        setUserSubmissions([]);
-      } finally {
-        setIsLoadingSubmissions(false);
-      }
-    };
-    fetchSubmissions();
-  }, [isAuthenticated, authLoading, config.submissionType, searchParams]);
-
-  const handleTrackSubmission = useCallback(
-    async (ref: string, email: string) => {
-      setShowManualForm(false);
-      setValue("referenceId", ref);
-      setValue("email", email);
-      // Trigger form submit
-      await onSubmit({ referenceId: ref, email });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-
-  const onSubmit = async (data: TrackingData) => {
+  const onSubmit = useCallback(async (data: TrackingData) => {
     setNotFound(false);
     setResult(null);
     setApiError(null);
@@ -233,7 +178,62 @@ export function TrackingForm({ config }: TrackingFormProps) {
     } finally {
       setIsResultLoading(false);
     }
-  };
+  }, []);
+
+  // Auto-submit when both ref and email are pre-filled from URL
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    const email = searchParams.get("email");
+    if (ref && email && !autoSubmittedRef.current) {
+      autoSubmittedRef.current = true;
+      // Small delay to let the form register the values
+      const timer = setTimeout(() => {
+        const values = getValues();
+        if (values.referenceId && values.email) {
+          onSubmit(values);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  // Fetch user submissions when authenticated and no URL params
+  useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
+    const ref = searchParams.get("ref");
+    const email = searchParams.get("email");
+    // Skip fetching if URL params are present (auto-track will handle it)
+    if (ref && email) return;
+
+    const fetchSubmissions = async () => {
+      setIsLoadingSubmissions(true);
+      try {
+        const data = await getUserProfile();
+        const filtered = data.user.submissions.filter(
+          (s) => s.submissionType === config.submissionType,
+        );
+        setUserSubmissions(filtered);
+      } catch {
+        setUserSubmissions([]);
+      } finally {
+        setIsLoadingSubmissions(false);
+      }
+    };
+    fetchSubmissions();
+  }, [isAuthenticated, authLoading, config.submissionType, searchParams]);
+
+  const handleTrackSubmission = useCallback(
+    async (ref: string, email: string) => {
+      setShowManualForm(false);
+      setValue("referenceId", ref);
+      setValue("email", email);
+      // Trigger form submit
+      await onSubmit({ referenceId: ref, email });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   const reset = () => {
     setResult(null);

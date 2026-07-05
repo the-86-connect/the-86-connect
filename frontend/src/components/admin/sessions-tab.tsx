@@ -131,6 +131,8 @@ export default function SessionsTab({ active, onLogout }: SessionsTabProps) {
 
   useEffect(() => {
     if (active) {
+      // Data fetch; setState happens asynchronously after await.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchSessions();
     }
   }, [active, fetchSessions]);

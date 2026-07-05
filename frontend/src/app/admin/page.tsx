@@ -214,6 +214,8 @@ export default function AdminPage() {
   /* ---- Fetch submissions on mount -------------------------------- */
   useEffect(() => {
     if (authenticated) {
+      // Data fetch; setState happens asynchronously after await.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchSubmissions();
     }
   }, [authenticated, fetchSubmissions]);

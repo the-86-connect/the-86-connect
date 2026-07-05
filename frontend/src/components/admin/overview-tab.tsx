@@ -17,10 +17,15 @@ import {
   TrendingUp,
   ArrowRight,
   MessageCircle,
+  Trash2,
+  AlertTriangle,
+  CheckCircle2,
+  FileWarning,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { API_URL } from "@/lib/api";
+import { toast } from "sonner";
 
 interface OverviewCounts {
   total: number;
@@ -59,6 +64,21 @@ interface OverviewData {
   recent: RecentSubmission[];
   statusDistribution: StatusDistributionItem[];
   activeSessions: number;
+}
+
+interface TrashStats {
+  softDeletedUsers: number;
+  softDeletedSubmissions: number;
+  softDeletedConsultations: number;
+}
+
+interface PurgeResult {
+  purged: {
+    users: number;
+    submissions: number;
+    consultations: number;
+    files: number;
+  };
 }
 
 function formatDate(iso: string): string {
@@ -104,6 +124,13 @@ export function OverviewTab({ onViewSubmissions }: { onViewSubmissions?: () => v
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Data maintenance
+  const [trashStats, setTrashStats] = useState<TrashStats | null>(null);
+  const [trashStatsLoading, setTrashStatsLoading] = useState(false);
+  const [purgeLoading, setPurgeLoading] = useState(false);
+  const [cleanOrphansLoading, setCleanOrphansLoading] = useState(false);
+  const [showPurgeConfirm, setShowPurgeConfirm] = useState(false);
+
   const fetchOverview = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -122,9 +149,85 @@ export function OverviewTab({ onViewSubmissions }: { onViewSubmissions?: () => v
     }
   }, []);
 
+  const fetchTrashStats = useCallback(async () => {
+    setTrashStatsLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/trash/stats`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+      const json = await res.json();
+      setTrashStats(json);
+    } catch (err) {
+      console.error("Failed to fetch trash stats:", err);
+    } finally {
+      setTrashStatsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
+    // Data fetch; setState happens asynchronously after await.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchOverview();
-  }, [fetchOverview]);
+    fetchTrashStats();
+  }, [fetchOverview, fetchTrashStats]);
+
+  const handlePurgeAll = useCallback(async () => {
+    setPurgeLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/users/bulk-purge`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({}),
+      });
+      const data = (await res.json().catch(() => ({}))) as PurgeResult;
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+      const purged = data?.purged;
+      toast.success("Soft-deleted records purged", {
+        description: purged
+          ? `Removed ${purged.users} user(s), ${purged.submissions} submission(s), ${purged.consultations} consultation(s), ${purged.files} file(s).`
+          : "All soft-deleted records permanently removed.",
+      });
+      setShowPurgeConfirm(false);
+      fetchTrashStats();
+    } catch (err) {
+      console.error("Failed to purge all:", err);
+      toast.error("Failed to purge soft-deleted records");
+    } finally {
+      setPurgeLoading(false);
+    }
+  }, [fetchTrashStats]);
+
+  const handleCleanOrphans = useCallback(async () => {
+    setCleanOrphansLoading(true);
+    try {
+      const res = await fetch(
+        `${API_URL}/api/admin/submissions/cleanup-orphans`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        },
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || `Server returned ${res.status}`);
+      }
+      const removed = data?.deleted ?? data?.removed ?? data?.count;
+      toast.success("Orphan files cleaned", {
+        description:
+          typeof removed === "number"
+            ? `${removed} orphan file(s) removed.`
+            : "Orphan file cleanup complete.",
+      });
+    } catch (err) {
+      console.error("Failed to clean orphan files:", err);
+      toast.error("Failed to clean orphan files");
+    } finally {
+      setCleanOrphansLoading(false);
+    }
+  }, []);
 
   if (loading) {
     return (
@@ -385,6 +488,164 @@ export function OverviewTab({ onViewSubmissions }: { onViewSubmissions?: () => v
             </ul>
           )}
         </div>
+      </div>
+
+      {/* Data Maintenance */}
+      <div className="rounded-2xl bg-white/70 backdrop-blur-xl border border-slate-200/60 shadow-sm p-5 sm:p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+            <FileWarning className="h-4 w-4 text-amber-600" />
+          </div>
+          <h3 className="font-semibold">Data Maintenance</h3>
+        </div>
+
+        {trashStatsLoading && !trashStats ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading trash statistics…
+          </div>
+        ) : trashStats ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="rounded-xl bg-slate-50/60 border border-slate-100 p-3 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Soft-deleted Users
+                  </p>
+                  <p className="text-xl font-bold text-slate-900">
+                    {trashStats.softDeletedUsers}
+                  </p>
+                </div>
+                <div className="rounded-xl bg-slate-50/60 border border-slate-100 p-3 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Deleted Submissions
+                  </p>
+                  <p className="text-xl font-bold text-slate-900">
+                    {trashStats.softDeletedSubmissions}
+                  </p>
+                </div>
+                <div className="rounded-xl bg-slate-50/60 border border-slate-100 p-3 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Deleted Consultations
+                  </p>
+                  <p className="text-xl font-bold text-slate-900">
+                    {trashStats.softDeletedConsultations}
+                  </p>
+                </div>
+              </div>
+
+              {trashStats.softDeletedUsers === 0 &&
+              trashStats.softDeletedSubmissions === 0 &&
+              trashStats.softDeletedConsultations === 0 ? (
+                <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50/60 border border-emerald-200/60 rounded-xl p-3">
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                  No soft-deleted records to purge.
+                </div>
+              ) : (
+                <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50/60 border border-amber-200/60 rounded-xl p-3">
+                  <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                  <span>
+                    Purging permanently removes soft-deleted users, their
+                    submissions, consultations, and associated files. This
+                    action cannot be undone.
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-3 justify-center">
+              {showPurgeConfirm ? (
+                <div className="rounded-xl bg-red-50/60 border border-red-200/60 p-4 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+                    <p className="text-sm font-medium text-red-700">
+                      Confirm purge of all soft-deleted records?
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowPurgeConfirm(false)}
+                      disabled={purgeLoading}
+                      className="cursor-pointer btn-glass rounded-xl border-0 flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={handlePurgeAll}
+                      disabled={purgeLoading}
+                      className="cursor-pointer rounded-xl flex-1"
+                    >
+                      {purgeLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <>
+                          <Trash2 className="h-4 w-4" />
+                          Confirm Purge
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowPurgeConfirm(true)}
+                  disabled={
+                    purgeLoading ||
+                    (trashStats.softDeletedUsers === 0 &&
+                      trashStats.softDeletedSubmissions === 0 &&
+                      trashStats.softDeletedConsultations === 0)
+                  }
+                  className="cursor-pointer rounded-xl w-full"
+                >
+                  {purgeLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4" />
+                      Purge All Soft-deleted Records
+                    </>
+                  )}
+                </Button>
+              )}
+
+              <Button
+                variant="outline"
+                onClick={handleCleanOrphans}
+                disabled={cleanOrphansLoading}
+                className="cursor-pointer btn-glass rounded-xl w-full border-0 hover:bg-white/95"
+              >
+                {cleanOrphansLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <FileWarning className="h-4 w-4" />
+                    Clean Orphan Files
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between py-2">
+            <p className="text-sm text-muted-foreground">
+              Failed to load trash statistics.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchTrashStats}
+              className="cursor-pointer btn-glass rounded-xl border-0"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Retry
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

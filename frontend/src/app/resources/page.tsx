@@ -8,9 +8,22 @@ import { BLOG_POSTS } from "@/data/blog";
 export const metadata: Metadata = {
   title: "Resources & Guides",
   description:
-    "Expert guides, tips, and insights about studying in China (scholarships, admissions, visas) and sourcing products from China (suppliers, quality control, logistics).",
+    "Expert guides, tips, and insights about studying in China (scholarships, admissions, CSC, visas) and sourcing products from China (suppliers, quality control, logistics, import costs). Free resources from 86 Connect.",
   alternates: {
     canonical: "/resources",
+  },
+  openGraph: {
+    title: "Resources & Guides | 86 Connect",
+    description:
+      "Expert guides about studying in China and sourcing products from China. Free resources on scholarships, admissions, suppliers, logistics, and more.",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "86 Connect Resources & Guides" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Resources & Guides | 86 Connect",
+    description:
+      "Free expert guides on studying in China and sourcing products from China. Scholarships, suppliers, logistics, and more.",
+    images: ["/og-image.jpg"],
   },
   robots: {
     index: true,

@@ -45,11 +45,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "86 Connect - Study in China & Product Sourcing Services",
+    default: "86 Connect — Study in China & Product Sourcing from China",
     template: "%s | 86 Connect",
   },
   description:
-    "Professional services for Study in China assistance and Product Sourcing from China. Scholarships, university admissions, supplier finding, procurement, and logistics support.",
+    "86 Connect is your trusted gateway to China. We provide end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics). Serving clients in 30+ countries worldwide.",
   keywords: [
     "Study in China",
     "Product Sourcing from China",
@@ -59,36 +59,70 @@ export const metadata: Metadata = {
     "China Procurement Services",
     "China education consultancy",
     "China sourcing agent",
+    "Study abroad China",
+    "China product sourcing",
+    "China manufacturer sourcing",
+    "Chinese university application",
+    "CSC scholarship",
+    "China logistics",
+    "China quality control",
+    "China business consulting",
+    "International students China",
+    "Import from China",
+    "China wholesale sourcing",
+    "Beijing education consultancy",
   ],
-  authors: [{ name: "86 Connect" }],
+  authors: [{ name: "86 Connect", url: SITE_URL }],
   creator: "86 Connect",
   publisher: "86 Connect",
+  category: "Business",
   alternates: {
     canonical: "/",
+    languages: {
+      "en": SITE_URL,
+      "zh": `${SITE_URL}/zh`,
+    },
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
+    yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION,
+    other: {
+      "baidu-site-verification": [process.env.NEXT_PUBLIC_BAIDU_VERIFICATION || ""],
+      "msvalidate.01": [process.env.NEXT_PUBLIC_BING_VERIFICATION || ""],
+    },
   },
   openGraph: {
     type: "website",
     locale: "en_US",
     url: SITE_URL,
     siteName: "86 Connect",
-    title: "86 Connect - Study in China & Product Sourcing Services",
+    title: "86 Connect — Study in China & Product Sourcing from China",
     description:
-      "Professional services for Study in China assistance and Product Sourcing from China. Scholarships, university admissions, supplier finding, procurement, and logistics support.",
+      "86 Connect is your trusted gateway to China. We provide end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics).",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "86 Connect - Your Gateway to China",
+        alt: "86 Connect — Your Gateway to China",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "86 Connect - Study in China & Product Sourcing Services",
+    site: "@86connect",
+    creator: "@86connect",
+    title: "86 Connect — Study in China & Product Sourcing from China",
     description:
-      "Professional services for Study in China assistance and Product Sourcing from China.",
+      "86 Connect is your trusted gateway to China. End-to-end services for studying in China and sourcing products from China.",
     images: ["/og-image.jpg"],
+  },
+  other: {
+    "geo.region": "CN-BJ",
+    "geo.placename": "Beijing",
+    "geo.position": "39.9042;116.4074",
+    "ICBM": "39.9042, 116.4074",
+    "fb:page_id": process.env.NEXT_PUBLIC_FACEBOOK_PAGE_ID || "",
   },
   robots: {
     index: true,
@@ -98,6 +132,7 @@ export const metadata: Metadata = {
       follow: true,
       "max-image-preview": "large",
       "max-snippet": -1,
+      "max-video-preview": -1,
     },
   },
   icons: {

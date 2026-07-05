@@ -41,6 +41,12 @@ authRouter.post("/register", async (req, res) => {
 
   try {
     const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing && existing.deletedAt) {
+      return res.status(409).json({
+        error:
+          "This account has been deactivated and is scheduled for deletion. Contact us within 7 days to recover it.",
+      });
+    }
     if (existing && existing.passwordHash) {
       return res.status(409).json({
         error: "This email is already registered. Please try logging in instead.",
@@ -164,6 +170,14 @@ authRouter.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
+    // Block login for soft-deleted accounts
+    if (user.deletedAt) {
+      return res.status(403).json({
+        error:
+          "This account has been deactivated and is scheduled for permanent deletion. Contact us within 7 days if you wish to recover it.",
+      });
+    }
+
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) {
       recordFailedLogin(req, email, "user");
@@ -204,8 +218,8 @@ authRouter.post("/logout", (_req, res) => {
 authRouter.get("/verify", authenticateUser, async (req, res) => {
   const userId = (req as AuthedRequest).user.userId;
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
+    const user = await prisma.user.findFirst({
+      where: { id: userId, deletedAt: null },
       select: { id: true, email: true, name: true, phone: true },
     });
     if (!user) {
@@ -221,8 +235,8 @@ authRouter.get("/verify", authenticateUser, async (req, res) => {
 authRouter.get("/me", authenticateUser, async (req, res) => {
   const userId = (req as AuthedRequest).user.userId;
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
+    const user = await prisma.user.findFirst({
+      where: { id: userId, deletedAt: null },
       select: {
         id: true,
         email: true,
@@ -230,6 +244,7 @@ authRouter.get("/me", authenticateUser, async (req, res) => {
         phone: true,
         createdAt: true,
         submissions: {
+          where: { deletedAt: null },
           orderBy: { createdAt: "desc" },
           select: {
             id: true,
@@ -242,6 +257,7 @@ authRouter.get("/me", authenticateUser, async (req, res) => {
           },
         },
         consultations: {
+          where: { deletedAt: null },
           orderBy: { createdAt: "desc" },
           select: {
             id: true,
@@ -576,27 +592,37 @@ authRouter.patch("/notifications/read-all", authenticateUser, async (req, res) =
   }
 });
 
-// Delete account (GDPR)
+// Soft delete account (user-initiated, auto-purged after 7 days)
 authRouter.delete("/account", authenticateUser, async (req, res) => {
   const userId = (req as AuthedRequest).user.userId;
 
   try {
-    // Anonymize submissions (keep data, unlink from user)
+    const now = new Date();
+
+    // Soft delete the user's submissions
     await prisma.submission.updateMany({
-      where: { userId },
-      data: { userId: null },
+      where: { userId, deletedAt: null },
+      data: { deletedAt: now },
     });
 
-    // Anonymize consultations (keep data, unlink from user)
+    // Soft delete the user's consultations
     await prisma.consultation.updateMany({
-      where: { userId },
-      data: { userId: null },
+      where: { userId, deletedAt: null },
+      data: { deletedAt: now },
     });
 
-    await prisma.user.delete({ where: { id: userId } });
+    // Soft delete the user
+    await prisma.user.update({
+      where: { id: userId },
+      data: { deletedAt: now },
+    });
 
     res.clearCookie("user_token", cookieOptions);
-    res.json({ success: true });
+    res.json({
+      success: true,
+      message:
+        "Your account has been deactivated. Your data will be permanently deleted in 7 days. Contact us within 7 days if you wish to recover your account.",
+    });
   } catch (error) {
     console.error("Account deletion error:", (error as Error).message);
     res.status(500).json({ error: "Failed to delete account" });

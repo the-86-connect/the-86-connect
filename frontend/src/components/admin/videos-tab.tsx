@@ -75,6 +75,8 @@ export function VideosTab() {
   }, []);
 
   useEffect(() => {
+    // Data fetch; setState happens asynchronously after await.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchVideos();
   }, [fetchVideos]);
 

@@ -51,7 +51,7 @@ export function SourcingInquiryForm() {
   const [honeypot, setHoneypot] = useState("");
   const [files, setFiles] = useState<PendingFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const formLoadedAtRef = useRef<number>(Date.now());
+  const formLoadedAtRef = useRef<number>(0);
 
   const hasUploadingFiles = files.some((f) => f.uploading);
   const successfulAttachments = files
@@ -248,6 +248,7 @@ export function SourcingInquiryForm() {
   }
 
   return (
+    // eslint-disable-next-line react-hooks/refs -- onSubmit is an event handler, not called during render
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
       {/* Honeypot field — hidden from humans, bots fill it */}
       <div

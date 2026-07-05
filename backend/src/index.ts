@@ -24,6 +24,7 @@ import {
 import { trackingRouter } from "./routes/tracking";
 import { uploadRouter } from "./routes/upload";
 import { prisma } from "./lib/prisma";
+import { deleteFileFromStorage } from "./lib/storage";
 import { videosRouter } from "./routes/videos";
 import { botCheck } from "./middleware/bot-check";
 import csrfMiddleware from "./middleware/csrf";
@@ -259,6 +260,64 @@ function startPastSlotCleanup() {
   setInterval(cleanup, 60 * 60 * 1000);
 }
 
+/** Auto-purge soft-deleted records older than 7 days */
+function startSoftDeletePurge() {
+  const purge = async () => {
+    try {
+      const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+      // 1. Find soft-deleted submissions older than 7 days
+      const expiredSubs = await prisma.submission.findMany({
+        where: { deletedAt: { lt: cutoff } },
+        include: { attachments: true },
+      });
+
+      // 2. Delete their files from Cloudinary/R2
+      for (const sub of expiredSubs) {
+        await Promise.allSettled(
+          sub.attachments.map((att) =>
+            deleteFileFromStorage(
+              att.fileName,
+              att.storageProvider as "cloudinary" | "r2",
+            ),
+          ),
+        );
+      }
+
+      // 3. Hard delete expired soft-deleted submissions
+      const deletedSubs = await prisma.submission.deleteMany({
+        where: { deletedAt: { lt: cutoff } },
+      });
+
+      // 4. Hard delete expired soft-deleted consultations
+      const deletedConsults = await prisma.consultation.deleteMany({
+        where: { deletedAt: { lt: cutoff } },
+      });
+
+      // 5. Hard delete expired soft-deleted users
+      const deletedUsers = await prisma.user.deleteMany({
+        where: { deletedAt: { lt: cutoff } },
+      });
+
+      const total =
+        deletedSubs.count + deletedConsults.count + deletedUsers.count;
+      if (total > 0) {
+        console.log(
+          `Auto-purged ${total} soft-deleted record(s) older than 7 days ` +
+            `(users: ${deletedUsers.count}, submissions: ${deletedSubs.count}, consultations: ${deletedConsults.count})`,
+        );
+      }
+    } catch (error) {
+      console.error("Soft delete purge error:", (error as Error).message);
+    }
+  };
+
+  // Run on startup
+  purge();
+  // Run every 6 hours
+  setInterval(purge, 6 * 60 * 60 * 1000);
+}
+
 function getLanIP(): string | null {
   const interfaces = os.networkInterfaces();
   for (const name of Object.keys(interfaces)) {
@@ -281,4 +340,5 @@ app.listen(PORT, HOST, () => {
   startLoginTrackerCleanup();
   startSubmissionTrackerCleanup();
   startPastSlotCleanup();
+  startSoftDeletePurge();
 });

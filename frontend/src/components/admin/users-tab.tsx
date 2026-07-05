@@ -18,6 +18,9 @@ import {
   KeyRound,
   Pencil,
   Calendar,
+  AlertTriangle,
+  CheckCircle2,
+  FileWarning,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { TableSkeleton } from "@/components/ui/skeleton";
 import { API_URL } from "@/lib/api";
+import { toast } from "sonner";
 
 interface User {
   id: string;
@@ -39,6 +43,32 @@ interface UserStats {
   total: number;
   thisMonth: number;
   withPhone: number;
+}
+
+interface DeletedUser {
+  id: string;
+  email: string;
+  name: string;
+  phone: string | null;
+  createdAt: string;
+  deletedAt: string | null;
+  submissionCount: number;
+  daysUntilPurge: number;
+}
+
+interface TrashStats {
+  softDeletedUsers: number;
+  softDeletedSubmissions: number;
+  softDeletedConsultations: number;
+}
+
+interface PurgeResult {
+  purged: {
+    users: number;
+    submissions: number;
+    consultations: number;
+    files: number;
+  };
 }
 
 interface UsersTabProps {
@@ -94,6 +124,21 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
   // View user
   const [viewUser, setViewUser] = useState<User | null>(null);
 
+  // Trash view
+  const [trashView, setTrashView] = useState(false);
+  const [deletedUsers, setDeletedUsers] = useState<DeletedUser[]>([]);
+  const [trashLoading, setTrashLoading] = useState(false);
+  const [trashError, setTrashError] = useState("");
+  const [purgingIds, setPurgingIds] = useState<string[]>([]);
+  const [purgeAllLoading, setPurgeAllLoading] = useState(false);
+
+  // Cleanup modal
+  const [cleanupOpen, setCleanupOpen] = useState(false);
+  const [cleanupStats, setCleanupStats] = useState<TrashStats | null>(null);
+  const [cleanupStatsLoading, setCleanupStatsLoading] = useState(false);
+  const [cleanupPurgeLoading, setCleanupPurgeLoading] = useState(false);
+  const [cleanOrphansLoading, setCleanOrphansLoading] = useState(false);
+
   const fetchUsers = useCallback(async () => {
     setUserLoading(true);
     setUserError("");
@@ -119,6 +164,8 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
 
   useEffect(() => {
     if (active) {
+      // Data fetch; setState happens asynchronously after await.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchUsers();
     }
   }, [active, fetchUsers]);
@@ -276,6 +323,182 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
     }
   }, [deleteUser]);
 
+  const fetchDeletedUsers = useCallback(async () => {
+    setTrashLoading(true);
+    setTrashError("");
+    try {
+      const res = await fetch(`${API_URL}/api/admin/users/deleted`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}`);
+      }
+      const data = await res.json();
+      setDeletedUsers(data.users ?? data ?? []);
+    } catch (err) {
+      setTrashError("Failed to load deleted users. Please try refreshing.");
+      console.error("Failed to fetch deleted users:", err);
+    } finally {
+      setTrashLoading(false);
+    }
+  }, []);
+
+  const fetchTrashStats = useCallback(async () => {
+    setCleanupStatsLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/trash/stats`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}`);
+      }
+      const data = await res.json();
+      setCleanupStats(data);
+    } catch (err) {
+      console.error("Failed to fetch trash stats:", err);
+      toast.error("Failed to load trash statistics");
+    } finally {
+      setCleanupStatsLoading(false);
+    }
+  }, []);
+
+  const toggleTrashView = useCallback(() => {
+    setTrashView((prev) => {
+      const next = !prev;
+      if (next) {
+        fetchDeletedUsers();
+      }
+      return next;
+    });
+  }, [fetchDeletedUsers]);
+
+  const handlePurgeUser = useCallback(
+    async (userId: string) => {
+      setPurgingIds((prev) => [...prev, userId]);
+      try {
+        const res = await fetch(`${API_URL}/api/admin/users/bulk-purge`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ ids: [userId] }),
+        });
+        const data = (await res.json().catch(() => ({}))) as PurgeResult;
+        if (!res.ok) {
+          throw new Error(`Server returned ${res.status}`);
+        }
+        setDeletedUsers((prev) => prev.filter((u) => u.id !== userId));
+        const purged = data?.purged;
+        toast.success("User purged", {
+          description: purged
+            ? `Removed ${purged.users} user(s), ${purged.submissions} submission(s), ${purged.consultations} consultation(s), ${purged.files} file(s).`
+            : "Soft-deleted records permanently removed.",
+        });
+      } catch (err) {
+        console.error("Failed to purge user:", err);
+        toast.error("Failed to purge user");
+      } finally {
+        setPurgingIds((prev) => prev.filter((id) => id !== userId));
+      }
+    },
+    [],
+  );
+
+  const handlePurgeAll = useCallback(async () => {
+    setPurgeAllLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/users/bulk-purge`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({}),
+      });
+      const data = (await res.json().catch(() => ({}))) as PurgeResult;
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}`);
+      }
+      const count = deletedUsers.length;
+      setDeletedUsers([]);
+      const purged = data?.purged;
+      toast.success("All soft-deleted users purged", {
+        description: purged
+          ? `Removed ${purged.users} user(s), ${purged.submissions} submission(s), ${purged.consultations} consultation(s), ${purged.files} file(s).`
+          : `${count} user(s) permanently removed.`,
+      });
+    } catch (err) {
+      console.error("Failed to purge all users:", err);
+      toast.error("Failed to purge all users");
+    } finally {
+      setPurgeAllLoading(false);
+    }
+  }, [deletedUsers.length]);
+
+  const openCleanup = useCallback(() => {
+    setCleanupOpen(true);
+    fetchTrashStats();
+  }, [fetchTrashStats]);
+
+  const handleCleanupPurgeAll = useCallback(async () => {
+    setCleanupPurgeLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/users/bulk-purge`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({}),
+      });
+      const data = (await res.json().catch(() => ({}))) as PurgeResult;
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}`);
+      }
+      const purged = data?.purged;
+      toast.success("Soft-deleted records purged", {
+        description: purged
+          ? `Removed ${purged.users} user(s), ${purged.submissions} submission(s), ${purged.consultations} consultation(s), ${purged.files} file(s).`
+          : "All soft-deleted records permanently removed.",
+      });
+      // Refresh stats and trash view if open
+      fetchTrashStats();
+      if (trashView) {
+        fetchDeletedUsers();
+      }
+    } catch (err) {
+      console.error("Failed to purge all:", err);
+      toast.error("Failed to purge soft-deleted records");
+    } finally {
+      setCleanupPurgeLoading(false);
+    }
+  }, [fetchTrashStats, fetchDeletedUsers, trashView]);
+
+  const handleCleanOrphans = useCallback(async () => {
+    setCleanOrphansLoading(true);
+    try {
+      const res = await fetch(
+        `${API_URL}/api/admin/submissions/cleanup-orphans`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        },
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || `Server returned ${res.status}`);
+      }
+      const removed = data?.deleted ?? data?.removed ?? data?.count;
+      toast.success("Orphan files cleaned", {
+        description:
+          typeof removed === "number"
+            ? `${removed} orphan file(s) removed.`
+            : "Orphan file cleanup complete.",
+      });
+    } catch (err) {
+      console.error("Failed to clean orphan files:", err);
+      toast.error("Failed to clean orphan files");
+    } finally {
+      setCleanOrphansLoading(false);
+    }
+  }, []);
+
   return (
     <>
       {/* Stats */}
@@ -323,59 +546,241 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
 
       {/* Users toolbar */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search users by name, email, or phone..."
-            value={userSearch}
-            onChange={(e) => setUserSearch(e.target.value)}
-            className="pl-10 glass-input rounded-xl border-0"
-            aria-label="Search users"
-          />
-        </div>
+        {trashView ? (
+          <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-50/60 border border-red-200/60">
+            <AlertTriangle className="h-4 w-4 text-red-600 shrink-0" />
+            <span className="text-sm font-medium text-red-700">
+              Viewing soft-deleted users — these records will be permanently
+              purged after their retention window.
+            </span>
+          </div>
+        ) : (
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search users by name, email, or phone..."
+              value={userSearch}
+              onChange={(e) => setUserSearch(e.target.value)}
+              className="pl-10 glass-input rounded-xl border-0"
+              aria-label="Search users"
+            />
+          </div>
+        )}
+        {trashView ? (
+          <Button
+            variant="destructive"
+            onClick={handlePurgeAll}
+            disabled={purgeAllLoading || deletedUsers.length === 0}
+            className="cursor-pointer shrink-0 rounded-xl"
+          >
+            {purgeAllLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
+            Purge All
+          </Button>
+        ) : (
+          <Button
+            onClick={openCreate}
+            className="cursor-pointer shrink-0 rounded-xl"
+          >
+            <UserPlus className="h-4 w-4" />
+            Add User
+          </Button>
+        )}
         <Button
-          onClick={openCreate}
+          variant={trashView ? "default" : "outline"}
+          onClick={toggleTrashView}
           className="cursor-pointer shrink-0 rounded-xl"
         >
-          <UserPlus className="h-4 w-4" />
-          Add User
+          <Trash2 className="h-4 w-4" />
+          {trashView ? "Active Users" : "Trash"}
         </Button>
         <Button
           variant="outline"
-          onClick={fetchUsers}
-          disabled={userLoading}
+          onClick={openCleanup}
+          className="cursor-pointer shrink-0 btn-glass rounded-xl border-0 hover:bg-white/95"
+        >
+          <FileWarning className="h-4 w-4" />
+          Cleanup
+        </Button>
+        <Button
+          variant="outline"
+          onClick={trashView ? fetchDeletedUsers : fetchUsers}
+          disabled={trashView ? trashLoading : userLoading}
           className="cursor-pointer shrink-0 btn-glass rounded-xl border-0 hover:bg-white/95"
         >
           <RefreshCw
-            className={cn("h-4 w-4", userLoading && "animate-spin")}
+            className={cn(
+              "h-4 w-4",
+              (trashView ? trashLoading : userLoading) && "animate-spin",
+            )}
           />
           Refresh
         </Button>
       </div>
 
-      {/* Users table */}
+      {/* Users table / Trash table */}
       <div className="rounded-2xl glass-card overflow-hidden">
-        {userLoading ? (
-          <div className="p-6">
-            <TableSkeleton rows={5} />
-          </div>
-        ) : userError ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-destructive/10 flex items-center justify-center mb-4">
-              <AlertCircle className="h-7 w-7 text-destructive" />
-            </div>
-            <p className="text-destructive font-medium mb-1">{userError}</p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchUsers}
-              className="mt-3 cursor-pointer btn-glass rounded-xl border-0"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Retry
-            </Button>
-          </div>
-        ) : filteredUsers.length === 0 ? (
+        {trashView
+          ? trashLoading ? (
+              <div className="p-6">
+                <TableSkeleton rows={5} />
+              </div>
+            ) : trashError ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-destructive/10 flex items-center justify-center mb-4">
+                  <AlertCircle className="h-7 w-7 text-destructive" />
+                </div>
+                <p className="text-destructive font-medium mb-1">
+                  {trashError}
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchDeletedUsers}
+                  className="mt-3 cursor-pointer btn-glass rounded-xl border-0"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Retry
+                </Button>
+              </div>
+            ) : deletedUsers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
+                  <CheckCircle2 className="h-7 w-7 text-emerald-600" />
+                </div>
+                <p className="text-muted-foreground">
+                  Trash is empty. No soft-deleted users.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <caption className="sr-only">
+                    Soft-deleted users — {deletedUsers.length} total
+                  </caption>
+                  <thead>
+                    <tr className="border-b border-slate-200/60 bg-white/30">
+                      <th className="text-left font-semibold text-xs uppercase tracking-wider text-muted-foreground px-5 py-3.5">
+                        Name
+                      </th>
+                      <th className="text-left font-semibold text-xs uppercase tracking-wider text-muted-foreground px-5 py-3.5">
+                        Email
+                      </th>
+                      <th className="text-left font-semibold text-xs uppercase tracking-wider text-muted-foreground px-5 py-3.5 whitespace-nowrap">
+                        Deleted Date
+                      </th>
+                      <th className="text-left font-semibold text-xs uppercase tracking-wider text-muted-foreground px-5 py-3.5 whitespace-nowrap text-center">
+                        Submissions
+                      </th>
+                      <th className="text-left font-semibold text-xs uppercase tracking-wider text-muted-foreground px-5 py-3.5 whitespace-nowrap text-center">
+                        Days Until Purge
+                      </th>
+                      <th className="text-left font-semibold text-xs uppercase tracking-wider text-muted-foreground px-5 py-3.5 w-32">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {deletedUsers.map((u) => {
+                      const isPurging = purgingIds.includes(u.id);
+                      return (
+                        <tr
+                          key={u.id}
+                          className="border-b border-slate-100/60 last:border-0 glass-row"
+                        >
+                          <td className="px-5 py-4 font-medium">{u.name}</td>
+                          <td className="px-5 py-4">
+                            <a
+                              href={`mailto:${u.email}`}
+                              className="inline-flex items-center gap-1 text-muted-foreground hover:text-accent transition-colors"
+                            >
+                              <Mail className="h-3 w-3" />
+                              {u.email}
+                            </a>
+                          </td>
+                          <td className="px-5 py-4 whitespace-nowrap text-muted-foreground">
+                            <span className="inline-flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {u.deletedAt ? formatDate(u.deletedAt) : "—"}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 text-center">
+                            <span
+                              className={
+                                "inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold " +
+                                (u.submissionCount > 0
+                                  ? "bg-accent/15 text-accent"
+                                  : "bg-slate-100 text-muted-foreground")
+                              }
+                            >
+                              <Inbox className="h-3 w-3" />
+                              {u.submissionCount}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 text-center">
+                            <span
+                              className={
+                                "inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-semibold " +
+                                (u.daysUntilPurge <= 1
+                                  ? "bg-red-100 text-red-700"
+                                  : u.daysUntilPurge <= 3
+                                    ? "bg-amber-100 text-amber-700"
+                                    : "bg-slate-100 text-muted-foreground")
+                              }
+                            >
+                              {u.daysUntilPurge} day
+                              {u.daysUntilPurge === 1 ? "" : "s"}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4">
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handlePurgeUser(u.id)}
+                              disabled={isPurging}
+                              className="cursor-pointer rounded-xl"
+                            >
+                              {isPurging ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <>
+                                  <Trash2 className="h-4 w-4" />
+                                  Purge Now
+                                </>
+                              )}
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )
+          : userLoading ? (
+              <div className="p-6">
+                <TableSkeleton rows={5} />
+              </div>
+            ) : userError ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-destructive/10 flex items-center justify-center mb-4">
+                  <AlertCircle className="h-7 w-7 text-destructive" />
+                </div>
+                <p className="text-destructive font-medium mb-1">{userError}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchUsers}
+                  className="mt-3 cursor-pointer btn-glass rounded-xl border-0"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Retry
+                </Button>
+              </div>
+            ) : filteredUsers.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-14 h-14 rounded-2xl bg-slate-100/60 flex items-center justify-center mb-4">
               <User className="h-7 w-7 text-muted-foreground/50" />
@@ -980,6 +1385,154 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
                 ) : (
                   "Delete User"
                 )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Data cleanup modal */}
+      {cleanupOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setCleanupOpen(false)}
+        >
+          <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-md" />
+          <div
+            className="relative w-full max-w-md rounded-3xl glass-strong p-7 animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center">
+                  <FileWarning className="h-5 w-5 text-amber-600" />
+                </div>
+                <h2 className="text-lg font-semibold">Data Cleanup</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCleanupOpen(false)}
+                className="p-2 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {cleanupStatsLoading ? (
+              <div className="flex items-center justify-center py-10">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : cleanupStats ? (
+              <div className="space-y-4">
+                <div className="rounded-2xl bg-slate-50/60 border border-slate-200/60 p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Soft-deleted users
+                    </span>
+                    <span className="text-sm font-bold text-slate-900">
+                      {cleanupStats.softDeletedUsers}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Soft-deleted submissions
+                    </span>
+                    <span className="text-sm font-bold text-slate-900">
+                      {cleanupStats.softDeletedSubmissions}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Soft-deleted consultations
+                    </span>
+                    <span className="text-sm font-bold text-slate-900">
+                      {cleanupStats.softDeletedConsultations}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl bg-red-50/60 border border-red-200/60 p-4">
+                  <div className="flex items-start gap-2 mb-3">
+                    <AlertTriangle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+                    <p className="text-xs text-red-700">
+                      Purging permanently removes soft-deleted users, their
+                      submissions, consultations, and associated files. This
+                      action cannot be undone.
+                    </p>
+                  </div>
+                  <Button
+                    variant="destructive"
+                    onClick={handleCleanupPurgeAll}
+                    disabled={
+                      cleanupPurgeLoading ||
+                      (cleanupStats.softDeletedUsers === 0 &&
+                        cleanupStats.softDeletedSubmissions === 0 &&
+                        cleanupStats.softDeletedConsultations === 0)
+                    }
+                    className="cursor-pointer rounded-xl w-full"
+                  >
+                    {cleanupPurgeLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Trash2 className="h-4 w-4" />
+                        Purge All Soft-deleted Records
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <div className="rounded-2xl bg-amber-50/60 border border-amber-200/60 p-4">
+                  <div className="flex items-start gap-2 mb-3">
+                    <FileWarning className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                    <p className="text-xs text-amber-700">
+                      Remove uploaded files that are no longer referenced by any
+                      submission.
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleCleanOrphans}
+                    disabled={cleanOrphansLoading}
+                    className="cursor-pointer btn-glass rounded-xl w-full border-0 hover:bg-white/95"
+                  >
+                    {cleanOrphansLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <FileWarning className="h-4 w-4" />
+                        Clean Orphan Files
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <AlertCircle className="h-8 w-8 text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  Failed to load cleanup statistics.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchTrashStats}
+                  className="mt-3 cursor-pointer btn-glass rounded-xl border-0"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Retry
+                </Button>
+              </div>
+            )}
+
+            <div className="flex justify-end pt-4 mt-2 border-t border-border">
+              <Button
+                variant="outline"
+                onClick={() => setCleanupOpen(false)}
+                className="cursor-pointer btn-glass rounded-xl border-0"
+              >
+                Close
               </Button>
             </div>
           </div>

@@ -14,7 +14,6 @@ import {
   Star,
   ArrowRight,
   Target,
-  Heart,
   Zap,
   Search,
   FileText,
@@ -35,10 +34,28 @@ import { STUDY_TESTIMONIALS } from "@/data/testimonials";
 import { FAQ_SECTIONS } from "@/data/faq";
 
 export const metadata: Metadata = {
-  title: "Study in China — Scholarships, Admissions & Guidance",
+  title: "Study in China — Scholarships, Admissions & Visa Guidance",
   description:
-    "Apply to study in China with 86 Connect. Scholarship applications, university admissions, and end-to-end study abroad guidance. 200+ partner universities, 98% success rate.",
+    "Study in China with 86 Connect. We help international students with scholarship applications (CSC, provincial, university), university admissions, visa processing, and accommodation. 200+ partner universities, 98% success rate. Free consultation available.",
   alternates: { canonical: "/study-in-china" },
+  keywords: [
+    "Study in China", "Study abroad China", "Chinese university application", "CSC scholarship",
+    "China scholarship", "China student visa", "International students China", "China university admission",
+    "Study in Beijing", "China education consultancy", "MBBS in China", "Master in China", "PhD in China",
+  ],
+  openGraph: {
+    title: "Study in China — Scholarships, Admissions & Visa Guidance | 86 Connect",
+    description:
+      "Apply to study in China with expert guidance. 200+ partner universities, 98% success rate. Scholarships, admissions, visas, and accommodation — all covered.",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Study in China with 86 Connect" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Study in China — Scholarships, Admissions & Visa Guidance",
+    description:
+      "Study in China with 86 Connect. 200+ partner universities, 98% success rate. Scholarships, admissions, visas covered.",
+    images: ["/og-image.jpg"],
+  },
 };
 
 const SUB_LINKS = [
@@ -744,7 +761,7 @@ export default async function StudyInChinaPage() {
                 Application fee is non-refundable under all circumstances.
                 Service fee is generally non-refundable; in limited cases where
                 a student cannot be admitted upon arrival, partial refunds may
-                be considered. No refund if issues arise due to the student's
+                be considered. No refund if issues arise due to the student&apos;s
                 actions or negligence.
               </p>
             </div>
@@ -844,7 +861,7 @@ export default async function StudyInChinaPage() {
                 CSCA Entrance Examination
               </h4>
               <p className="text-sm text-blue-900 leading-relaxed font-medium">
-                For undergraduate (bachelor's degree) applicants, the China
+                For undergraduate (bachelor&apos;s degree) applicants, the China
                 Scholastic Competency Assessment (CSCA) is a mandatory
                 standardized entrance examination. Subjects depend on the
                 intended course of study. Strong performance significantly

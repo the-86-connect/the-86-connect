@@ -37,6 +37,8 @@ export function BookingPopup() {
   useEffect(() => {
     try {
       if (sessionStorage.getItem(SESSION_KEY) === "1") {
+        // One-time sessionStorage hydration on mount.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setDismissedSession(true);
       }
     } catch {

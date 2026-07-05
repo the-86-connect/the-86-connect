@@ -36,6 +36,8 @@ export function WhatsAppButton() {
   const [showHint, setShowHint] = useState(false);
   const [hintIndex, setHintIndex] = useState(0);
   const hintTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Ref to break recursive self-reference in startHintCycle.
+  const startHintCycleRef = useRef<() => void>(() => {});
 
   const startHintCycle = useCallback(() => {
     // Show hint
@@ -46,10 +48,15 @@ export function WhatsAppButton() {
       // Rotate to next message, wait 1 minute, then show again
       hintTimeoutRef.current = setTimeout(() => {
         setHintIndex((prev) => (prev + 1) % HINT_MESSAGES.length);
-        startHintCycle();
+        startHintCycleRef.current();
       }, HIDE_DURATION_MS);
     }, SHOW_DURATION_MS);
   }, []);
+
+  // Keep ref in sync so the recursive call inside startHintCycle resolves to latest.
+  useEffect(() => {
+    startHintCycleRef.current = startHintCycle;
+  }, [startHintCycle]);
 
   useEffect(() => {
     // Initial delay before first hint
@@ -63,6 +70,7 @@ export function WhatsAppButton() {
   // Don't show hints while chat is open
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowHint(false);
       if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
     } else {
@@ -112,7 +120,7 @@ export function WhatsAppButton() {
             <div className="bg-white rounded-2xl rounded-tl-none px-3.5 py-2.5 shadow-sm max-w-[85%] mb-3">
               <p className="text-xs text-foreground/70 mb-1 font-medium">86 Connect Team</p>
               <p className="text-sm text-foreground leading-relaxed">
-                Hi there! 👋 Have questions about studying in China or product sourcing? We're here to help!
+                Hi there! 👋 Have questions about studying in China or product sourcing? We&apos;re here to help!
               </p>
               <p className="text-[10px] text-foreground/40 mt-1 text-right">Just now</p>
             </div>

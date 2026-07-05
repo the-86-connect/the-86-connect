@@ -19,7 +19,7 @@ export interface Attachment {
   storageProvider: "cloudinary" | "r2";
 }
 
-export interface UploadedAttachment extends Attachment {}
+export type UploadedAttachment = Attachment;
 
 export interface SubmissionResponse {
   success: boolean;

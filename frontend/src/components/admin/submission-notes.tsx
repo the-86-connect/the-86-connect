@@ -61,6 +61,8 @@ export function SubmissionNotes({ submissionId }: SubmissionNotesProps) {
   }, [submissionId]);
 
   useEffect(() => {
+    // Data fetch; setState happens asynchronously after await.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNotes();
   }, [fetchNotes]);
 

@@ -407,6 +407,8 @@ export default function AccountPage() {
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
     if (hash === "settings" || hash === "submissions" || hash === "bookings") {
+      // One-time hash sync on mount.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab(hash as AccountTab);
     }
   }, []);
@@ -465,6 +467,8 @@ export default function AccountPage() {
       router.push("/login");
       return;
     }
+    // Data fetch; setState happens asynchronously after await.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadProfile();
   }, [authLoading, isAuthenticated, router, loadProfile]);
 
@@ -1238,7 +1242,7 @@ export default function AccountPage() {
                             Delete Account
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            Permanently delete your account and data
+                            Deactivate your account and schedule data deletion
                           </p>
                         </div>
                       </div>
@@ -1257,12 +1261,13 @@ export default function AccountPage() {
                         <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
                         <div>
                           <p className="font-bold text-sm text-red-700">
-                            This action cannot be undone
+                            Account Deactivation
                           </p>
                           <p className="text-xs text-red-600/80 mt-1">
-                            Your account will be permanently deleted. Your
-                            submissions will be anonymized but kept in our
-                            records.
+                            Your account will be deactivated immediately and
+                            your data scheduled for permanent deletion in 7 days.
+                            Contact us within 7 days if you wish to recover your
+                            account.
                           </p>
                         </div>
                       </div>
@@ -1292,7 +1297,7 @@ export default function AccountPage() {
                           {deleteLoading ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
-                            "Permanently Delete Account"
+                            "Deactivate Account"
                           )}
                         </Button>
                         <Button

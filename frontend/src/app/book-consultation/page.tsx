@@ -6,12 +6,20 @@ import { BookingPageClient } from "./booking-page-client";
 export const metadata: Metadata = {
   title: "Book a Free Consultation",
   description:
-    "Schedule a free 30-minute consultation with 86 Connect. Get personalized guidance on studying in China or sourcing products. No commitment required.",
+    "Schedule a free 30-minute consultation with 86 Connect. Get personalized guidance on studying in China or sourcing products from China. No commitment required — book now.",
   alternates: { canonical: "/book-consultation" },
   openGraph: {
-    title: "Book a Free Consultation",
+    title: "Book a Free Consultation | 86 Connect",
     description:
-      "Schedule a free 30-minute consultation with 86 Connect. Get personalized guidance on studying in China or sourcing products.",
+      "Schedule a free 30-minute consultation with 86 Connect. Get personalized guidance on studying in China or sourcing products from China. No commitment required.",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Book a Free Consultation with 86 Connect" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Book a Free Consultation | 86 Connect",
+    description:
+      "Schedule a free 30-minute consultation. Get personalized guidance on studying in China or sourcing products.",
+    images: ["/og-image.jpg"],
   },
 };
 

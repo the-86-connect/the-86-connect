@@ -9,9 +9,22 @@ import { FAQ_SECTIONS } from "@/data/faq";
 export const metadata: Metadata = {
   title: "Frequently Asked Questions",
   description:
-    "Find answers to common questions about studying in China (admissions, scholarships, visas) and product sourcing from China (suppliers, quality control, shipping).",
+    "Find answers to common questions about studying in China (admissions, scholarships, CSC, visas) and product sourcing from China (suppliers, quality control, shipping, costs).",
   alternates: {
     canonical: "/faq",
+  },
+  openGraph: {
+    title: "Frequently Asked Questions | 86 Connect",
+    description:
+      "Get answers about studying in China and sourcing products from China. Scholarships, admissions, suppliers, quality control, shipping, costs, and more.",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "86 Connect FAQ" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Frequently Asked Questions | 86 Connect",
+    description:
+      "Get answers about studying in China and sourcing products from China. Everything you need to know.",
+    images: ["/og-image.jpg"],
   },
   robots: {
     index: true,

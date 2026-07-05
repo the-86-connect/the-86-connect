@@ -31,6 +31,8 @@ export function useFormAutosave<T extends Record<string, unknown>>({
         return;
       }
       reset(parsed.data as Partial<T>);
+      // One-time draft hydration from localStorage on mount.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDraftAvailable(true);
       setLastSaved(new Date(parsed.savedAt));
     } catch {
