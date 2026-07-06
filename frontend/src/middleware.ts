@@ -7,13 +7,14 @@ const BACKEND_URL =
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const host = request.headers.get("host") || "";
+  const hostname = host.split(":")[0].toLowerCase();
 
   if (pathname.startsWith("/api/") || pathname === "/health") {
     const target = `${BACKEND_URL}${pathname}${search}`;
     return NextResponse.rewrite(target);
   }
 
-  if (host === "admin.the86connect.com") {
+  if (hostname === "admin.the86connect.com" || hostname === "www.admin.the86connect.com") {
     if (
       pathname.startsWith("/_next") ||
       pathname.startsWith("/admin") ||
@@ -21,7 +22,8 @@ export function middleware(request: NextRequest) {
       pathname.startsWith("/og-image") ||
       pathname.startsWith("/fonts") ||
       pathname.startsWith("/robots") ||
-      pathname.startsWith("/sitemap")
+      pathname.startsWith("/sitemap") ||
+      pathname === "/health"
     ) {
       return NextResponse.next();
     }

@@ -16,9 +16,11 @@ function csrfMiddleware(req: Request, res: Response, next: NextFunction): void {
     token = generateToken();
     res.cookie("csrf_token", token, {
       httpOnly: false,
-      sameSite: "strict",
+      sameSite: "lax",
       path: "/",
       secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+      domain: process.env.COOKIE_DOMAIN || (process.env.NODE_ENV === "production" ? ".the86connect.com" : undefined),
+      maxAge: 24 * 60 * 60 * 1000,
     });
   }
 
