@@ -1,30 +1,32 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Handles admin subdomain rewrite: admin.the86connect.com → /admin/*
-export function proxy(request: NextRequest) {
+const BACKEND_URL =
+  process.env.BACKEND_PROXY_URL || "http://localhost:3001";
+
+export function middleware(request: NextRequest) {
+  const { pathname, search } = request.nextUrl;
   const host = request.headers.get("host") || "";
-  const url = request.nextUrl;
-  const { pathname } = url;
+
+  if (pathname.startsWith("/api/") || pathname === "/health") {
+    const target = `${BACKEND_URL}${pathname}${search}`;
+    return NextResponse.rewrite(target);
+  }
 
   if (host === "admin.the86connect.com") {
-    // Skip paths that should NOT be rewritten
     if (
       pathname.startsWith("/_next") ||
-      pathname.startsWith("/api") ||
       pathname.startsWith("/admin") ||
       pathname.startsWith("/favicon") ||
       pathname.startsWith("/og-image") ||
       pathname.startsWith("/fonts") ||
       pathname.startsWith("/robots") ||
-      pathname.startsWith("/sitemap") ||
-      pathname.startsWith("/health")
+      pathname.startsWith("/sitemap")
     ) {
       return NextResponse.next();
     }
 
-    // Rewrite root and other paths to /admin/*
-    const newUrl = url.clone();
+    const newUrl = request.nextUrl.clone();
     newUrl.pathname = `/admin${pathname === "/" ? "" : pathname}`;
     return NextResponse.rewrite(newUrl);
   }
@@ -33,7 +35,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Exclude static assets, API routes, and health checks from proxy.
-  // API routes are handled by the catch-all route handler at app/api/[...path]/route.ts.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/|health).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+  ],
 };

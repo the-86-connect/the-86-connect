@@ -1,11 +1,6 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
-// BACKEND_PROXY_URL points to the Render backend service.
-// For Vercel deployment, set this in Vercel dashboard → Environment Variables.
-// For local dev, set in .env.local or leave blank to default to localhost:3001.
-const BACKEND_URL = process.env.BACKEND_PROXY_URL || "http://localhost:3001";
-
 const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
@@ -44,18 +39,6 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
           { key: "Access-Control-Allow-Origin", value: "*" },
         ],
-      },
-    ];
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${BACKEND_URL}/api/:path*`,
-      },
-      {
-        source: "/health",
-        destination: `${BACKEND_URL}/health`,
       },
     ];
   },
