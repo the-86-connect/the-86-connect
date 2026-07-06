@@ -90,16 +90,19 @@ Add these records in Namecheap → **Advanced DNS**.
 
 ---
 
-## 2. Render Setup (Backend)
+## 2. Render Setup (Backend — Docker)
 
 ### 2.1 Web Service Configuration
 
+The backend deploys as a **Docker container** on Render using `render.yaml`.
+
 1. Import the GitHub repository into Render
-2. Runtime: **Node.js**
-3. Root Directory: `backend`
-4. Build Command: `npm ci && npm run build`
-5. Start Command: `node dist/index.js`
-6. Instance Type: **Starter** (or higher for production)
+2. Runtime: **Docker** (auto-detected from `render.yaml`)
+3. Dockerfile: `backend/Dockerfile` (multi-stage: deps → build → prod)
+4. Root Directory: `backend`
+5. Port: `3001`
+6. Health check: `GET /health` (built into Dockerfile)
+7. Instance Type: **Starter** (or higher for production)
 
 ### 2.2 Environment Variables
 
@@ -108,11 +111,11 @@ Set these in Render → **Environment**:
 | Variable | Value | Notes |
 |----------|-------|-------|
 | `DATABASE_URL` | `postgresql://...` | PostgreSQL connection string from Render DB |
-| `JWT_SECRET` | *(long random string)* | JWT signing secret — keep it secure |
-| `ADMIN_PASSWORD` | *(admin bootstrap password)* | Used when no admin users exist yet |
+| `JWT_SECRET` | *(auto-generated)* | JWT signing secret — Render generates via `render.yaml` |
+| `ADMIN_PASSWORD` | *(set manually)* | Used when no admin users exist yet |
 | `CORS_ORIGIN` | `https://the86connect.com,https://admin.the86connect.com` | Comma-separated allowed origins |
 | `COOKIE_DOMAIN` | `.the86connect.com` | Cookie domain with leading dot for cross-subdomain access |
-| `PORT` | `10000` | Render default port |
+| `PORT` | `3001` | Fixed in Dockerfile |
 | `NODE_ENV` | `production` | — |
 | `CLOUDINARY_CLOUD_NAME` | *(your Cloudinary cloud name)* | For file uploads |
 | `CLOUDINARY_API_KEY` | *(your Cloudinary API key)* | For file uploads |
@@ -120,13 +123,15 @@ Set these in Render → **Environment**:
 | `CLOUDINARY_FOLDER` | `86connects` | Cloudinary upload folder |
 | `RESEND_API_KEY` | *(your Resend API key)* | For email notifications |
 | `NOTIFY_EMAIL` | `info@the86connect.com` | Admin notification email |
+| `FROM_EMAIL` | *(your verified Resend email)* | Sender email address |
 
 ### 2.3 PostgreSQL Database
 
 1. Create a PostgreSQL database on Render
-2. Copy the `DATABASE_URL` (internal URL)
-3. Add it to the backend web service environment variables
-4. The backend uses `prisma db push` for schema sync (not migrations)
+2. Copy the **internal** `DATABASE_URL`
+3. Set it in the backend web service environment variables
+4. Prisma client is generated during Docker build
+5. Run `npx prisma db push` after first deploy (use Render shell)
 
 ### 2.4 Custom API Domain
 
@@ -137,6 +142,17 @@ To use `api.the86connect.com` instead of the default Render URL:
 3. Follow Render's instructions to add the CNAME record in Namecheap
 4. Wait for SSL certificate provisioning
 5. Update `BACKEND_PROXY_URL` in Vercel to `https://api.the86connect.com`
+
+### 2.5 Local Docker Testing (Optional)
+
+Use Docker Compose for local production-like testing:
+
+```bash
+docker-compose up -d
+docker-compose exec backend npx prisma db push
+```
+
+This starts PostgreSQL + backend together using `docker-compose.yml`.
 
 ---
 
@@ -257,7 +273,7 @@ SENTRY_PROJECT=
 SENTRY_AUTH_TOKEN=
 ```
 
-### Backend (Render)
+### Backend (Render — Docker)
 
 ```env
 # Database
@@ -271,8 +287,8 @@ COOKIE_DOMAIN=.the86connect.com
 # CORS (comma-separated)
 CORS_ORIGIN=https://the86connect.com,https://admin.the86connect.com
 
-# Server
-PORT=10000
+# Server (port 3001 fixed in Dockerfile)
+PORT=3001
 NODE_ENV=production
 
 # File Storage (Cloudinary)
@@ -284,6 +300,7 @@ CLOUDINARY_FOLDER=86connects
 # Email (Resend)
 RESEND_API_KEY=
 NOTIFY_EMAIL=info@the86connect.com
+FROM_EMAIL=your-verified@email.com
 ```
 
 ---
