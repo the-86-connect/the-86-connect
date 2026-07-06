@@ -32,5 +32,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Skip middleware for static assets AND api routes (api routes are proxied via next.config.ts rewrites)
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/).*)"],
 };
