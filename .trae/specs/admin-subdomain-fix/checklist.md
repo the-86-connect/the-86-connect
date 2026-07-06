@@ -7,47 +7,47 @@
 - [ ] Render backend is accessible at its configured URL
 
 ## Middleware & Routing
-- [ ] `middleware.ts` correctly detects `admin.the86connect.com` from host header
-- [ ] Middleware matcher includes `/api/*` routes for proxying
-- [ ] Middleware handles host header variations (with/without port, www prefix)
-- [ ] Admin subdomain rewrites to `/admin/*` path correctly
-- [ ] API routes are proxied to backend on both main domain and admin subdomain
-- [ ] Static assets (`_next`, `favicon`, `og-image`, `fonts`) are excluded from subdomain rewrite
-- [ ] `robots.txt` and `sitemap.xml` work correctly on both domains
+- [x] `middleware.ts` correctly detects `admin.the86connect.com` from host header
+- [x] Middleware matcher includes `/api/*` routes for proxying
+- [x] Middleware handles host header variations (with/without port, www prefix)
+- [x] Admin subdomain rewrites to `/admin/*` path correctly
+- [x] API routes are proxied to backend on both main domain and admin subdomain
+- [x] Static assets (`_next`, `favicon`, `og-image`, `fonts`) are excluded from subdomain rewrite
+- [x] `robots.txt` and `sitemap.xml` work correctly on both domains
 
 ## API Proxy
-- [ ] Single source of truth for API proxying (not both vercel.json and middleware)
+- [x] Single source of truth for API proxying (not both vercel.json and middleware)
 - [ ] `/api/*` requests return correct responses (not 404 DEPLOYMENT_NOT_FOUND)
-- [ ] `/health` endpoint is proxied correctly
-- [ ] POST, GET, PATCH, DELETE methods all work through proxy
-- [ ] Request headers are correctly forwarded to backend
-- [ ] Response headers (including Set-Cookie) are correctly returned to client
-- [ ] Request body is correctly forwarded (JSON parsing works)
+- [x] `/health` endpoint is proxied correctly
+- [x] POST, GET, PATCH, DELETE methods all work through proxy
+- [x] Request headers are correctly forwarded to backend
+- [x] Response headers (including Set-Cookie) are correctly returned to client
+- [x] Request body is correctly forwarded (JSON parsing works)
 
 ## Cookie Configuration
-- [ ] `admin_token` cookie has `httpOnly: true`
-- [ ] `admin_token` cookie has `secure: true` in production
-- [ ] `admin_token` cookie has `sameSite: "lax"` (appropriate for same-origin proxy)
-- [ ] `admin_token` cookie has `domain: ".the86connect.com"` for cross-subdomain access
-- [ ] `admin_token` cookie has `path: "/"`
-- [ ] Cookie `maxAge` is set to 24 hours
+- [x] `admin_token` cookie has `httpOnly: true`
+- [x] `admin_token` cookie has `secure: true` in production
+- [x] `admin_token` cookie has `sameSite: "lax"` (appropriate for same-origin proxy)
+- [x] `admin_token` cookie has `domain: ".the86connect.com"` for cross-subdomain access
+- [x] `admin_token` cookie has `path: "/"`
+- [x] Cookie `maxAge` is set to 24 hours
 - [ ] Cookie is correctly set on both `the86connect.com` and `admin.the86connect.com`
 - [ ] Cookie is accessible on both subdomains after login
 
 ## CORS Configuration
 - [ ] Backend CORS allows `https://the86connect.com`
 - [ ] Backend CORS allows `https://admin.the86connect.com`
-- [ ] CORS preflight (OPTIONS) requests return 200 with correct headers
-- [ ] `Access-Control-Allow-Credentials: true` is set
-- [ ] CORS error responses also include CORS headers
-- [ ] `CORS_ORIGIN` env var is documented in `.env.example`
+- [x] CORS preflight (OPTIONS) requests return 200 with correct headers
+- [x] `Access-Control-Allow-Credentials: true` is set
+- [x] CORS error responses also include CORS headers
+- [x] `CORS_ORIGIN` env var is documented in `.env.example`
 
 ## CSRF Protection
-- [ ] CSRF cookie is set with correct domain for cross-subdomain access
+- [x] CSRF cookie is set with correct domain for cross-subdomain access
 - [ ] CSRF token endpoint works on admin subdomain
-- [ ] POST requests include `X-CSRF-Token` header
-- [ ] Backend validates CSRF token correctly
-- [ ] CSRF middleware skips GET/HEAD/OPTIONS methods
+- [x] POST requests include `X-CSRF-Token` header
+- [x] Backend validates CSRF token correctly
+- [x] CSRF middleware skips GET/HEAD/OPTIONS methods
 
 ## Authentication Flow
 - [ ] Admin login page loads on `admin.the86connect.com/login`
@@ -75,8 +75,8 @@
 - [ ] Product sourcing form still works
 
 ## Build & Deploy
-- [ ] Frontend builds successfully
-- [ ] No TypeScript errors
-- [ ] No ESLint errors
-- [ ] Middleware is correctly detected by Next.js build
-- [ ] `BACKEND_PROXY_URL` env var is documented
+- [x] Frontend builds successfully
+- [x] No TypeScript errors
+- [x] No ESLint errors
+- [x] Middleware is correctly detected by Next.js build
+- [x] `BACKEND_PROXY_URL` env var is documented
