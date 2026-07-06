@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Mail, Loader2, ArrowLeft, CheckCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { API_URL } from "@/lib/api";
+import { API_URL, getCsrfToken } from "@/lib/api";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

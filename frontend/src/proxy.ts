@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // Next.js 16+ renamed `middleware.ts` to `proxy.ts` (same functionality).
+// The exported function must be named `proxy` (not `middleware`).
 // This file handles subdomain-based rewrites for admin.the86connect.com.
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const host = request.headers.get("host") || "";
   const url = request.nextUrl;
   const { pathname } = url;

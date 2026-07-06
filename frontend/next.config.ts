@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  // Tell Turbopack the workspace root so it doesn't get confused by multiple lockfiles
+  turbopack: {
+    root: __dirname,
+  },
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },

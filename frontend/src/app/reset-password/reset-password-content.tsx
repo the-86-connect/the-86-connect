@@ -8,7 +8,7 @@ import { Lock, Loader2, ArrowLeft, KeyRound } from "lucide-react";
 import { useUserAuth } from "@/context/user-auth-context";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { API_URL } from "@/lib/api";
+import { API_URL, getCsrfToken } from "@/lib/api";
 
 export function ResetPasswordContent() {
   const [password, setPassword] = useState("");
