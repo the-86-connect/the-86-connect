@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+// Handles admin subdomain rewrite: admin.the86connect.com → /admin/*
+export function proxy(request: NextRequest) {
   const host = request.headers.get("host") || "";
   const url = request.nextUrl;
   const { pathname } = url;
 
-  // Only handle admin subdomain rewrites.
-  // API routes are handled by next.config.ts rewrites (afterFiles).
   if (host === "admin.the86connect.com") {
-    // Skip paths that should NOT be rewritten to /admin/*
+    // Skip paths that should NOT be rewritten
     if (
       pathname.startsWith("/_next") ||
       pathname.startsWith("/api") ||
@@ -34,8 +33,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Exclude static assets, API routes, and health checks from middleware.
-  // API routes and /health are proxied via next.config.ts afterFiles rewrites.
-  // If middleware runs on them, it blocks the afterFiles rewrite from firing.
+  // Exclude static assets, API routes, and health checks from proxy.
+  // API routes are handled by the catch-all route handler at app/api/[...path]/route.ts.
   matcher: ["/((?!_next/static|_next/image|favicon.ico|api/|health).*)"],
 };

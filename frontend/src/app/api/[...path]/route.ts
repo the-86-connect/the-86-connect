@@ -17,7 +17,8 @@ async function proxyRequest(
   { params }: { params: Promise<{ path: string[] }> },
 ) {
   const { path } = await params;
-  const searchParams = request.nextUrl.searchParams.toString();
+  const url = new URL(request.url);
+  const searchParams = url.searchParams.toString();
   const apiPath = `/api/${path.join("/")}${searchParams ? `?${searchParams}` : ""}`;
   const targetUrl = `${BACKEND_URL}${apiPath}`;
 
