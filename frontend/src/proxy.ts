@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+// Next.js 16+ renamed `middleware.ts` to `proxy.ts` (same functionality).
+// This file handles subdomain-based rewrites for admin.the86connect.com.
+
 export function middleware(request: NextRequest) {
   const host = request.headers.get("host") || "";
   const url = request.nextUrl;
@@ -32,6 +35,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Skip middleware for static assets AND api routes (api routes are proxied via next.config.ts rewrites)
+  // Skip proxy for static assets AND api routes (api routes are proxied via next.config.ts rewrites)
   matcher: ["/((?!_next/static|_next/image|favicon.ico|api/).*)"],
 };
