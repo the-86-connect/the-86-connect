@@ -1,27 +1,25 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Next.js 16+ renamed `middleware.ts` to `proxy.ts` (same functionality).
-// The exported function must be named `proxy` (not `middleware`).
-// This file handles subdomain-based rewrites for admin.the86connect.com.
-
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const host = request.headers.get("host") || "";
   const url = request.nextUrl;
   const { pathname } = url;
 
-  // Admin subdomain rewrite: admin.the86connect.com → /admin/*
+  // Only handle admin subdomain rewrites.
+  // API routes are handled by next.config.ts rewrites (afterFiles).
   if (host === "admin.the86connect.com") {
-    // Skip paths that should NOT be rewritten
+    // Skip paths that should NOT be rewritten to /admin/*
     if (
       pathname.startsWith("/_next") ||
       pathname.startsWith("/api") ||
-      pathname.startsWith("/admin") || // already admin
+      pathname.startsWith("/admin") ||
       pathname.startsWith("/favicon") ||
       pathname.startsWith("/og-image") ||
       pathname.startsWith("/fonts") ||
       pathname.startsWith("/robots") ||
-      pathname.startsWith("/sitemap")
+      pathname.startsWith("/sitemap") ||
+      pathname.startsWith("/health")
     ) {
       return NextResponse.next();
     }
@@ -36,6 +34,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Skip proxy for static assets AND api routes (api routes are proxied via next.config.ts rewrites)
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/).*)"],
+  // Run middleware on everything except static assets.
+  // API routes are excluded INSIDE the middleware (above) so afterFiles rewrites fire.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
