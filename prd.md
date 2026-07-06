@@ -1,727 +1,424 @@
-# Requirements Document
+# 86 Connects — Product Requirements Document
 
 ## 1. Application Overview
 
-**Application Name:** 86 Connects Official Website
+**Application Name:** 86 Connects
 
-**Description:** A professional corporate website providing two core services: Study in China assistance and Product Sourcing from China. The website serves as a digital gateway for international clients seeking educational opportunities or business procurement solutions in China. The website includes an admin dashboard for managing contact form submissions.
+**Tagline:** Bridging the World to China
 
----
+**Domain:** [the86connect.com](https://the86connect.com)
 
-## 2. Users and Usage Scenarios
-
-### Target Users
-
-- International students seeking study opportunities in China
-- Business professionals and companies looking to source products from China
-- Educational consultants and procurement agents
-- Website administrators managing contact form submissions
-
-### Core Usage Scenarios
-
-- Users browse service offerings and company information
-- Users learn about Study in China services (scholarships, admissions, guidance)
-- Users explore Product Sourcing services (supplier finding, procurement, logistics)
-- Users submit contact inquiries through the contact form
-- Users access company background and contact information
-- Administrators log in to view and manage contact form submissions
+**Description:** A full-service digital platform providing two core services: **Study in China** assistance and **Product Sourcing from China**. The platform serves as a comprehensive gateway for international clients seeking educational opportunities or business procurement solutions in China. It includes a sophisticated admin dashboard, user authentication, consultation booking, real-time notifications, and full SEO optimization.
 
 ---
 
-## 3. Page Structure and Functional Description
-
-### Page Structure
-
-```
-86 Connects Official Website
-├── Public Pages (Single-page application)
-│   ├── Hero/Landing Section
-│   ├── Study in China Section
-│   │   └── Study in China Inquiry Form
-│   ├── Product Sourcing Section
-│   │   └── Product Sourcing Inquiry Form
-│   ├── About Us Section
-│   └── Contact Section
-│       └── General Inquiry Form
-└── Admin Pages
-    ├── Admin Login Page (/admin/login)
-    └── Admin Dashboard (/admin)
-```
-
-### 3.1 Hero/Landing Section
-
-**Purpose:** Introduce the company and guide users to core services
-
-**Content Elements:**
-
-- Company name display: 「86 Connects」
-- Tagline and brief company introduction
-- Hero image (hero_banner.jpg)
-- Navigation cards for both core services
-- Call-to-action buttons linking to respective service sections
-- Smooth scroll navigation menu (Home, Study in China, Product Sourcing, About Us, Contact)
-
-**Functional Description:**
-
-- Display company branding and value proposition
-- Display hero image for visual appeal
-- Provide quick navigation to service sections via cards and CTA buttons
-- Enable smooth scrolling to any section through navigation menu
-
-### 3.2 Study in China Section
-
-**Purpose:** Present educational services for international students and collect study-specific inquiries
-
-**Content Elements:**
-
-- Section title: 「Study in China」
-- Service overview description
-- Service image (study_in_china.jpg)
-- Three service offerings:
-  - Scholarship Applications
-  - University Admissions Assistance
-  - Study Abroad Guidance
-- **Study in China Inquiry Form** with fields:
-  - Full Name (required)
-  - Email (required)
-  - Phone (optional)
-  - Nationality (required)
-  - Current Education Level dropdown (required, options: High School, Bachelor's, Master's, PhD, Other)
-  - Service Type dropdown (required, options: Scholarship Applications, University Admissions Assistance, Study Abroad Guidance)
-  - Preferred Field of Study (optional)
-  - Preferred Province/City (optional)
-  - Message / Additional Details (required)
-  - Submit button
-- Submission confirmation message area
-- Error message display area
-
-**Functional Description:**
-
-- Display comprehensive information about Study in China services
-- Display service image for visual appeal
-- Collect study-specific inquiries through dedicated form
-- Validate required fields before submission
-- Store form submissions in backend database with type: `study_inquiry`
-- Display success confirmation message upon successful submission
-- Display error message if submission fails
-
-### 3.3 Product Sourcing Section
-
-**Purpose:** Present procurement and sourcing services and collect sourcing-specific inquiries
-
-**Content Elements:**
-
-- Section title: 「Product Sourcing」
-- Service overview description
-- Service image (product_sourcing.jpg)
-- Three service offerings:
-  - Supplier Finding
-  - Procurement Assistance
-  - Logistics Support
-- **Product Sourcing Inquiry Form** with fields:
-  - Company Name (optional)
-  - Full Name (required)
-  - Email (required)
-  - Phone (required)
-  - Country (required)
-  - Service Type dropdown (required, options: Supplier Finding, Procurement Assistance, Logistics Support)
-  - Product Category (optional) — e.g., Electronics, Textiles, Machinery, Furniture, etc.
-  - Target Order Quantity (optional) — e.g., Sample, Small (100-500), Medium (500-5000), Large (5000+)
-  - Message / Product Details (required)
-  - Submit button
-- Submission confirmation message area
-- Error message display area
-
-**Functional Description:**
-
-- Display comprehensive information about Product Sourcing services
-- Display service image for visual appeal
-- Collect sourcing-specific inquiries through dedicated form
-- Validate required fields before submission
-- Store form submissions in backend database with type: `sourcing_inquiry`
-- Display success confirmation message upon successful submission
-- Display error message if submission fails
-
-### 3.4 About Us Section
-
-**Purpose:** Establish company credibility and values
-
-**Content Elements:**
-
-- Company introduction
-- Mission statement
-- Core values
-- Key differentiators
-
-**Functional Description:**
-
-- Present company background and positioning
-- Communicate brand values and competitive advantages
-
-### 3.5 Contact Section (General Inquiry)
-
-**Purpose:** Provide a general contact form for inquiries not specific to either service, plus company contact information
-
-**Content Elements:**
-
-- Contact form with fields:
-  - Name (required)
-  - Email (required)
-  - Phone (optional)
-  - Service Interest dropdown (required, options: Study in China, Product Sourcing, General Inquiry)
-  - Subject (optional)
-  - Message (required)
-  - Submit button
-- Company contact information display (address, email, phone)
-- Submission confirmation message area
-- Error message display area
-
-**Functional Description:**
-
-- Collect general inquiry information through form
-- Validate required fields before submission
-- Store form submissions in backend database with type: `general_inquiry`
-- Display success confirmation message upon successful submission
-- Display error message if submission fails
-- Pre-select Service Interest dropdown value when user arrives via CTA buttons from service sections
-
-### 3.6 Navigation Menu
-
-**Purpose:** Provide site-wide navigation
-
-**Functional Description:**
-
-- Fixed or sticky navigation bar
-- Menu items: Home, Study in China, Product Sourcing, About Us, Contact
-- Smooth scroll to corresponding section when menu item clicked
-- Responsive design for mobile devices
-
-### 3.7 Admin Login Page (/admin/login)
-
-**Purpose:** Authenticate administrators before accessing dashboard
-
-**Content Elements:**
-
-- Page title: 「Admin Login」
-- Password input field (required)
-- Login button
-- Error message display area
-
-**Functional Description:**
-
-- Display password input field for admin authentication
-- Validate password on login button click
-- If password is correct, redirect to Admin Dashboard (/admin)
-- If password is incorrect, display error message
-- Store authentication state to maintain login session
-
-### 3.8 Admin Dashboard (/admin)
-
-**Purpose:** Enable administrators to view and manage contact form submissions
-
-**Content Elements:**
-
-- Page title: 「Admin Dashboard」
-- Logout button
-- Submissions table displaying:
-  - Submission Type (Study Inquiry, Sourcing Inquiry, General Inquiry)
-  - Name
-  - Email
-  - Phone
-  - Service Interest / Service Type
-  - Message
-  - Submission Date/Time
-- Sorting controls for table columns
-- Filtering controls for Submission Type (Study Inquiry, Sourcing Inquiry, General Inquiry, All)
-
-**Functional Description:**
-
-- Retrieve all contact form submissions from backend database
-- Display submissions in table format with Submission Type column
-- Enable sorting by any column (ascending/descending)
-- Enable filtering by Submission Type (Study Inquiry, Sourcing Inquiry, General Inquiry, All)
-- Logout button clears authentication state and redirects to home page
-- Route protection: redirect to Admin Login page if user is not authenticated
-
----
-
-## 4. Business Rules and Logic
-
-### 4.1 Form Types Overview
-
-The website has **3 forms** across 3 sections:
-
-| # | Form | Section | Submission Type | Endpoint |
-|---|------|---------|----------------|----------|
-| 1 | Study in China Inquiry | §3.2 Study in China | `study_inquiry` | `POST /api/contact/study` |
-| 2 | Product Sourcing Inquiry | §3.3 Product Sourcing | `sourcing_inquiry` | `POST /api/contact/sourcing` |
-| 3 | General Contact Form | §3.5 Contact | `general_inquiry` | `POST /api/contact` |
-
-### 4.2 Study in China Inquiry Form Validation
-
-**Required Fields:**
-- Full Name: Must not be empty, 2-100 characters
-- Email: Must not be empty, valid email format
-- Nationality: Must not be empty
-- Current Education Level: Must select one option (High School, Bachelor's, Master's, PhD, Other)
-- Service Type: Must select one option (Scholarship Applications, University Admissions Assistance, Study Abroad Guidance)
-- Message: Must not be empty, 10-500 characters
-
-**Optional Fields:**
-- Phone: No validation if left empty, 7-15 digits if provided
-- Preferred Field of Study: No validation
-- Preferred Province/City: No validation
-
-### 4.3 Product Sourcing Inquiry Form Validation
-
-**Required Fields:**
-- Full Name: Must not be empty, 2-100 characters
-- Email: Must not be empty, valid email format
-- Phone: Must not be empty, 7-15 digits
-- Country: Must not be empty
-- Service Type: Must select one option (Supplier Finding, Procurement Assistance, Logistics Support)
-- Message / Product Details: Must not be empty, 10-1000 characters
-
-**Optional Fields:**
-- Company Name: No validation
-- Product Category: No validation
-- Target Order Quantity: No validation
-
-### 4.4 General Contact Form Validation
-
-**Required Fields:**
-- Name: Must not be empty, 2-100 characters
-- Email: Must not be empty, valid email format
-- Service Interest: Must select one option (Study in China, Product Sourcing, General Inquiry)
-- Message: Must not be empty, 10-500 characters
-
-**Optional Fields:**
-- Phone: No validation if left empty, 7-15 digits if provided
-- Subject: No validation
-
-### 4.5 CTA Button Pre-selection Logic
-
-When user clicks CTA button in Study in China Section:
-
-- Page scrolls to Study in China Inquiry Form at top of section
-- Focus is set on the first form field
-
-When user clicks CTA button in Product Sourcing Section:
-
-- Page scrolls to Product Sourcing Inquiry Form at top of section
-- Focus is set on the first form field
-
-When user navigates to Contact Section via menu:
-
-- Page scrolls to Contact Section (General Inquiry Form)
-- Service Interest dropdown shows default placeholder
-
-### 4.6 Form Submission Process (All Forms)
-
-1. User fills out any of the 3 forms
-2. User clicks Submit button
-3. System validates all required fields for that form type
-4. If validation passes:
-   - System stores submission data in backend database with corresponding `submission_type`
-   - System displays success confirmation message
-   - Form fields are cleared
-5. If validation fails:
-   - System displays error messages for invalid fields
-   - Form retains user input
-   - User can correct and resubmit
-6. If database storage fails:
-   - System displays error message indicating submission failure
-   - User can retry submission
-
-### 4.7 SEO Optimization Rules
-
-- Page includes meta tags optimized for keywords: 「Study in China」 and 「Product Sourcing from China」
-- Page title, meta description, and heading tags incorporate target keywords
-- Content structure supports search engine indexing for both service categories
-
-### 4.5 Admin Authentication Logic
-
-1. Admin enters password on Admin Login page
-2. System validates password against stored admin password
-3. If password is correct:
-   - System stores authentication state
-   - System redirects to Admin Dashboard
-4. If password is incorrect:
-   - System displays error message
-   - User can retry login
-
-### 4.6 Admin Dashboard Access Control
-
-When user attempts to access /admin route:
-
-- System checks authentication state
-- If authenticated, display Admin Dashboard
-- If not authenticated, redirect to Admin Login page (/admin/login)
-
-### 4.10 Admin Logout Process
-
-1. Admin clicks Logout button on Admin Dashboard
-2. System clears authentication state
-3. System redirects to home page
-
-### 4.11 Image Display Rules
-
-- Hero section displays hero_banner.jpg
-- Study in China section displays study_in_china.jpg
-- Product Sourcing section displays product_sourcing.jpg
-- Images are positioned appropriately within their respective sections for visual appeal
-
----
-
-## 5. Exceptions and Edge Cases
-
-| Scenario | Handling Method |
-|----------|-----------------|
-| User submits any form with empty required fields | Display validation error messages, prevent submission |
-| User enters invalid email format in any form | Display email format error message, prevent submission |
-| User submits Study in China form without selecting Education Level | Display dropdown error, prevent submission |
-| User submits Product Sourcing form without selecting Service Type | Display dropdown error, prevent submission |
-| User submits Product Sourcing form without phone number | Display error, phone is required for sourcing inquiries |
-| Database connection fails during submission | Display error message: 「Submission failed. Please try again later.」 |
-| User clicks Submit button multiple times rapidly | Prevent duplicate submissions, disable button during processing |
-| User navigates away during form submission | No action required, submission process terminates |
-| Form submission succeeds but confirmation message fails to display | Ensure submission is stored, log error for investigation |
-| User accesses website on mobile device | Display responsive navigation menu, ensure all 3 forms are usable on mobile |
-| User clicks navigation menu item while on same section | No scroll action or smooth scroll to section top |
-| Admin enters incorrect password | Display error message, allow retry |
-| Admin attempts to access /admin without authentication | Redirect to Admin Login page |
-| Unauthenticated user attempts to access /admin directly | Redirect to Admin Login page |
-| Admin session expires during dashboard use | Redirect to Admin Login page |
-| Database fails to retrieve submissions on dashboard | Display error message indicating data retrieval failure |
-| Admin clicks Logout button multiple times | Clear authentication state once, redirect to home page |
-| Image files fail to load | Display placeholder or alt text |
-| Multiple forms on the same page — user fills one form but submits another | Each form is independent, no cross-interference |
-| User resizes browser while filling a form | Form retains all entered data, layout adjusts responsively |
-
----
-
-## 6. Acceptance Criteria
-
-1. User opens website and views Hero/Landing Section with company name, tagline, hero image, and navigation cards
-2. User clicks navigation menu item or CTA button to scroll smoothly to Study in China Section
-3. User reads Study in China service information with service image and service offerings
-4. User fills out Study in China Inquiry form with Full Name, Email, Nationality, Education Level, Service Type, and Message, then clicks Submit
-5. System validates form, stores submission in backend database as `study_inquiry`, and displays success confirmation message
-6. User scrolls to Product Sourcing Section, reads service information and service offerings
-7. User fills out Product Sourcing Inquiry form with Full Name, Email, Phone, Country, Service Type, and Message, then clicks Submit
-8. System validates form, stores submission in backend database as `sourcing_inquiry`, and displays success confirmation message
-9. User navigates to Contact Section and fills out General Contact Form with Name, Email, Service Interest, and Message, then clicks Submit
-10. System validates form, stores submission in backend database as `general_inquiry`, and displays success confirmation message
-11. Admin navigates to /admin/login, enters password, and clicks Login button
-12. System validates password, stores authentication state, and redirects to Admin Dashboard at /admin
-13. Admin views all contact form submissions (study, sourcing, general) in table format with sorting and filtering by submission type
-14. Admin clicks Logout button, system clears authentication state and redirects to home page
-
----
-
-## 7. Out of Scope for Current Release
-
-- User login and registration functionality
-- Payment processing or e-commerce features
-- Blog or content management system
-- Multi-language support
-- User account management
-- Live chat or real-time messaging
-- Social media integration (likes, comments, sharing)
-- File upload functionality in contact form
-- Email notification system for form submissions
-- Advanced admin user management (multiple admin accounts, roles, permissions)
-- Analytics and reporting features
-- Newsletter subscription
-- FAQ or knowledge base section
-- Testimonials or client reviews section
-- Case studies or portfolio showcase
-- Video content or multimedia galleries
-- Search functionality
-- Booking or appointment scheduling
-- Third-party API integrations beyond database storage
-- Admin dashboard features: edit submissions, delete submissions, export data, bulk actions
-- Password reset or recovery functionality for admin
-- Image upload or management system
-- Image optimization or compression
-- Multi-device image format support
-
----
-
-## 8. Technical Specifications
-
-### 8.1 Technology Stack
+## 2. Technology Stack
 
 | Layer | Technology | Local Dev | Production |
 |-------|-----------|-----------|------------|
-| **Frontend** | Next.js (App Router) + TypeScript | localhost:3000 | Vercel |
-| **Backend** | Node.js API (Express) + TypeScript | localhost:3001 | Render (Docker) |
-| **Database** | Prisma ORM | SQLite (`dev.db`) | PostgreSQL (Render) |
-| **UI Components** | shadcn/ui + Tailwind CSS | - | - |
-| **Form Validation** | React Hook Form + Zod | - | - |
-| **Containerization** | Docker + Docker Compose | Optional | Render |
+| Frontend | Next.js 16 (App Router) + React 19 + TypeScript 6 | localhost:3000 | Vercel |
+| Backend | Express + TypeScript 6 + Prisma ORM | localhost:3001 | Render (Docker) |
+| Database | Prisma ORM (dual-schema) | SQLite (`dev.db`) | PostgreSQL (Render) |
+| UI Components | shadcn/ui + Tailwind CSS 4 | — | — |
+| Form Validation | React Hook Form + Zod | — | — |
+| File Storage | Cloudinary + Cloudflare R2 | — | Production |
+| Email | Resend (with console fallback) | — | Production |
+| Monitoring | Sentry (client, server, edge) | — | Production |
+| Containerization | Docker + Docker Compose | Optional | Render |
 
-### 8.2 Architecture Overview
+---
 
-#### Production Architecture
+## 3. Public Pages & Routes
 
+### 3.1 Homepage (`/`)
+Single-page application with smooth-scroll sections:
+- **Hero Section** — Full-viewport hero with gradient/dark background, responsive image overlays (hero-banner-pc.jpg / hero-banner-phone.jpg), dual CTA cards ("Study in China" and "Source Products"), trust badges (Verified Partners, Scholarship Experts, 30+ Countries)
+- **By The Numbers Section** — Animated statistics counters
+- **Study in China Overview** — Service overview section
+- **Product Sourcing Overview** — Service overview section
+- **Video Gallery** — Embedded YouTube video gallery (shown if videos exist)
+- **Testimonials** — Client success stories
+- **About Us Section** — Company mission, values, differentiators
+- **Contact Section** — General contact form + company info
+
+### 3.2 Study in China (`/study-in-china`)
+Comprehensive dedicated landing page with sticky sub-navigation:
+- **Hero** — Tagline, dual CTAs (Start Application, View Universities), campus image collage (Tsinghua, campus life, modern facilities)
+- **Overview** — Metrics (500+ Students, 98% Acceptance, 30+ Countries, 200+ Partner universities), 4-step process flow
+- **Services** — 3 service cards: Scholarship Applications (98% success), University Admissions (200+ partners), Study Abroad Guidance (24/7 support)
+- **Fees & Pricing** — 3 tiers: Application Fee ($750), Service/Project Fee ($2,500-$3,500 paid after admission), Supplementary Services ($1,500 optional)
+- **Universities** — 12 partner universities in two tiers (Top-Tier: ZJU, SJTU, Fudan, Nanjing, Wuhan, Tongji; Mid-Tier: ECNU, BLCU, UIBE, Nanjing Medical, Jiangsu, ZJNU) with images, locations, programs
+- **Scholarships** — 5 types (A: Full+Stipend to E: First-Year), CSCA entrance exam info
+- **Video Gallery** — Filtered for study page
+- **Testimonials** — Study-specific client stories
+- **Requirements & Process** — Document checklist (10 items) + 9-step application timeline
+- **Living in China** — 5 info cards (Cost, Economy, Work, Safety, Language)
+- **FAQ** — Study-focused accordion
+- **Apply** — Embedded study application form
+
+### 3.3 Product Sourcing (`/product-sourcing`)
+Comprehensive dedicated landing page with sticky sub-navigation:
+- **Hero** — Tagline, dual CTAs, Track Quote link, image collage (factory, port, QC)
+- **Overview** — Metrics (50K+ suppliers, 150+ Countries, $50M+ Trade volume, 24/7 Tracking) + 8 product categories
+- **Services** — 3 cards: Supplier Finding, Procurement Assistance, Logistics Support
+- **Service Models** — Partial-Service (for clients with existing suppliers) and Full-Service (complete project management)
+- **Process** — 4-step: Requirements → Sourcing → Production & QC → Shipping
+- **Costs** — 4 cost info cards (CBM, Flat-Rate Shipping, Warehouse, Revenue Model) + Value Proposition grid
+- **PDF Download** — Company Profile PDF
+- **Video Gallery** — Filtered for sourcing page
+- **Testimonials** — Sourcing-specific stories
+- **FAQ** — Sourcing-focused accordion
+- **Inquire** — Embedded sourcing inquiry form
+
+### 3.4 FAQ (`/faq`)
+Full FAQ page with all sections:
+- Study in China General
+- Study in China Admissions
+- Product Sourcing General
+- Product Sourcing Process
+
+### 3.5 Resources (`/resources`, `/resources/[slug]`)
+Blog/resource listing and individual article pages.
+
+### 3.6 Application Tracking (`/study-in-china/track-application`)
+User enters reference code + email to view 6-stage application timeline.
+
+### 3.7 Quote Tracking (`/product-sourcing/track-quote`)
+User enters reference code + email to view 6-stage sourcing timeline.
+
+### 3.8 Consultation Booking (`/book-consultation`)
+Slot-based booking page with timezone-aware calendar.
+
+### 3.9 Legal Pages
+- Privacy Policy (`/privacy-policy`)
+- Terms of Service (`/terms-of-service`)
+
+---
+
+## 4. User Authentication (Client-Facing)
+
+### 4.1 Registration (`/signup`)
+- Email, name, password, optional phone
+- Reclaims auto-created accounts (users created via form submission without password)
+- Rate-limited: 3 registrations per 5 minutes per IP
+
+### 4.2 Login (`/login`)
+- Email + password login
+- Rate-limited: 4 failed attempts per 2 minutes
+- Brute-force protection: `LoginAttempt` table tracks IP + email, locks for 15 minutes after 5 failures
+- Soft-deleted accounts are blocked
+
+### 4.3 Password Management
+- **Set Password** (`/set-password`) — Auto-created users set their first password via JWT token
+- **Forgot Password** (`/forgot-password`) — Email-based reset link (1-hour expiry), generic success to prevent enumeration
+- **Reset Password** (`/reset-password`) — Hashed URL fragment pattern, JWT verification, auto-login after reset
+- **Change Password** — `PATCH /api/auth/password` — Requires current + new password (min 8 chars)
+
+### 4.4 User Account (`/account`)
+- View profile (name, email, phone)
+- View all submissions with status and reference codes
+- View all consultation bookings with status
+- Unread notification count badge
+
+### 4.5 Notifications
+- In-app notifications for submission status changes and consultation updates
+- Read/unread management
+- Pollable unread count endpoint
+
+### 4.6 GDPR Compliance
+- **Export** — `GET /api/auth/export` — All user data as structured JSON
+- **Delete** — `DELETE /api/auth/account` — Soft delete with 7-day grace period
+
+---
+
+## 5. Admin Panel
+
+### 5.1 Authentication
+- **Login** (`/admin/login`) — Password-only authentication
+- **JWT Sessions** — httpOnly cookies with `.the86connect.com` domain for cross-subdomain access
+- **Session Management** — Max 4 concurrent admin sessions per user, device tracking (IP, user-agent, device name)
+- **Subdomain Routing** — `admin.the86connect.com` rewrites to `/admin/*` via middleware
+- **Bootstrapping** — Falls back to `ADMIN_PASSWORD` env var when no `AdminUser` exists in DB
+- **Role-Based Access** — `admin` vs `superadmin` roles
+
+### 5.2 Dashboard Tabs
+
+**Overview** — Count cards (Total submissions, Unread, Study, Sourcing, Users, Videos), activity stats, recent submissions, status distribution
+
+**Submissions** — Paginated table with filters (Service, Status, Read/Unread, Date range, Search), bulk actions (mark read, delete, update status), CSV export, attachment download proxy, 6-stage status pipelines:
+- Study: `submitted` → `under_review` → `matched` → `verified` → `decision` → `visa`
+- Sourcing: `received` → `sourcing` → `quotes` → `sample` → `confirmed` → `shipping`
+
+**Submission Notes** — Internal admin notes on each submission (create, read, delete)
+
+**Consultations** — Paginated list with filters, status management (pending/confirmed/rescheduled/completed/cancelled), bulk operations, CSV export
+
+**Users** — View all registered users with submission counts, stats, create/edit/delete/reset-password
+
+**Sessions** — View/revoke active admin sessions, logout everywhere except current device
+
+**Availability** — Full CRUD for consultation time slots, bulk creation (date range + time range + days of week), status filtering, admin slot booking for clients, calendar view
+
+**Videos** — CRUD for YouTube videos, page assignment (study/sourcing), reorder, YouTube URL auto-parsing
+
+### 5.3 Real-Time Updates (SSE)
+Authenticated Server-Sent Events stream broadcasting: new submissions, status changes, new consultations, new bookings, deletions — all delivered in real-time to the admin dashboard.
+
+---
+
+## 6. Forms & Submissions
+
+### 6.1 Study Application Form
+**Fields:** First name, Last name, Email, Phone, Country, Target University, Program Level (Bachelor/Master/PhD), Field of Study, Start Year, Scholarship Interest, Budget Range, English Proficiency, Message
+**Files:** Up to 15 attachments (images, PDFs, DOC/XLS), 10MB each
+**Features:** Auto-creates user account, generates reference code (STU-XXXXXX), 3-stage rate limiting, bot protection
+
+### 6.2 Sourcing Inquiry Form
+**Fields:** Name, Email, Phone, Company, Country, Product Category, Product Name, Product Description, Target Quantity, Target Price, Product Links, Timeline, Shipping Terms, Destination Port, Message
+**Files:** Up to 15 attachments
+**Features:** Auto-creates user account, generates reference code (SOU-XXXXXX), rate limiting, bot protection
+
+### 6.3 Contact / General Inquiry Form
+**Fields:** Name, Email, Phone (optional), Service Interest (Study/Sourcing/General), Message
+**Features:** CTA pre-selection, generates reference code, rate limiting
+
+### 6.4 Shared Form Features
+- Zod validation (frontend + server-side)
+- React Hook Form integration
+- File uploads to Cloudinary / Cloudflare R2
+- Auto-save for partially completed forms
+- Submission throttling
+- Cooldown messages after excessive submissions
+- Admin email notification on every new submission
+- Real-time SSE broadcast to admin dashboard
+- Status history tracking (JSON array with timestamps)
+- Email + in-app notification on status changes
+
+---
+
+## 7. Consultation Booking System
+
+### 7.1 Booking Flow
+1. User navigates to `/book-consultation`
+2. Selects date (tomorrow through 3 months out)
+3. Chooses time slot (China Standard Time, displayed in user's local timezone)
+4. Fills name, email, phone, service interest, optional message
+5. Confirms booking (double-booking prevented via database transactions)
+6. Receives confirmation with WhatsApp chat link
+
+### 7.2 Availability Management
+- Admin creates slots: single or bulk (date range + time range + day filtering)
+- Slot statuses: available, booked, blocked
+- Automatic cleanup of past slots (every hour)
+- User cancellation frees the slot
+- Admin can book for clients
+
+### 7.3 Notifications
+- Email to user: booking confirmation, status changes, cancellation
+- Email to admin: new booking, cancellations
+- In-app notification for linked users
+
+---
+
+## 8. File Storage & Attachments
+
+- **Primary:** Cloudinary (images, documents)
+- **Secondary:** Cloudflare R2 (S3-compatible)
+- **Upload:** Multi-file (up to 15), single-file legacy, 10MB max per file
+- **Supported MIME types:** JPEG, PNG, GIF, WebP, BMP, SVG, HEIC, HEIF, AVIF, TIFF, PDF, DOC, DOCX, XLS, XLSX, TXT
+- **Admin access:** Downloads proxied through backend for security
+- **Cleanup:** Files deleted when submissions are deleted, orphan cleanup via cascade
+
+---
+
+## 9. Video Gallery
+
+- YouTube videos managed via admin panel
+- Assigned to "study" or "sourcing" page
+- Embedded as YouTube iframes with thumbnails
+- Supports all YouTube URL formats (watch, share, embed, shorts)
+- Video ordering via reorder endpoint
+
+---
+
+## 10. Email Notifications
+
+All emails sent via Resend (with console fallback for development). Types:
+
+| Notification | Trigger | Recipient |
+|-------------|---------|-----------|
+| New Submission | Any form submitted | Admin |
+| Status Change | Admin updates submission status | User |
+| New Consultation | User books consultation | Admin |
+| Booking Confirmation | User books consultation | User |
+| Consultation Update | Admin updates booking | User |
+| Booking Cancellation | User cancels booking | User + Admin |
+| Password Reset | User requests reset | User |
+
+---
+
+## 11. SEO & Structured Data
+
+### 11.1 Meta Tags
+- Per-page Open Graph and Twitter Cards (1200×630 images)
+- 20+ keywords for "Study in China" and "Product Sourcing from China"
+- Canonical URLs and alternate language links (en, zh)
+- Geo tags (Beijing coordinates, region)
+- Search engine verification (Google, Yandex, Baidu, Bing)
+
+### 11.2 Structured Data (JSON-LD)
+Six schema types embedded as JSON-LD:
+1. **Organization** — Logo, address (Beijing Chaoyang), founding date (2023-11-23), social profiles
+2. **WebSite** — SearchAction, languages
+3. **ProfessionalService (LocalBusiness)** — Geo coordinates, opening hours, price range
+4. **ItemList (Services)** — Two Service objects
+5. **FAQPage** — 5 Q&A pairs
+6. **BreadcrumbList** — Site hierarchy
+
+### 11.3 Other SEO Artifacts
+- Dynamic `robots.txt` generation
+- Dynamic `sitemap.xml` generation
+- Multiple favicon sizes, apple-icon
+- Custom Open Graph image
+
+---
+
+## 12. Security
+
+### 12.1 CSRF Protection
+Double-submit cookie pattern on all non-GET/HEAD/OPTIONS requests.
+
+### 12.2 Rate Limiting (7 tiers)
+| Tier | Limit | Window |
+|------|-------|--------|
+| General API | 100 | 15 min |
+| Login | 4 | 2 min |
+| Admin Login | 3 | 2 min |
+| Registration | 3 | 5 min |
+| File Uploads | 20 | 15 min |
+| Form Submissions | 3 | 3 min |
+| IP Submission Limit | 10/hr, 20/day | — |
+
+### 12.3 Other Security Measures
+- Helmet security headers
+- CORS with origin whitelisting + credentials
+- httpOnly cookies with Secure, SameSite, Domain scoping
+- Bot protection via honeypot fields
+- Brute-force protection (LoginAttempt tracking)
+- Non-root Docker user
+- Content compression (excluding SSE streams)
+
+---
+
+## 13. UI/UX Components
+
+### 13.1 Layout Components
+- **Navbar** — Responsive (desktop/tablet/mobile), scroll-aware (transparent → white), active section tracking, mobile bottom tab bar (6 tabs), mobile slide-down menu with keyboard escape
+- **Page Navbar** — Sticky sub-navigation for landing pages with anchor links
+- **Footer** — Dual logos, quick links, contact info, back-to-top, developer credit
+- **Admin Sidebar** — Collapsible, tab-navigated, glass morphism design
+- **Cookie Consent** — EU-compliant banner
+- **WhatsApp Button** — Floating CTA with +86 176 1153 3296
+- **Booking Popup** — Consultation booking CTA
+- **Navigation Progress** — Top page loading bar
+- **Scroll Arrow** — Scroll-to-top button
+
+### 13.2 UI Components (25+ shadcn/ui + custom)
+Button, Input, Textarea, Label, Form, Toaster (Sonner), Confirm Dialog, Skeleton, ImageWithSkeleton, Calendar (booking + admin), Date Picker (horizontal scrollable), Time Slots (selection grid)
+
+### 13.3 Design Tokens
+- **Fonts:** Nunito (400-900, body), DM Sans (400-700, display)
+- **Colors:** Primary Red (#DC2626), dark backgrounds (#0b0f1a → black), white cards
+- **Styling:** Tailwind CSS 4, responsive breakpoints, glass morphism effects
+
+---
+
+## 14. Infrastructure
+
+### 14.1 Deployment Architecture
 ```
-┌─────────────────┐     HTTPS      ┌─────────────────┐
-│   Vercel        │ ──────────────>│   Render        │
-│   (Frontend)    │                │   (Backend API) │
-│                 │ <──────────────│                 │
-│  Next.js App    │     JSON       │  Express API    │
-│  - Public pages │                │  - /api/contact │
-│  - Admin pages  │                │  - /api/admin   │
-│  - SSR/SSG      │                │  - Auth middleware│
-└─────────────────┘                └────────┬────────┘
-                                            │
-                                            │ SQL
-                                            ▼
-                                   ┌─────────────────┐
-                                   │   Render        │
-                                   │   (Database)    │
-                                   │                 │
-                                   │  PostgreSQL     │
-                                   │  - submissions  │
-                                   └─────────────────┘
+Vercel (Frontend) ──→ api.the86connect.com (Custom Domain) ──→ Render (Backend+Docker) ──→ Render PostgreSQL
+       │                                                                               
+       ├── the86connect.com (main site)                                               
+       └── admin.the86connect.com (admin panel, via middleware rewrite)               
 ```
 
-#### Local Development Architecture
+### 14.2 Docker
+- Multi-stage Dockerfile (deps → build → production)
+- Non-root user, health check via wget
+- Docker Compose for local production testing (PostgreSQL + Backend)
+- Render Blueprint (`render.yaml`) for infrastructure-as-code
 
-```
-┌─────────────────┐     HTTP       ┌─────────────────┐
-│   Next.js Dev   │ ──────────────>│   Express Dev   │
-│   localhost:3000│                │   localhost:3001 │
-│                 │ <──────────────│                 │
-│  Next.js App    │     JSON       │  Express API    │
-│  - Public pages │                │  - /api/contact │
-│  - Admin pages  │                │  - /api/admin   │
-└─────────────────┘                └────────┬────────┘
-                                            │
-                                            │ Prisma
-                                            ▼
-                                   ┌─────────────────┐
-                                   │   SQLite        │
-                                   │   (File)        │
-                                   │                 │
-                                   │  dev.db         │
-                                   │  - submissions  │
-                                   └─────────────────┘
-```
+### 14.3 CI/CD
+- GitHub Actions CI workflow (`.github/workflows/ci.yml`)
+- Vercel auto-deploy from Git
+- Render auto-deploy from Git (Docker)
 
-### 8.3 Frontend (Next.js on Vercel)
+### 14.4 Scheduled Tasks
+- Past availability slot cleanup (every hour)
+- Soft-delete purge (every 6 hours, 7-day grace)
+- Login attempt cleanup
+- Submission tracker cleanup
 
-- **Framework**: Next.js 14+ with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Routing**: File-based routing (`app/` directory)
-- **Public Pages**: Single-page layout with smooth scroll sections
-- **Admin Pages**: `/admin/login` and `/admin` routes
-- **Environment Variables**:
-  - `NEXT_PUBLIC_API_URL` - Backend API URL on Render
+---
 
-### 8.4 Backend (Node.js API on Render)
+## 15. Database Models (10 total)
 
-- **Framework**: Express or Fastify
-- **Language**: TypeScript
-- **ORM**: Prisma (for type-safe database queries)
-- **Endpoints**:
-  - `POST /api/contact/study` - Submit Study in China inquiry
-  - `POST /api/contact/sourcing` - Submit Product Sourcing inquiry
-  - `POST /api/contact` - Submit general contact form
-  - `GET /api/admin/submissions` - Get all submissions (protected)
-  - `POST /api/admin/login` - Admin authentication
-  - `POST /api/admin/logout` - Admin logout
-- **Environment Variables**:
-  - `DATABASE_URL` - PostgreSQL connection string
-  - `ADMIN_PASSWORD` - Admin login password
-  - `CORS_ORIGIN` - Allowed frontend origin (Vercel URL)
-  - `JWT_SECRET` - For session tokens
+| Model | Purpose |
+|-------|---------|
+| `User` | Client-facing user accounts with password hashing |
+| `Submission` | All form submissions (contact, study, sourcing) with status history |
+| `SubmissionNote` | Admin internal notes on submissions |
+| `Attachment` | Files linked to submissions (Cloudinary/R2) |
+| `Consultation` | Consultation booking records |
+| `AvailabilitySlot` | Bookable time slots |
+| `Video` | YouTube video entries |
+| `Notification` | In-app user notifications |
+| `LoginAttempt` | Brute-force protection tracking |
+| `AdminUser` | Admin user accounts with roles |
 
-### 8.5 Database Strategy
+---
 
-#### Local Development: SQLite
+## 16. Business Rules
 
-- **Database file**: `backend/prisma/dev.db`
-- **Provider**: `sqlite` in Prisma schema
-- **Purpose**: Fast local development, no external dependencies
-- **Setup**: Auto-created on first migration
+### 16.1 Reference Codes
+- Study applications: `STU-XXXXXX`
+- Sourcing inquiries: `SOU-XXXXXX`
+- Unique constraint with auto-retry on collision
 
-```bash
-# Local development setup
-cd backend
-npx prisma migrate dev --name init  # Creates dev.db
-npx prisma generate                  # Generates Prisma Client
-npx prisma studio                    # View data at localhost:5555
-```
+### 16.2 Soft Delete Policy
+- Users, Submissions, Consultations: soft delete with `deletedAt` timestamp
+- Auto-purged after 7 days
+- Cascade: soft-deleting a user soft-deletes their submissions and consultations
 
-#### Production: PostgreSQL (Render)
+### 16.3 Email Sending
+- Fire-and-forget (errors logged, not blocking responses)
+- Console fallback when Resend API key not configured
 
-- **Database**: Managed PostgreSQL on Render
-- **Provider**: `postgresql` in Prisma schema
-- **Connection**: Internal connection string (no network latency)
-- **Backups**: Automated daily backups
+---
 
-```sql
-CREATE TABLE submissions (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  submission_type VARCHAR(20) NOT NULL CHECK (submission_type IN ('study_inquiry', 'sourcing_inquiry', 'general_inquiry')),
+## 17. Environment Variables
 
-  -- Common fields (all forms)
-  full_name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  phone VARCHAR(50),
-  message TEXT NOT NULL,
+### Frontend (Vercel)
+| Variable | Purpose |
+|----------|---------|
+| `BACKEND_PROXY_URL` | Backend API URL for middleware proxying |
+| `NEXT_PUBLIC_SITE_URL` | Public site URL |
+| `SENTRY_ORG` | Sentry organization |
+| `SENTRY_PROJECT` | Sentry project |
+| `SENTRY_AUTH_TOKEN` | Sentry auth token |
 
-  -- Study in China fields
-  nationality VARCHAR(100),
-  education_level VARCHAR(50),
-  study_service_type VARCHAR(100),
-  preferred_field_of_study VARCHAR(255),
-  preferred_city VARCHAR(255),
-
-  -- Product Sourcing fields
-  company_name VARCHAR(255),
-  country VARCHAR(100),
-  sourcing_service_type VARCHAR(100),
-  product_category VARCHAR(255),
-  target_order_quantity VARCHAR(50),
-
-  -- General contact fields
-  service_interest VARCHAR(50),
-  subject VARCHAR(255),
-
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_submissions_type ON submissions(submission_type);
-CREATE INDEX idx_submissions_created_at ON submissions(created_at DESC);
-CREATE INDEX idx_submissions_service_interest ON submissions(service_interest);
-```
-
-#### Prisma Multi-Environment Setup
-
-```prisma
-// prisma/schema.prisma
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"  // Production
-  url      = env("DATABASE_URL")
-}
-```
-
-```prisma
-// prisma/schema.dev.prisma (local development)
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
-}
-```
-
-**Environment-based switching** (in `package.json`):
-```json
-{
-  "scripts": {
-    "dev": "prisma generate --schema=prisma/schema.dev.prisma && tsx watch src/index.ts",
-    "db:migrate:dev": "prisma migrate dev --schema=prisma/schema.dev.prisma",
-    "db:studio:dev": "prisma studio --schema=prisma/schema.dev.prisma",
-    "build": "prisma generate && tsc",
-    "start": "node dist/index.js",
-    "db:migrate:prod": "prisma migrate deploy"
-  }
-}
-```
-
-### 8.6 Data Flow
-
-1. **Contact Form Submissions (All 3 forms)**:
-   - User fills out form on Next.js frontend (Vercel)
-   - Frontend sends POST request to Render backend API:
-     - Study in China → `POST /api/contact/study`
-     - Product Sourcing → `POST /api/contact/sourcing`
-     - General Contact → `POST /api/contact`
-   - Backend validates data against form-specific Zod schema
-   - Backend inserts into PostgreSQL `submissions` table with correct `submission_type`
-   - Backend returns success/error response
-   - Frontend displays toast notification
-
-2. **Admin Dashboard**:
-   - Admin logs in via `/admin/login`
-   - Frontend sends credentials to backend API
-   - Backend validates and returns JWT token
-   - Frontend stores token in httpOnly cookie
-   - Frontend fetches submissions with authenticated request
-   - Backend validates token and returns submissions from PostgreSQL
-
-### 8.7 Deployment
-
-- **Frontend (Vercel)**:
-  - Auto-deploy from Git repository
-  - Environment variables configured in Vercel dashboard
-  - Custom domain setup
-
-- **Backend (Render with Docker)**:
-  - Docker container deployed to Render Web Service
-  - Dockerfile in backend root directory
-  - Environment variables configured in Render dashboard
-  - Health check endpoint at `/health`
-  - Auto-deploy from Git repository on push
-
-- **Database (Render)**:
-  - PostgreSQL managed database
-  - Automatic backups enabled
-  - Connection pooling via Prisma
-
-### 8.8 Docker Configuration
-
-The backend is containerized using Docker for consistent deployment across environments.
-
-**Dockerfile** (backend):
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npx prisma generate
-RUN npm run build
-EXPOSE 3001
-CMD ["npm", "start"]
-```
-
-**Docker Compose** (local development):
-```yaml
-version: '3.8'
-services:
-  backend:
-    build: ./backend
-    ports:
-      - "3001:3001"
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/connect86
-      - JWT_SECRET=local_jwt_secret
-      - ADMIN_PASSWORD=admin123
-      - CORS_ORIGIN=http://localhost:3000
-    depends_on:
-      - db
-  db:
-    image: postgres:16-alpine
-    environment:
-      - POSTGRES_DB=connect86
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-volumes:
-  postgres_data:
-```
+### Backend (Render)
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `JWT_SECRET` | JWT signing secret |
+| `ADMIN_PASSWORD` | Bootstrap admin password |
+| `CORS_ORIGIN` | Comma-separated allowed origins |
+| `COOKIE_DOMAIN` | Cookie domain for cross-subdomain access |
+| `PORT` | Server port (3001) |
+| `CLOUDINARY_*` | Cloudinary credentials |
+| `R2_*` | Cloudflare R2 credentials |
+| `RESEND_API_KEY` | Email API key |
+| `NOTIFY_EMAIL` | Admin notification email |
+| `FROM_EMAIL` | Sender email address |
