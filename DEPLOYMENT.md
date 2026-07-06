@@ -3,25 +3,31 @@
 ## Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────┐
+┌──────────────────────────────────────────────────────────────┐
 │                    Vercel (Frontend)                    │
-│  ┌──────────────────────┐  ┌────────────────────────┐  │
-│  │ the86connect.com     │  │ admin.the86connect.com │  │
-│  │ (main site)          │  │ (admin panel)          │  │
-│  └─────────┬────────────┘  └───────────┬────────────┘  │
-│            │                           │               │
-│            └────────────┬──────────────┘               │
-│                         │                               │
-│              Next.js Middleware                         │
-│              (subdomain routing + API proxy)            │
-└─────────────────────────┬───────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│                 Render (Backend + DB)                    │
-│  Express API + Prisma ORM + PostgreSQL                   │
+│  ┌─────────────────────┐  ┌──────────────────────────┐   │
+│  │ the86connect.com   │  │ admin.the86connect.com   │   │
+│  │ (main site)       │  │ (admin panel)             │   │
+│  └──────────┬────────┘  └────────────┬─────────────┘   │
+│             │                          │                   │
+│             └────────────┬───────────────┘                   │
+│                          │                               │
+│              Next.js Middleware                            │
+│              (subdomain routing + API proxy)                 │
+└──────────────────────────┬───────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│              api.the86connect.com (Custom API Domain)        │
+│              (CNAME to Render backend)                     │
+└──────────────────────────┬───────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│                 Render (Backend + DB)                          │
+│  Express API + Prisma ORM + PostgreSQL                    │
 │  Endpoints: /api/admin, /api/contact, /api/auth, etc.   │
-└─────────────────────────────────────────────────────────┘
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -61,7 +67,7 @@ Set these in Vercel Project → **Settings → Environment Variables**:
 
 | Variable | Value | Notes |
 |----------|-------|-------|
-| `BACKEND_PROXY_URL` | `https://86connect-api.onrender.com` | Backend URL for API proxying via middleware |
+| `BACKEND_PROXY_URL` | `https://api.the86connect.com` | Backend API URL for proxying via middleware |
 | `NEXT_PUBLIC_SITE_URL` | `https://the86connect.com` | Public site URL |
 | `SENTRY_ORG` | *(your Sentry org)* | Optional — for error tracking |
 | `SENTRY_PROJECT` | *(your Sentry project)* | Optional — for error tracking |
@@ -69,13 +75,18 @@ Set these in Vercel Project → **Settings → Environment Variables**:
 
 ### 1.4 DNS Configuration (Namecheap)
 
-Add these records in Namecheap → **Advanced DNS**:
+Add these records in Namecheap → **Advanced DNS**.
+
+> **Note**: The exact CNAME target value is shown in your Vercel dashboard (Settings → Domains → Configure). It may be `cname.vercel-dns.com.` or a project-specific value. Copy the exact value from Vercel.
 
 | Type | Host | Value | Priority |
 |------|------|-------|----------|
-| CNAME | `www` | `cname.vercel-dns.com.` | — |
-| CNAME | `admin` | `cname.vercel-dns.com.` | — |
+| CNAME | `www` | *(your Vercel CNAME value, from Vercel dashboard)* | — |
+| CNAME | `admin` | *(your Vercel CNAME value, from Vercel dashboard)* | — |
+| CNAME | `api` | *(your Render backend custom domain CNAME)* | — |
 | A | `@` | Vercel IP (shown in Vercel dashboard) | — |
+
+**Custom API domain (`api.the86connect.com`)**: Point to your Render backend via CNAME, following Render's custom domain setup instructions.
 
 ---
 
@@ -116,6 +127,16 @@ Set these in Render → **Environment**:
 2. Copy the `DATABASE_URL` (internal URL)
 3. Add it to the backend web service environment variables
 4. The backend uses `prisma db push` for schema sync (not migrations)
+
+### 2.4 Custom API Domain
+
+To use `api.the86connect.com` instead of the default Render URL:
+
+1. In Render, go to your backend web service → **Settings → Custom Domains**
+2. Add `api.the86connect.com`
+3. Follow Render's instructions to add the CNAME record in Namecheap
+4. Wait for SSL certificate provisioning
+5. Update `BACKEND_PROXY_URL` in Vercel to `https://api.the86connect.com`
 
 ---
 
@@ -223,8 +244,9 @@ Auth cookies are configured for cross-subdomain access:
 ### Frontend (Vercel)
 
 ```env
-# Backend URL for API proxying via middleware
-BACKEND_PROXY_URL=https://86connect-api.onrender.com
+# Backend API URL for proxying via middleware
+# Use your custom API domain: https://api.the86connect.com
+BACKEND_PROXY_URL=https://api.the86connect.com
 
 # Public site URL
 NEXT_PUBLIC_SITE_URL=https://the86connect.com
@@ -270,12 +292,13 @@ NOTIFY_EMAIL=info@the86connect.com
 
 - [ ] Vercel project created with `frontend` as root directory
 - [ ] `the86connect.com` added as primary domain
-- [ ] `admin.the86connect.com` added as subdomain
-- [ ] DNS records configured (CNAME for www and admin)
-- [ ] SSL certificates provisioned for both domains
-- [ ] `BACKEND_PROXY_URL` env var set in Vercel
+- [ ] `admin.the86connect.com` added as subdomain in Vercel
+- [ ] DNS records configured in Namecheap (CNAME for www, admin, api)
+- [ ] SSL certificates provisioned for all domains
+- [ ] `BACKEND_PROXY_URL` set to `https://api.the86connect.com` in Vercel
 - [ ] Render backend web service created
 - [ ] Render PostgreSQL database created
+- [ ] `api.the86connect.com` custom domain added to Render backend
 - [ ] `DATABASE_URL` set in backend env vars
 - [ ] `JWT_SECRET` set in backend env vars
 - [ ] `CORS_ORIGIN` includes both frontend domains
