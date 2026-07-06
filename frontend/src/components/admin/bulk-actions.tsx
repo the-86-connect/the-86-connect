@@ -11,7 +11,7 @@ import {
   Tag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { API_URL } from "@/lib/api";
+import { API_URL, getCsrfToken } from "@/lib/api";
 
 interface Submission {
   id: string;
@@ -87,7 +87,10 @@ export function BulkActions({
       if (status) body.status = status;
       const res = await fetch(`${API_URL}/api/admin/submissions/bulk`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
         credentials: "include",
         body: JSON.stringify(body),
       });

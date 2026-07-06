@@ -27,7 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { TableSkeleton } from "@/components/ui/skeleton";
-import { API_URL } from "@/lib/api";
+import { API_URL, getCsrfToken } from "@/lib/api";
 import { toast } from "sonner";
 
 interface User {
@@ -206,7 +206,10 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
     try {
       const res = await fetch(`${API_URL}/api/admin/users`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
         credentials: "include",
         body: JSON.stringify({
           email: createEmail,
@@ -242,7 +245,10 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
     try {
       const res = await fetch(`${API_URL}/api/admin/users/${editUser.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
         credentials: "include",
         body: JSON.stringify({
           name: editName,
@@ -276,7 +282,10 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
         `${API_URL}/api/admin/users/${resetUser.id}/reset-password`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": getCsrfToken(),
+          },
           credentials: "include",
           body: JSON.stringify({ password: resetPassword }),
         },
@@ -302,6 +311,7 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
     try {
       const res = await fetch(`${API_URL}/api/admin/users/${deleteUser.id}`, {
         method: "DELETE",
+        headers: { "x-csrf-token": getCsrfToken() },
         credentials: "include",
       });
       if (!res.ok) {
@@ -378,7 +388,10 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
       try {
         const res = await fetch(`${API_URL}/api/admin/users/bulk-purge`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": getCsrfToken(),
+          },
           credentials: "include",
           body: JSON.stringify({ ids: [userId] }),
         });
@@ -408,7 +421,10 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
     try {
       const res = await fetch(`${API_URL}/api/admin/users/bulk-purge`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
         credentials: "include",
         body: JSON.stringify({}),
       });
@@ -442,7 +458,10 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
     try {
       const res = await fetch(`${API_URL}/api/admin/users/bulk-purge`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
         credentials: "include",
         body: JSON.stringify({}),
       });
@@ -476,7 +495,10 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
         `${API_URL}/api/admin/submissions/cleanup-orphans`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": getCsrfToken(),
+          },
           credentials: "include",
         },
       );

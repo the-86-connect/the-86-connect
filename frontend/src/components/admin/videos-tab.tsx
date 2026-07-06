@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { API_URL } from "@/lib/api";
+import { API_URL, getCsrfToken } from "@/lib/api";
 
 interface AdminVideo {
   id: string;
@@ -117,7 +117,10 @@ export function VideosTab() {
       if (editVideo) {
         const res = await fetch(`${API_URL}/api/admin/videos/${editVideo.id}`, {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": getCsrfToken(),
+          },
           credentials: "include",
           body: JSON.stringify({
             youtubeUrl: formYoutubeUrl,
@@ -130,7 +133,10 @@ export function VideosTab() {
       } else {
         const res = await fetch(`${API_URL}/api/admin/videos`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": getCsrfToken(),
+          },
           credentials: "include",
           body: JSON.stringify({
             youtubeUrl: formYoutubeUrl,
@@ -157,7 +163,11 @@ export function VideosTab() {
     try {
       const res = await fetch(
         `${API_URL}/api/admin/videos/${deleteTarget.id}`,
-        { method: "DELETE", credentials: "include" },
+        {
+          method: "DELETE",
+          headers: { "x-csrf-token": getCsrfToken() },
+          credentials: "include",
+        },
       );
       if (!res.ok) throw new Error("Failed to delete video");
       setVideos((prev) => prev.filter((v) => v.id !== deleteTarget.id));
@@ -186,7 +196,10 @@ export function VideosTab() {
     try {
       await fetch(`${API_URL}/api/admin/videos/reorder`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
         credentials: "include",
         body: JSON.stringify({
           items: [

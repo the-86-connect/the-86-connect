@@ -85,7 +85,10 @@ export function ResetPasswordContent() {
     try {
       const res = await fetch(`${API_URL}/api/auth/reset-password`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
         body: JSON.stringify({ token, password }),
       });
       const data = await res.json().catch(() => ({}));

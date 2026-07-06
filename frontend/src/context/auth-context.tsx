@@ -9,7 +9,7 @@ import {
   useMemo,
   type ReactNode,
 } from "react";
-import { API_URL } from "@/lib/api";
+import { API_URL, getCsrfToken } from "@/lib/api";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -44,7 +44,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await fetch(`${API_URL}/api/admin/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
         body: JSON.stringify({ password }),
         credentials: "include",
       });
@@ -62,6 +65,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await fetch(`${API_URL}/api/admin/logout`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
         credentials: "include",
       });
     } catch {

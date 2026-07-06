@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { API_URL } from "@/lib/api";
+import { API_URL, getCsrfToken } from "@/lib/api";
 
 interface Note {
   id: string;
@@ -77,7 +77,10 @@ export function SubmissionNotes({ submissionId }: SubmissionNotesProps) {
         `${API_URL}/api/admin/submissions/${submissionId}/notes`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": getCsrfToken(),
+          },
           credentials: "include",
           body: JSON.stringify({ content: trimmed }),
         },
@@ -98,6 +101,7 @@ export function SubmissionNotes({ submissionId }: SubmissionNotesProps) {
     try {
       const res = await fetch(`${API_URL}/api/admin/notes/${noteId}`, {
         method: "DELETE",
+        headers: { "x-csrf-token": getCsrfToken() },
         credentials: "include",
       });
       if (!res.ok) throw new Error(`Server returned ${res.status}`);

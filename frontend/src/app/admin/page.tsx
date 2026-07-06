@@ -22,7 +22,7 @@ import UsersTab from "@/components/admin/users-tab";
 import { VideosTab } from "@/components/admin/videos-tab";
 import { AvailabilityTab } from "@/components/admin/availability-tab";
 import SessionsTab from "@/components/admin/sessions-tab";
-import { API_URL } from "@/lib/api";
+import { API_URL, getCsrfToken } from "@/lib/api";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -227,6 +227,7 @@ export default function AdminPage() {
         `${API_URL}/api/admin/submissions/${submissionId}/read`,
         {
           method: "POST",
+          headers: { "x-csrf-token": getCsrfToken() },
           credentials: "include",
         },
       );
@@ -248,7 +249,10 @@ export default function AdminPage() {
         `${API_URL}/api/admin/submissions/${submissionId}/status`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": getCsrfToken(),
+          },
           credentials: "include",
           body: JSON.stringify({ status: newStatus }),
         },
@@ -274,6 +278,7 @@ export default function AdminPage() {
       `${API_URL}/api/admin/submissions/${submissionId}`,
       {
         method: "DELETE",
+        headers: { "x-csrf-token": getCsrfToken() },
         credentials: "include",
       },
     );
@@ -289,6 +294,7 @@ export default function AdminPage() {
     try {
       await fetch(`${API_URL}/api/admin/logout`, {
         method: "POST",
+        headers: { "x-csrf-token": getCsrfToken() },
         credentials: "include",
       });
     } catch {

@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { API_URL } from "@/lib/api";
+import { API_URL, getCsrfToken } from "@/lib/api";
 import { toast } from "sonner";
 
 interface OverviewCounts {
@@ -177,7 +177,10 @@ export function OverviewTab({ onViewSubmissions }: { onViewSubmissions?: () => v
     try {
       const res = await fetch(`${API_URL}/api/admin/users/bulk-purge`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
         credentials: "include",
         body: JSON.stringify({}),
       });
@@ -206,7 +209,10 @@ export function OverviewTab({ onViewSubmissions }: { onViewSubmissions?: () => v
         `${API_URL}/api/admin/submissions/cleanup-orphans`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": getCsrfToken(),
+          },
           credentials: "include",
         },
       );

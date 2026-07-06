@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TableSkeleton } from "@/components/ui/skeleton";
-import { API_URL } from "@/lib/api";
+import { API_URL, getCsrfToken } from "@/lib/api";
 
 interface AdminSession {
   sessionId: string;
@@ -142,6 +142,7 @@ export default function SessionsTab({ active, onLogout }: SessionsTabProps) {
     try {
       const res = await fetch(`${API_URL}/api/admin/sessions/${sessionId}`, {
         method: "DELETE",
+        headers: { "x-csrf-token": getCsrfToken() },
         credentials: "include",
       });
       if (!res.ok) {
@@ -161,6 +162,7 @@ export default function SessionsTab({ active, onLogout }: SessionsTabProps) {
     try {
       const res = await fetch(`${API_URL}/api/admin/sessions/revoke-others`, {
         method: "POST",
+        headers: { "x-csrf-token": getCsrfToken() },
         credentials: "include",
       });
       if (!res.ok) {

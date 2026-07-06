@@ -8,7 +8,28 @@ import type {
 export const API_URL =
   typeof window === "undefined"
     ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
-    : "";
+    : process.env.NEXT_PUBLIC_API_URL || "";
+
+/**
+ * Read the CSRF token from the csrf_token cookie (set by backend on first GET).
+ * The cookie is httpOnly: false so JS can read it. Used for the double-submit
+ * pattern: cookie value must match the x-csrf-token header on mutations.
+ */
+export function getCsrfToken(): string {
+  if (typeof document === "undefined") return "";
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("csrf_token="));
+  return match ? decodeURIComponent(match.split("=")[1]) : "";
+}
+
+/** Build headers for JSON mutations, including the CSRF token if present. */
+function jsonHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const token = getCsrfToken();
+  if (token) headers["x-csrf-token"] = token;
+  return headers;
+}
 
 export interface Attachment {
   url: string;
@@ -107,7 +128,7 @@ async function postJSON<T>(
 
   const response = await fetch(`${API_URL}${endpoint}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify(payload),
   });
 
@@ -127,6 +148,7 @@ export async function uploadFile(file: File): Promise<UploadedAttachment> {
 
   const response = await fetch(`${API_URL}/api/upload/single`, {
     method: "POST",
+    headers: { "x-csrf-token": getCsrfToken() },
     body: formData,
   });
 
@@ -147,6 +169,7 @@ export async function uploadFiles(
 
   const response = await fetch(`${API_URL}/api/upload`, {
     method: "POST",
+    headers: { "x-csrf-token": getCsrfToken() },
     body: formData,
   });
 
@@ -193,7 +216,7 @@ export async function submitConsultation(
 
   const response = await fetch(`${API_URL}/api/consultation`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify(payload),
     credentials: "include",
   });
@@ -216,7 +239,7 @@ export async function userRegister(
 ): Promise<{ success: boolean; user: User }> {
   const response = await fetch(`${API_URL}/api/auth/register`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify({ email, name, password, phone }),
     credentials: "include",
   });
@@ -235,7 +258,7 @@ export async function userLogin(
 ): Promise<{ success: boolean; user: User }> {
   const response = await fetch(`${API_URL}/api/auth/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify({ email, password }),
     credentials: "include",
   });
@@ -254,7 +277,7 @@ export async function userSetPassword(
 ): Promise<{ success: boolean; user: User }> {
   const response = await fetch(`${API_URL}/api/auth/set-password`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify({ token, password }),
     credentials: "include",
   });
@@ -270,6 +293,7 @@ export async function userSetPassword(
 export async function userLogout(): Promise<void> {
   await fetch(`${API_URL}/api/auth/logout`, {
     method: "POST",
+    headers: jsonHeaders(),
     credentials: "include",
   });
 }
@@ -307,7 +331,7 @@ export async function updateUserProfile(data: {
 }): Promise<{ success: boolean; user: User }> {
   const response = await fetch(`${API_URL}/api/auth/profile`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify(data),
     credentials: "include",
   });
@@ -326,7 +350,7 @@ export async function changePassword(
 ): Promise<void> {
   const response = await fetch(`${API_URL}/api/auth/password`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify({ currentPassword, newPassword }),
     credentials: "include",
   });
@@ -380,6 +404,7 @@ export async function exportUserData(): Promise<UserExportData> {
 export async function deleteAccount(): Promise<void> {
   const response = await fetch(`${API_URL}/api/auth/account`, {
     method: "DELETE",
+    headers: jsonHeaders(),
     credentials: "include",
   });
 
@@ -490,6 +515,7 @@ export async function cancelConsultation(
 ): Promise<{ success: boolean }> {
   const response = await fetch(`${API_URL}/api/consultation/${id}/cancel`, {
     method: "POST",
+    headers: jsonHeaders(),
     credentials: "include",
   });
 
@@ -508,7 +534,7 @@ export async function updateConsultationStatus(
 ): Promise<{ success: boolean }> {
   const response = await fetch(`${API_URL}/api/admin/consultations/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify({ status }),
     credentials: "include",
   });
@@ -570,7 +596,7 @@ export async function createSlot(data: {
 }): Promise<void> {
   const response = await fetch(`${API_URL}/api/admin/availability`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify(data),
     credentials: "include",
   });
@@ -591,7 +617,7 @@ export async function bulkCreateSlots(data: {
 }): Promise<{ created: number; skipped: number; total: number }> {
   const response = await fetch(`${API_URL}/api/admin/availability/bulk`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify(data),
     credentials: "include",
   });
@@ -608,6 +634,7 @@ export async function bulkCreateSlots(data: {
 export async function deleteSlot(id: string): Promise<void> {
   const response = await fetch(`${API_URL}/api/admin/availability/${id}`, {
     method: "DELETE",
+    headers: jsonHeaders(),
     credentials: "include",
   });
 
@@ -624,7 +651,7 @@ export async function updateSlotStatus(
 ): Promise<void> {
   const response = await fetch(`${API_URL}/api/admin/availability/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify({ status }),
     credentials: "include",
   });
@@ -643,7 +670,7 @@ export async function bulkDeleteSlots(data: {
 }): Promise<{ deleted: number }> {
   const response = await fetch(`${API_URL}/api/admin/availability/bulk`, {
     method: "DELETE",
-    headers: { "Content-Type": "application/json" },
+    headers: jsonHeaders(),
     body: JSON.stringify(data),
     credentials: "include",
   });
@@ -665,7 +692,7 @@ export async function bulkUpdateConsultationStatus(
     `${API_URL}/api/admin/consultations/bulk-status`,
     {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: jsonHeaders(),
       body: JSON.stringify({ ids, status }),
       credentials: "include",
     },
@@ -688,7 +715,7 @@ export async function bulkUpdateSlotStatus(
     `${API_URL}/api/admin/availability/bulk-status`,
     {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: jsonHeaders(),
       body: JSON.stringify({ ids, status }),
       credentials: "include",
     },
@@ -733,6 +760,7 @@ export async function markNotificationRead(
     `${API_URL}/api/auth/notifications/${id}/read`,
     {
       method: "PATCH",
+      headers: jsonHeaders(),
       credentials: "include",
     },
   );
@@ -747,6 +775,7 @@ export async function markAllNotificationsRead(): Promise<{
 }> {
   const response = await fetch(`${API_URL}/api/auth/notifications/read-all`, {
     method: "PATCH",
+    headers: jsonHeaders(),
     credentials: "include",
   });
   if (!response.ok) throw new Error("Failed to mark notifications as read");
@@ -768,7 +797,7 @@ export async function adminBookSlot(
     `${API_URL}/api/admin/availability/${slotId}/book`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: jsonHeaders(),
       body: JSON.stringify(data),
       credentials: "include",
     },
