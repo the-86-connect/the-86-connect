@@ -34,7 +34,8 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Run middleware on everything except static assets.
-  // API routes are excluded INSIDE the middleware (above) so afterFiles rewrites fire.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Exclude static assets, API routes, and health checks from middleware.
+  // API routes and /health are proxied via next.config.ts afterFiles rewrites.
+  // If middleware runs on them, it blocks the afterFiles rewrite from firing.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/|health).*)"],
 };
