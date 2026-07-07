@@ -9,7 +9,6 @@ import {
   X,
   User,
   UserRound,
-  LogIn,
   Search,
   LayoutDashboard,
   Briefcase,
@@ -31,7 +30,7 @@ interface SubNavLink {
 }
 
 interface PageNavbarProps {
-  accent: string;
+  accent?: string;
   subLinks: SubNavLink[];
   ctaLabel: string;
   ctaTarget: string;
@@ -39,7 +38,6 @@ interface PageNavbarProps {
 }
 
 export function PageNavbar({
-  accent,
   subLinks,
   ctaLabel,
   ctaTarget,

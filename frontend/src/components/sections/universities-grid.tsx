@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { GraduationCap, ChevronDown } from "lucide-react";
 
 export interface University {
@@ -36,11 +37,12 @@ export function UniversitiesGrid({
           >
             {/* Campus image */}
             <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-              <img
+              <Image
                 src={uni.image}
                 alt={`${uni.name} campus in ${uni.location}`}
-                className="w-full h-full object-cover"
-                loading="lazy"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
               <div
                 className={`absolute top-3 right-3 px-2.5 py-1 rounded-full backdrop-blur-sm text-xs font-black shadow-soft-sm ${uni.tier === "top" ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}

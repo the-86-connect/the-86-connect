@@ -1,7 +1,7 @@
 "use client";
  
 import { useState, useEffect, useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import {
@@ -12,7 +12,6 @@ import {
   ShoppingCart,
   MessageSquare,
   Video,
-  Phone,
   Calendar,
   ArrowLeft,
   UserCheck,
@@ -55,21 +54,6 @@ const SERVICE_OPTIONS = [
     label: "General Inquiry",
     description: "Anything else we can help with",
     icon: MessageSquare,
-  },
-];
-
-const MEETING_OPTIONS = [
-  {
-    value: "online" as const,
-    label: "Online Meeting",
-    description: "Zoom / Google Meet",
-    icon: Video,
-  },
-  {
-    value: "phone" as const,
-    label: "Phone Call",
-    description: "We'll call you",
-    icon: Phone,
   },
 ];
 
@@ -129,9 +113,9 @@ export function BookingPageClient() {
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ConsultationFormData>({
     resolver: zodResolver(CONSULTATION_SCHEMA),
@@ -167,7 +151,10 @@ export function BookingPageClient() {
   };
 
   useEffect(() => {
-    loadSlots();
+    const id = setTimeout(() => {
+      loadSlots();
+    }, 0);
+    return () => clearTimeout(id);
   }, []);
 
   useEffect(() => {
@@ -178,10 +165,10 @@ export function BookingPageClient() {
     }
   }, [isAuthenticated, user, setValue]);
 
-  const selectedService = watch("service");
-  const selectedMeeting = watch("meetingType"); // kept for form default, not shown in UI
-  const selectedSlotId = watch("availabilitySlotId");
-  const messageValue = watch("message") ?? "";
+  const selectedService = useWatch({ control, name: "service" });
+  const selectedMeeting = useWatch({ control, name: "meetingType" });
+  const selectedSlotId = useWatch({ control, name: "availabilitySlotId" });
+  const messageValue = useWatch({ control, name: "message" }) ?? "";
 
   // Unique sorted list of dates that have at least one available slot
   const availableDates = useMemo(() => {

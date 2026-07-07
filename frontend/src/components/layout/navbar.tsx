@@ -13,7 +13,6 @@ import {
   Sparkles,
   User,
   UserRound,
-  LogIn,
   CalendarCheck,
   Search,
 } from "lucide-react";

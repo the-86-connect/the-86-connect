@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useState, useMemo, useCallback, useEffect } from "react";
+import Image from "next/image";
 import {
   RefreshCw,
   Loader2,
@@ -1273,10 +1274,12 @@ export default function SubmissionsTab({
                       >
                         <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                           {isImageAttachment(att.mimeType) ? (
-                            <img
+                            <Image
                               src={att.url}
                               alt={att.originalName}
-                              className="h-10 w-10 object-cover"
+                              fill
+                              className="object-cover"
+                              sizes="40px"
                             />
                           ) : (
                             <FileText className="h-5 w-5 text-primary" />

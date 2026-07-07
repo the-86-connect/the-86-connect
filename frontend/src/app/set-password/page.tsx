@@ -1,6 +1,4 @@
 import { Suspense } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { SetPasswordContent } from "./set-password-content";
 

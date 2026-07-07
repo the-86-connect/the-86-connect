@@ -16,6 +16,7 @@ import {
   Save,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 import {
   SOURCING_INQUIRY_SCHEMA,
@@ -29,7 +30,7 @@ import {
 } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { FormSection, Field, Select, RadioGroup } from "./form-helpers";
+import { FormSection, Field, Select } from "./form-helpers";
 import { cn } from "@/lib/utils";
 import { useFormAutosave } from "@/hooks/use-form-autosave";
 import { checkCanSubmit, recordSubmission } from "@/lib/submit-throttle";
@@ -511,10 +512,12 @@ export function SourcingInquiryForm() {
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                     {f.attachment?.url &&
                     f.attachment.mimeType.startsWith("image/") ? (
-                      <img
+                      <Image
                         src={f.attachment.url}
                         alt={f.file.name}
-                        className="h-8 w-8 rounded object-cover"
+                        fill
+                        className="rounded object-cover"
+                        sizes="32px"
                       />
                     ) : (
                       <ShoppingCart className="h-4 w-4 text-primary" />

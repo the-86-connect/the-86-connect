@@ -17,7 +17,7 @@ interface AdminSlotCalendarProps {
   /** Called when dates are toggled via click */
   onDateToggle: (dateIso: string) => void;
   /** Called when a date range is selected */
-  onRangeSelect: (from: string, to: string) => void;
+  onRangeSelect?: (from: string, to: string) => void;
 }
 
 const DAYS_OF_WEEK = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -109,16 +109,15 @@ export function AdminSlotCalendar({
   slotDates,
   selectedDates,
   onDateToggle,
-  onRangeSelect,
 }: AdminSlotCalendarProps) {
-  const today = new Date();
-  const [viewYear, setViewYear] = useState(today.getFullYear());
-  const [viewMonth, setViewMonth] = useState(today.getMonth());
+  const [viewYear, setViewYear] = useState(() => new Date().getFullYear());
+  const [viewMonth, setViewMonth] = useState(() => new Date().getMonth());
 
   const todayIso = useMemo(() => {
-    const y = String(today.getFullYear());
-    const m = String(today.getMonth() + 1).padStart(2, "0");
-    const d = String(today.getDate()).padStart(2, "0");
+    const t = new Date();
+    const y = String(t.getFullYear());
+    const m = String(t.getMonth() + 1).padStart(2, "0");
+    const d = String(t.getDate()).padStart(2, "0");
     return `${y}-${m}-${d}`;
   }, []);
 
@@ -137,10 +136,10 @@ export function AdminSlotCalendar({
   const prevMonth = () => {
     const prevM = viewMonth === 0 ? 11 : viewMonth - 1;
     const prevY = viewMonth === 0 ? viewYear - 1 : viewYear;
-    // Don't allow navigating before current month
+    const now = new Date();
     if (
-      prevY < today.getFullYear() ||
-      (prevY === today.getFullYear() && prevM < today.getMonth())
+      prevY < now.getFullYear() ||
+      (prevY === now.getFullYear() && prevM < now.getMonth())
     )
       return;
     setViewMonth(prevM);
@@ -168,7 +167,7 @@ export function AdminSlotCalendar({
           type="button"
           onClick={prevMonth}
           disabled={
-            viewYear === today.getFullYear() && viewMonth === today.getMonth()
+            viewYear === new Date().getFullYear() && viewMonth === new Date().getMonth()
           }
           className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
           aria-label="Previous month"

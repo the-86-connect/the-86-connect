@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import {
@@ -15,6 +15,7 @@ import {
   UserCircle,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 import {
   STUDY_APPLICATION_SCHEMA,
@@ -52,7 +53,7 @@ export function StudyApplicationForm() {
   const [honeypot, setHoneypot] = useState("");
   const [files, setFiles] = useState<PendingFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const formLoadedAtRef = useRef<number>(Date.now());
+  const [formLoadedAt, setFormLoadedAt] = useState(0);
 
   const hasUploadingFiles = files.some((f) => f.uploading);
   const successfulAttachments = files
@@ -60,7 +61,10 @@ export function StudyApplicationForm() {
     .filter(Boolean) as UploadedAttachment[];
 
   useEffect(() => {
-    formLoadedAtRef.current = Date.now();
+    const id = setTimeout(() => {
+      setFormLoadedAt(Date.now());
+    }, 0);
+    return () => clearTimeout(id);
   }, []);
 
   const {
@@ -70,6 +74,7 @@ export function StudyApplicationForm() {
     watch,
     getValues,
     setValue,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<StudyApplicationData>({
     resolver: zodResolver(STUDY_APPLICATION_SCHEMA),
@@ -97,6 +102,8 @@ export function StudyApplicationForm() {
       reset,
       watch,
     });
+
+  const scholarshipInterest = useWatch({ control, name: "scholarshipInterest" });
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFiles = Array.from(e.target.files ?? []).slice(
@@ -167,7 +174,7 @@ export function StudyApplicationForm() {
         {
           ...data,
           website_url: honeypot,
-          formLoadedAt: formLoadedAtRef.current,
+          formLoadedAt,
         },
         successfulAttachments,
       );
@@ -407,7 +414,7 @@ export function StudyApplicationForm() {
             <RadioGroup
               name="scholarshipInterest"
               options={SCHOLARSHIP_OPTIONS as unknown as readonly string[]}
-              value={watch("scholarshipInterest") || ""}
+              value={scholarshipInterest || ""}
               onChange={(v) => setValue("scholarshipInterest", v as "Yes" | "No" | "Not sure", { shouldValidate: true })}
             />
           </Field>
@@ -488,10 +495,12 @@ export function StudyApplicationForm() {
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                     {f.attachment?.url &&
                     f.attachment.mimeType.startsWith("image/") ? (
-                      <img
+                      <Image
                         src={f.attachment.url}
                         alt={f.file.name}
-                        className="h-8 w-8 rounded object-cover"
+                        fill
+                        className="rounded object-cover"
+                        sizes="32px"
                       />
                     ) : (
                       <GraduationCap className="h-4 w-4 text-primary" />

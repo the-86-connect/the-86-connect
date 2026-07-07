@@ -11,7 +11,6 @@ import {
   Loader2,
   PlayCircle,
   Check,
-  Copy,
   ArrowUp,
   ArrowDown,
 } from "lucide-react";

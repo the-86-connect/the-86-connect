@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import {
@@ -47,6 +47,7 @@ export function ContactForm() {
     setValue,
     watch,
     getValues,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
@@ -73,7 +74,8 @@ export function ContactForm() {
     }
   }, [selectedService, setValue]);
 
-  const currentService = watch("serviceInterest");
+  const currentService = useWatch({ control, name: "serviceInterest" });
+  const messageValue = useWatch({ control, name: "message" });
 
   const onSubmit = async (data: ContactFormData) => {
     // Client-side rate limit check
@@ -356,7 +358,7 @@ export function ContactForm() {
             id="message-count"
             className="text-xs text-muted-foreground font-semibold"
           >
-            {watch("message")?.length || 0} / 500
+            {messageValue?.length || 0} / 500
           </p>
         </div>
       </div>

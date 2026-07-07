@@ -4,7 +4,6 @@ import { BookOpen, Clock, Calendar, ArrowRight, GraduationCap, ShoppingCart, Com
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { fetchBlogPosts } from "@/lib/api";
-import type { BlogPostMeta } from "@/lib/api";
 import { BLOG_POSTS } from "@/data/blog";
 
 export const metadata: Metadata = {
