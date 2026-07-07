@@ -177,3 +177,25 @@ model AdminUser {
 
   @@map("admin_users")
 }
+
+model BlogPost {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  title     String
+  excerpt   String
+  category  String   // "Study in China" | "Product Sourcing" | "Guide"
+  date      String   // Formatted date string e.g. "June 20, 2026"
+  readTime  String   @map("read_time") // e.g. "12 min read"
+  author    String
+  tags      Json     // string[]
+  content   Json     // BlogSection[]
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([published])
+  @@index([order])
+  @@map("blog_posts")
+}

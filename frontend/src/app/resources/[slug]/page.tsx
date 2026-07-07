@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Calendar, Clock, ArrowLeft, GraduationCap, ShoppingCart, Compass, Lightbulb } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { fetchBlogPost } from "@/lib/api";
 import { BLOG_POSTS, getPostBySlug } from "@/data/blog";
 import type { BlogSection } from "@/data/blog";
 
@@ -86,12 +87,34 @@ function renderSection(section: BlogSection, idx: number) {
   }
 }
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = getPostBySlug(params.slug);
-  if (!post) notFound();
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+  const { slug } = params;
 
-  const CatIcon = CATEGORY_ICONS[post.category];
-  const catColor = CATEGORY_COLORS[post.category];
+  // Try API first, fallback to static
+  let post = await fetchBlogPost(slug);
+  if (!post) {
+    const fallback = getPostBySlug(slug);
+    if (!fallback) notFound();
+    post = {
+      id: fallback.slug,
+      slug: fallback.slug,
+      title: fallback.title,
+      excerpt: fallback.excerpt,
+      category: fallback.category,
+      date: fallback.date,
+      readTime: fallback.readTime,
+      author: fallback.author,
+      tags: fallback.tags,
+      content: fallback.content,
+      order: 0,
+      published: true,
+      createdAt: "",
+      updatedAt: "",
+    };
+  }
+
+  const CatIcon = CATEGORY_ICONS[post.category as keyof typeof CATEGORY_ICONS] || Compass;
+  const catColor = CATEGORY_COLORS[post.category as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS["Guide"];
 
   return (
     <>

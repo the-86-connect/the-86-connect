@@ -219,6 +219,9 @@ app.use("/api/tracking", apiLimiter, trackingRouter);
 // Videos route (public read-only)
 app.use("/api/videos", apiLimiter, videosRouter);
 
+import { blogRouter } from "./routes/blog";
+app.use("/api/blog", apiLimiter, blogRouter);
+
 // Multer error handling — catches upload errors (file too large, too many files, wrong type)
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof multer.MulterError) {

@@ -22,6 +22,8 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <Navbar />
+      {/* Dark backdrop behind navbar for white logo/text visibility */}
+      <div aria-hidden="true" className="fixed top-0 inset-x-0 h-24 bg-gradient-to-b from-slate-900 to-transparent z-40 pointer-events-none" />
       <main className="flex-1 px-4 sm:px-6 lg:px-8 bg-section-warm relative overflow-hidden">
         {/* Decorative background */}
         <div aria-hidden="true" className="absolute inset-0 pointer-events-none">

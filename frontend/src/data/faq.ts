@@ -42,7 +42,7 @@ export const FAQ_SECTIONS: FAQSection[] = [
       {
         question: "Can I work while studying in China?",
         answer:
-          "International students on X1 visas can work part-time with permission from their university and local immigration authorities. Many students teach English, do internships at multinational companies, or work in campus jobs. There are strict limits on hours, and we advise students to focus on studies first.",
+          "International students on X1 visas can work part-time with permission from their university and local immigration authorities. Many students do internships at multinational companies or work in campus jobs. There are strict limits on hours, and we advise students to focus on studies first.",
       },
       {
         question: "What about accommodation and health insurance?",

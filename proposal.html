@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>86 Connects — Web Application Proposal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Nunito:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #DC2626;
+  --red-light: #EF4444;
+  --red-dark: #991B1B;
+  --dark: #0b0f1a;
+  --darker: #060912;
+  --card: #111827;
+  --card-hover: #1A2332;
+  --border: #1F2937;
+  --text: #E5E7EB;
+  --text-dim: #9CA3AF;
+  --text-muted: #6B7280;
+  --white: #F9FAFB;
+  --green: #10B981;
+  --blue: #3B82F6;
+  --amber: #F59E0B;
+  --purple: #8B5CF6;
+  --gradient-hero: linear-gradient(135deg, #0b0f1a 0%, #1a0a0a 50%, #0b0f1a 100%);
+  --gradient-red: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+  --gradient-card: linear-gradient(180deg, rgba(220,38,38,0.08) 0%, rgba(17,24,39,1) 100%);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--darker);
+  color: var(--text);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .display-font {
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+/* ── HERO ─────────────────────────────────── */
+.hero {
+  background: var(--gradient-hero);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(220,38,38,0.15) 0%, transparent 70%);
+  top: -200px; right: -200px;
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+  bottom: -100px; left: -100px;
+  pointer-events: none;
+}
+.hero-content { position: relative; z-index: 2; padding: 120px 0 80px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(220,38,38,0.12); border: 1px solid rgba(220,38,38,0.3);
+  color: var(--red-light); padding: 8px 20px; border-radius: 50px;
+  font-size: 14px; font-weight: 600; margin-bottom: 32px;
+}
+.hero-badge .dot { width: 8px; height: 8px; background: var(--red); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.hero h1 { font-size: clamp(42px, 7vw, 80px); font-weight: 800; color: var(--white); line-height: 1.05; margin-bottom: 24px; }
+.hero h1 .accent { color: var(--red); }
+.hero-subtitle { font-size: clamp(16px, 2.5vw, 20px); color: var(--text-dim); max-width: 640px; margin-bottom: 48px; font-weight: 400; }
+.hero-metrics { display: flex; gap: 48px; flex-wrap: wrap; margin-top: 48px; }
+.hero-metric { text-align: center; }
+.hero-metric .num { font-family: 'DM Sans', sans-serif; font-size: 36px; font-weight: 800; color: var(--white); letter-spacing: -0.03em; }
+.hero-metric .label { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; border-radius: 50px; font-weight: 700; font-size: 15px; text-decoration: none; transition: var(--transition); cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; }
+.btn-primary { background: var(--gradient-red); color: white; box-shadow: 0 4px 20px rgba(220,38,38,0.35); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(220,38,38,0.45); }
+.btn-outline { border: 2px solid var(--border); color: var(--text); background: transparent; }
+.btn-outline:hover { border-color: var(--red); color: var(--red-light); }
+.btn-group { display: flex; gap: 16px; flex-wrap: wrap; }
+
+/* ── SECTION ──────────────────────────────── */
+.section { padding: 100px 0; position: relative; }
+.section-header { text-align: center; margin-bottom: 64px; }
+.section-tag { display: inline-block; color: var(--red-light); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; font-family: 'DM Sans', sans-serif; }
+.section-header h2 { font-size: clamp(28px, 4vw, 48px); font-weight: 800; color: var(--white); margin-bottom: 16px; }
+.section-header p { color: var(--text-dim); max-width: 600px; margin: 0 auto; font-size: 17px; }
+
+/* ── CARDS ────────────────────────────────── */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 32px;
+  transition: var(--transition); position: relative; overflow: hidden;
+}
+.card:hover { background: var(--card-hover); border-color: rgba(220,38,38,0.3); transform: translateY(-4px); box-shadow: var(--shadow); }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-red); opacity: 0; transition: var(--transition); }
+.card:hover::before { opacity: 1; }
+.card-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 20px; }
+.card-icon.red { background: rgba(220,38,38,0.15); color: var(--red-light); }
+.card-icon.blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+.card-icon.green { background: rgba(16,185,129,0.15); color: var(--green); }
+.card-icon.amber { background: rgba(245,158,11,0.15); color: var(--amber); }
+.card-icon.purple { background: rgba(139,92,246,0.15); color: var(--purple); }
+.card h3 { font-size: 20px; font-weight: 700; color: var(--white); margin-bottom: 12px; }
+.card p { color: var(--text-dim); font-size: 15px; line-height: 1.7; }
+
+/* ── TECH STACK ───────────────────────────── */
+.tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.tech-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 24px 20px;
+  display: flex; align-items: center; gap: 14px; transition: var(--transition);
+}
+.tech-item:hover { border-color: rgba(220,38,38,0.4); background: var(--card-hover); }
+.tech-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.tech-dot.red { background: var(--red); }
+.tech-dot.blue { background: var(--blue); }
+.tech-dot.green { background: var(--green); }
+.tech-dot.amber { background: var(--amber); }
+.tech-dot.purple { background: var(--purple); }
+.tech-name { font-weight: 700; color: var(--white); font-size: 15px; }
+.tech-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── FEATURE LIST ─────────────────────────── */
+.feature-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.feature-list li {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 16px 20px; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 14px; transition: var(--transition);
+}
+.feature-list li:hover { border-color: rgba(220,38,38,0.3); background: var(--card-hover); }
+.feature-list .check { color: var(--green); font-weight: 700; font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── ARCHITECTURE ─────────────────────────── */
+.arch-diagram {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 48px; text-align: center; overflow-x: auto;
+}
+.arch-flow { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; }
+.arch-box {
+  background: var(--card-hover); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 24px 28px; min-width: 180px;
+}
+.arch-box.highlight { border-color: rgba(220,38,38,0.4); background: linear-gradient(180deg, rgba(220,38,38,0.08) 0%, var(--card-hover) 100%); }
+.arch-box h4 { font-size: 15px; color: var(--white); margin-bottom: 6px; }
+.arch-box p { font-size: 12px; color: var(--text-muted); }
+.arch-arrow { font-size: 24px; color: var(--red-light); margin: 0 8px; }
+
+/* ── DB TABLE ─────────────────────────────── */
+.db-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.db-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 20px; transition: var(--transition);
+}
+.db-item:hover { border-color: rgba(220,38,38,0.3); }
+.db-item h4 { font-family: monospace; font-size: 14px; color: var(--amber); margin-bottom: 6px; }
+.db-item p { font-size: 13px; color: var(--text-dim); }
+
+/* ── TIMELINE ─────────────────────────────── */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before { content: ''; position: absolute; left: 11px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+.timeline-item { position: relative; padding-bottom: 36px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot { position: absolute; left: -27px; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); border: 3px solid var(--darker); }
+.timeline-item h4 { font-size: 17px; color: var(--white); margin-bottom: 4px; }
+.timeline-item p { font-size: 14px; color: var(--text-dim); }
+
+/* ── STATS ROW ───────────────────────────── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px; margin-top: 48px;
+}
+.stat-card {
+  text-align: center; padding: 24px 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.stat-card .num { font-family: 'DM Sans', sans-serif; font-size: 32px; font-weight: 800; color: var(--red-light); }
+.stat-card .label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+/* ── FOOTER ───────────────────────────────── */
+.footer {
+  text-align: center; padding: 60px 24px;
+  border-top: 1px solid var(--border); color: var(--text-muted); font-size: 14px;
+}
+.footer h2 { font-size: 32px; color: var(--white); margin-bottom: 12px; }
+.footer .contact-info { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; margin: 24px 0; }
+.footer .contact-info span { display: flex; align-items: center; gap: 8px; }
+
+/* ── RESPONSIVE ───────────────────────────── */
+@media (max-width: 768px) {
+  .section { padding: 60px 0; }
+  .arch-flow { flex-direction: column; }
+  .arch-arrow { transform: rotate(90deg); }
+  .hero-metrics { gap: 24px; }
+  .hero-metric .num { font-size: 28px; }
+  .card-grid { grid-template-columns: 1fr; }
+  .tech-grid { grid-template-columns: repeat(2, 1fr); }
+  .arch-diagram { padding: 24px; }
+}
+
+/* ── SCROLL ANIMATION ─────────────────────── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── DIVIDER ──────────────────────────────── */
+.divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 0 auto; max-width: 800px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="container hero-content">
+    <div class="hero-badge"><span class="dot"></span> Web Application Proposal — 2026</div>
+    <h1><span class="accent">86 Connects</span><br>Bridging the World to China</h1>
+    <p class="hero-subtitle">
+      A full-service digital platform connecting international students to Chinese universities and global businesses to Chinese manufacturers. Built with cutting-edge technology for performance, security, and scale.
+    </p>
+    <div class="btn-group">
+      <a href="#overview" class="btn btn-primary">Explore Features ▼</a>
+      <a href="#pricing" class="btn btn-outline">View Pricing ▼</a>
+      <a href="#architecture" class="btn btn-outline">Architecture ▼</a>
+    </div>
+    <div class="hero-metrics">
+      <div class="hero-metric"><div class="num">17+</div><div class="label">Public Routes & Pages</div></div>
+      <div class="hero-metric"><div class="num">10</div><div class="label">Database Models</div></div>
+      <div class="hero-metric"><div class="num">25+</div><div class="label">UI Components</div></div>
+      <div class="hero-metric"><div class="num">7</div><div class="label">Rate Limit Tiers</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ OVERVIEW ═══════════════ -->
+<section class="section" id="overview">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Platform Overview</div>
+      <h2>Two Core Services, One Platform</h2>
+      <p>86 Connects delivers two distinct service verticals through a unified digital experience, backed by a powerful admin dashboard.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card fade-in">
+        <div class="card-icon red">🎓</div>
+        <h3>Study in China</h3>
+        <p>Comprehensive educational services for international students — scholarship applications, university admissions, study abroad guidance. Features a dedicated landing page with university showcase, pricing tiers, 9-step application process, and document checklist.</p>
+      </div>
+      <div class="card fade-in">
+        <div class="card-icon blue">📦</div>
+        <h3>Product Sourcing</h3>
+        <p>End-to-end procurement solutions — supplier finding, procurement assistance, logistics support. Complete with service models (Partial/Full-Service), cost calculators, 4-step process flow, and 8 product categories sourced.</p>
+      </div>
+      <div class="card fade-in">
+        <div class="card-icon green">⚙️</div>
+        <h3>Admin Dashboard</h3>
+        <p>Sophisticated management panel with 7 tabs: Overview, Submissions, Consultations, Users, Sessions, Availability, Videos. Real-time SSE updates, bulk operations, CSV export, and role-based access control.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ TECH STACK ═══════════════ -->
+<section class="section" style="background: var(--dark);">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Technology Stack</div>
+      <h2>Modern Architecture for Scale</h2>
+      <p>Production-grade stack chosen for performance, developer experience, and reliability.</p>
+    </div>
+
+    <div class="tech-grid">
+      <div class="tech-item fade-in"><div class="tech-dot red"></div><div><div class="tech-name">Next.js 16</div><div class="tech-desc">App Router + SSR/SSG</div></div></div>
+      <div class="tech-item fade-in"><div class="tech-dot blue"></div><div><div class="tech-name">React 19</div><div class="tech-desc">Server Components</div></div></div>
+      <div class="tech-item fade-in"><div class="tech-dot green"></div><div><div class="tech-name">TypeScript 6</div><div class="tech-desc">Full type safety</div></div></div>
+      <div class="tech-item fade-in"><div class="tech-dot amber"></div><div><div class="tech-name">Tailwind CSS 4</div><div class="tech-desc">Utility-first styling</div></div></div>
+      <div class="tech-item fade-in"><div class="tech-dot purple"></div><div><div class="tech-name">shadcn/ui</div><div class="tech-desc">25+ components</div></div></div>
+      <div class="tech-item fade-in"><div class="tech-dot red"></div><div><div class="tech-name">Express.js</div><div class="tech-desc">REST API backend</div></div></div>
+      <div class="tech-item fade-in"><div class="tech-dot blue"></div><div><div class="tech-name">Prisma ORM</div><div class="tech-desc">Type-safe database</div></div></div>
+      <div class="tech-item fade-in"><div class="tech-dot green"></div><div><div class="tech-name">PostgreSQL</div><div class="tech-desc">Production database</div></div></div>
+      <div class="tech-item fade-in"><div class="tech-dot amber"></div><div><div class="tech-name">Docker</div><div class="tech-desc">Containerized deploy</div></div></div>
+      <div class="tech-item fade-in"><div class="tech-dot purple"></div><div><div class="tech-name">Cloudinary + R2</div><div class="tech-desc">File storage</div></div></div>
+      <div class="tech-item fade-in"><div class="tech-dot red"></div><div><div class="tech-name">Resend</div><div class="tech-desc">Email delivery</div></div></div>
+      <div class="tech-item fade-in"><div class="tech-dot blue"></div><div><div class="tech-name">Sentry</div><div class="tech-desc">Error monitoring</div></div></div>
+    </div>
+
+    <div class="stats-row fade-in">
+      <div class="stat-card"><div class="num">10</div><div class="label">Database Models</div></div>
+      <div class="stat-card"><div class="num">50+</div><div class="label">API Endpoints</div></div>
+      <div class="stat-card"><div class="num">17</div><div class="label">Public Routes</div></div>
+      <div class="stat-card"><div class="num">7</div><div class="label">Rate Limit Tiers</div></div>
+      <div class="stat-card"><div class="num">8</div><div class="label">Email Templates</div></div>
+      <div class="stat-card"><div class="num">6</div><div class="label">JSON-LD Schemas</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ ARCHITECTURE ═══════════════ -->
+<section class="section" id="architecture">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">System Architecture</div>
+      <h2>Deployment & UI Architecture</h2>
+      <p>Complete architecture showing deployment infrastructure, middleware routing, and frontend component hierarchy.</p>
+    </div>
+
+    <div class="arch-diagram fade-in" style="padding:40px 24px;overflow-x:auto;">
+      <svg viewBox="0 0 1280 680" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:1280px;min-width:800px;">
+        <defs>
+          <linearGradient id="gradRed" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#DC2626"/><stop offset="100%" stop-color="#991B1B"/></linearGradient>
+          <linearGradient id="gradBlue" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2563EB"/><stop offset="100%" stop-color="#1D4ED8"/></linearGradient>
+          <linearGradient id="gradGreen" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#047857"/></linearGradient>
+          <linearGradient id="gradPurple" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#5B21B6"/></linearGradient>
+          <linearGradient id="gradAmber" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#D97706"/><stop offset="100%" stop-color="#B45309"/></linearGradient>
+          <filter id="shadow"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.4"/></filter>
+          <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#EF4444"/></marker>
+          <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#60A5FA"/></marker>
+          <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#4B5563"/></marker>
+        </defs>
+
+        <!-- Background grid -->
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0L0 0 0 40" fill="none" stroke="#1F2937" stroke-width="0.5"/></pattern>
+
+        <!-- ─── DEPLOYMENT FLOW (Top) ─── -->
+        <rect x="0" y="0" width="1280" height="340" rx="12" fill="none" stroke="#1F2937" stroke-width="1" stroke-dasharray="6,3"/>
+        <rect x="12" y="-10" width="190" height="22" rx="6" fill="#111827" stroke="#1F2937" stroke-width="1"/>
+        <text x="22" y="6" fill="#EF4444" font-family="DM Sans" font-weight="700" font-size="11" letter-spacing="1.5">DEPLOYMENT ARCHITECTURE</text>
+
+        <!-- User/Browser -->
+        <rect x="40" y="60" width="120" height="80" rx="10" fill="#111827" stroke="#4B5563" stroke-width="1" filter="url(#shadow)"/>
+        <text x="100" y="95" text-anchor="middle" fill="#F9FAFB" font-family="DM Sans" font-weight="700" font-size="12">🌐 Users</text>
+        <text x="100" y="115" text-anchor="middle" fill="#9CA3AF" font-size="10">Browsers</text>
+        <text x="100" y="130" text-anchor="middle" fill="#6B7280" font-size="9">Global Clients</text>
+
+        <line x1="160" y1="100" x2="220" y2="100" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arrowGray)"/>
+
+        <!-- Vercel -->
+        <rect x="230" y="40" width="200" height="120" rx="10" fill="#111827" stroke="#DC2626" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect x="230" y="40" width="200" height="26" rx="10" fill="url(#gradRed)"/>
+        <path d="M250,66 C250,66 250,40 330,40 C410,40 410,66 410,66" fill="url(#gradRed)"/>
+        <text x="330" y="58" text-anchor="middle" fill="#FFF" font-family="DM Sans" font-weight="700" font-size="11">VERCEL</text>
+        <text x="260" y="85" fill="#F9FAFB" font-size="10" font-family="monospace">the86connect.com</text>
+        <text x="260" y="100" fill="#EF4444" font-size="10" font-family="monospace">admin.the86connect.com</text>
+        <text x="260" y="118" fill="#6B7280" font-size="9">Next.js 16 + React 19</text>
+        <text x="260" y="133" fill="#6B7280" font-size="9">SSR · ISR · SSG</text>
+        <text x="260" y="148" fill="#6B7280" font-size="9">Sentry Monitoring</text>
+
+        <line x1="430" y1="100" x2="490" y2="100" stroke="#EF4444" stroke-width="2" marker-end="url(#arrowRed)"/>
+
+        <!-- Middleware -->
+        <rect x="500" y="55" width="160" height="90" rx="10" fill="#111827" stroke="#3B82F6" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect x="502" y="57" width="156" height="22" rx="8" fill="url(#gradBlue)"/>
+        <text x="580" y="72" text-anchor="middle" fill="#FFF" font-family="DM Sans" font-weight="700" font-size="10">MIDDLEWARE</text>
+        <text x="525" y="96" fill="#60A5FA" font-size="10">→ Subdomain Routing</text>
+        <text x="525" y="112" fill="#60A5FA" font-size="10">→ API Proxy</text>
+        <text x="525" y="128" fill="#60A5FA" font-size="10">→ CSRF Cookies</text>
+        <text x="525" y="144" fill="#6B7280" font-size="9">Edge Runtime</text>
+
+        <line x1="660" y1="100" x2="720" y2="100" stroke="#3B82F6" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+        <!-- API Domain -->
+        <rect x="730" y="60" width="160" height="80" rx="10" fill="#111827" stroke="#8B5CF6" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect x="732" y="62" width="156" height="22" rx="8" fill="url(#gradPurple)"/>
+        <text x="810" y="77" text-anchor="middle" fill="#FFF" font-family="DM Sans" font-weight="700" font-size="10">API DOMAIN</text>
+        <text x="755" y="100" fill="#A78BFA" font-size="10" font-family="monospace">api.the86connect.com</text>
+        <text x="755" y="118" fill="#6B7280" font-size="9">Custom Domain</text>
+        <text x="755" y="133" fill="#6B7280" font-size="9">SSL/TLS</text>
+
+        <line x1="890" y1="100" x2="960" y2="100" stroke="#A78BFA" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+        <!-- Render Docker -->
+        <rect x="970" y="30" width="180" height="140" rx="10" fill="#111827" stroke="#059669" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect x="970" y="30" width="180" height="26" rx="10" fill="url(#gradGreen)"/>
+        <text x="1060" y="48" text-anchor="middle" fill="#FFF" font-family="DM Sans" font-weight="700" font-size="11">RENDER (DOCKER)</text>
+        <text x="1000" y="72" fill="#F9FAFB" font-size="10">🐳 Express.js API</text>
+        <text x="1000" y="88" fill="#6B7280" font-size="9">Prisma ORM · TypeScript</text>
+        <text x="1000" y="104" fill="#6B7280" font-size="9">Node 22 Alpine</text>
+        <text x="1000" y="120" fill="#6B7280" font-size="9">Port 3001</text>
+        <text x="1000" y="136" fill="#6B7280" font-size="9">Non-root user</text>
+        <text x="1000" y="152" fill="#6B7280" font-size="9">Healthcheck /health</text>
+
+        <line x1="1060" y1="170" x2="1060" y2="220" stroke="#059669" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+        <!-- PostgreSQL -->
+        <rect x="970" y="220" width="180" height="80" rx="10" fill="#111827" stroke="#D97706" stroke-width="1.5" filter="url(#shadow)"/>
+        <rect x="972" y="222" width="176" height="22" rx="8" fill="url(#gradAmber)"/>
+        <text x="1060" y="237" text-anchor="middle" fill="#FFF" font-family="DM Sans" font-weight="700" font-size="10">DATABASE</text>
+        <text x="1000" y="260" fill="#FBBF24" font-size="10" font-family="monospace">PostgreSQL</text>
+        <text x="1000" y="276" fill="#6B7280" font-size="9">10 Models · Auto Backup</text>
+        <text x="1000" y="290" fill="#6B7280" font-size="9">SQLite (local dev)</text>
+
+        <!-- External Services -->
+        <rect x="50" y="220" width="110" height="60" rx="8" fill="#111827" stroke="#374151" stroke-width="1"/>
+        <text x="105" y="243" text-anchor="middle" fill="#9CA3AF" font-size="9">Cloudinary</text>
+        <text x="105" y="258" text-anchor="middle" fill="#6B7280" font-size="8">Image Storage</text>
+        <text x="105" y="272" text-anchor="middle" fill="#6B7280" font-size="8">16 MIME Types</text>
+
+        <rect x="175" y="220" width="110" height="60" rx="8" fill="#111827" stroke="#374151" stroke-width="1"/>
+        <text x="230" y="243" text-anchor="middle" fill="#9CA3AF" font-size="9">Cloudflare R2</text>
+        <text x="230" y="258" text-anchor="middle" fill="#6B7280" font-size="8">File Storage</text>
+        <text x="230" y="272" text-anchor="middle" fill="#6B7280" font-size="8">S3 Compatible</text>
+
+        <rect x="300" y="220" width="110" height="60" rx="8" fill="#111827" stroke="#374151" stroke-width="1"/>
+        <text x="355" y="243" text-anchor="middle" fill="#9CA3AF" font-size="9">Resend</text>
+        <text x="355" y="258" text-anchor="middle" fill="#6B7280" font-size="8">Email Delivery</text>
+        <text x="355" y="272" text-anchor="middle" fill="#6B7280" font-size="8">8 Templates</text>
+
+        <!-- Dashed lines to external services -->
+        <line x1="1060" y1="170" x2="105" y2="220" stroke="#374151" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="1060" y1="170" x2="230" y2="220" stroke="#374151" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="1060" y1="170" x2="355" y2="220" stroke="#374151" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- ─── UI ARCHITECTURE (Bottom) ─── -->
+        <rect x="0" y="345" width="1280" height="335" rx="12" fill="none" stroke="#1F2937" stroke-width="1" stroke-dasharray="6,3"/>
+        <rect x="12" y="338" width="195" height="22" rx="6" fill="#111827" stroke="#1F2937" stroke-width="1"/>
+        <text x="22" y="353" fill="#3B82F6" font-family="DM Sans" font-weight="700" font-size="11" letter-spacing="1.5">UI COMPONENT ARCHITECTURE</text>
+
+        <!-- Root Layout -->
+        <rect x="520" y="370" width="240" height="36" rx="8" fill="url(#gradRed)"/>
+        <text x="640" y="393" text-anchor="middle" fill="#FFF" font-family="DM Sans" font-weight="700" font-size="12">Root Layout (layout.tsx)</text>
+
+        <line x1="640" y1="406" x2="200" y2="440" stroke="#EF4444" stroke-width="1.5" marker-end="url(#arrowRed)"/>
+        <line x1="640" y1="406" x2="480" y2="440" stroke="#EF4444" stroke-width="1.5" marker-end="url(#arrowRed)"/>
+        <line x1="640" y1="406" x2="760" y2="440" stroke="#EF4444" stroke-width="1.5" marker-end="url(#arrowRed)"/>
+        <line x1="640" y1="406" x2="1030" y2="440" stroke="#EF4444" stroke-width="1.5" marker-end="url(#arrowRed)"/>
+
+        <!-- Public Pages -->
+        <rect x="40" y="445" width="320" height="105" rx="8" fill="#111827" stroke="#3B82F6" stroke-width="1" filter="url(#shadow)"/>
+        <text x="200" y="467" text-anchor="middle" fill="#60A5FA" font-family="DM Sans" font-weight="700" font-size="11">🏠 Public Pages (12 routes)</text>
+        <line x1="55" y1="474" x2="345" y2="474" stroke="#1F2937" stroke-width="0.5"/>
+        <text x="55" y="493" fill="#9CA3AF" font-size="10">Homepage · Study in China · Product Sourcing</text>
+        <text x="55" y="509" fill="#9CA3AF" font-size="10">FAQ · Resources · Book Consultation · Tracking</text>
+        <text x="55" y="525" fill="#9CA3AF" font-size="10">Login · Signup · Account · Legal Pages</text>
+        <text x="55" y="542" fill="#6B7280" font-size="9">Next.js App Router · SSR/SSG · SEO Optimized</text>
+
+        <!-- Auth -->
+        <rect x="380" y="445" width="200" height="105" rx="8" fill="#111827" stroke="#8B5CF6" stroke-width="1" filter="url(#shadow)"/>
+        <text x="480" y="467" text-anchor="middle" fill="#A78BFA" font-family="DM Sans" font-weight="700" font-size="11">🔐 Auth (7 flows)</text>
+        <line x1="395" y1="474" x2="565" y2="474" stroke="#1F2937" stroke-width="0.5"/>
+        <text x="395" y="493" fill="#9CA3AF" font-size="10">Register · Login</text>
+        <text x="395" y="509" fill="#9CA3AF" font-size="10">Forgot/Reset Password</text>
+        <text x="395" y="525" fill="#9CA3AF" font-size="10">GDPR Export · Delete</text>
+        <text x="395" y="542" fill="#6B7280" font-size="9">JWT · httpOnly · Brute-Force</text>
+
+        <!-- Admin -->
+        <rect x="600" y="445" width="320" height="105" rx="8" fill="#111827" stroke="#DC2626" stroke-width="1" filter="url(#shadow)"/>
+        <text x="760" y="467" text-anchor="middle" fill="#EF4444" font-family="DM Sans" font-weight="700" font-size="11">⚙️ Admin Panel (7 tabs · 50+ endpoints)</text>
+        <line x1="615" y1="474" x2="905" y2="474" stroke="#1F2937" stroke-width="0.5"/>
+        <text x="615" y="493" fill="#9CA3AF" font-size="10">Overview · Submissions · Consultations</text>
+        <text x="615" y="509" fill="#9CA3AF" font-size="10">Users · Sessions · Availability · Videos</text>
+        <text x="615" y="525" fill="#9CA3AF" font-size="10">SSE Real-Time · Bulk Actions · CSV Export</text>
+        <text x="615" y="542" fill="#6B7280" font-size="9">Role-Based Access · Audit Trail · Soft Delete</text>
+
+        <!-- Forms -->
+        <rect x="940" y="445" width="300" height="105" rx="8" fill="#111827" stroke="#059669" stroke-width="1" filter="url(#shadow)"/>
+        <text x="1090" y="467" text-anchor="middle" fill="#34D399" font-family="DM Sans" font-weight="700" font-size="11">📝 Forms & Submissions</text>
+        <line x1="955" y1="474" x2="1225" y2="474" stroke="#1F2937" stroke-width="0.5"/>
+        <text x="955" y="493" fill="#9CA3AF" font-size="10">Study Application (16 fields) · File Upload</text>
+        <text x="955" y="509" fill="#9CA3AF" font-size="10">Sourcing Inquiry (15 fields) · File Upload</text>
+        <text x="955" y="525" fill="#9CA3AF" font-size="10">Contact Form · CTA Pre-selection</text>
+        <text x="955" y="542" fill="#6B7280" font-size="9">Zod + RHF · 6-Stage Pipelines · Auto-Save</text>
+
+        <!-- Components Row -->
+        <rect x="40" y="570" width="600" height="55" rx="8" fill="#111827" stroke="#1F2937" stroke-width="1"/>
+        <text x="340" y="592" text-anchor="middle" fill="#F9FAFB" font-family="DM Sans" font-weight="700" font-size="11">🧩 25+ Shared UI Components</text>
+        <text x="340" y="612" text-anchor="middle" fill="#9CA3AF" font-size="10">shadcn/ui · Tailwind CSS 4 · DM Sans + Nunito · Glass Morphism · Responsive · 6 JSON-LD Schemas</text>
+
+        <rect x="660" y="570" width="580" height="55" rx="8" fill="#111827" stroke="#1F2937" stroke-width="1"/>
+        <text x="950" y="592" text-anchor="middle" fill="#F9FAFB" font-family="DM Sans" font-weight="700" font-size="11">🛡️ Security & DevOps</text>
+        <text x="950" y="612" text-anchor="middle" fill="#9CA3AF" font-size="10">7 Rate Limits · CSRF · Helmet · Bot Protection · CORS · Docker · GitHub Actions CI · Render Blueprint</text>
+
+        <!-- Legend -->
+        <rect x="440" y="645" width="400" height="22" rx="6" fill="#0b0f1a"/>
+        <rect x="455" y="651" width="10" height="10" rx="2" fill="#DC2626"/>
+        <text x="470" y="660" fill="#9CA3AF" font-size="9">Prod</text>
+        <rect x="510" y="651" width="10" height="10" rx="2" fill="#3B82F6"/>
+        <text x="525" y="660" fill="#9CA3AF" font-size="9">Middleware</text>
+        <rect x="590" y="651" width="10" height="10" rx="2" fill="#059669"/>
+        <text x="605" y="660" fill="#9CA3AF" font-size="9">Forms</text>
+        <rect x="655" y="651" width="10" height="10" rx="2" fill="#8B5CF6"/>
+        <text x="670" y="660" fill="#9CA3AF" font-size="9">Auth</text>
+        <rect x="715" y="651" width="10" height="10" rx="2" fill="#D97706"/>
+        <text x="730" y="660" fill="#9CA3AF" font-size="9">DB</text>
+        <line x1="775" y1="656" x2="805" y2="656" stroke="#374151" stroke-width="1" stroke-dasharray="4,2"/>
+        <text x="810" y="660" fill="#6B7280" font-size="9">External</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FEATURES ═══════════════ -->
+<section class="section" style="background: var(--dark);">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Feature Catalog</div>
+      <h2>Complete Feature Set</h2>
+      <p>Every feature implemented across the platform, organized by domain.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card fade-in">
+        <div class="card-icon red">🏠</div>
+        <h3>Public Pages (12 Routes)</h3>
+        <ul class="feature-list" style="grid-template-columns:1fr;margin-top:12px;">
+          <li><span class="check">✓</span> Homepage — 8-section SPA with smooth scroll</li>
+          <li><span class="check">✓</span> Study in China — full landing page (12 sections)</li>
+          <li><span class="check">✓</span> Product Sourcing — full landing page (11 sections)</li>
+          <li><span class="check">✓</span> FAQ, Resources, Blog articles</li>
+          <li><span class="check">✓</span> Application & Quote tracking</li>
+          <li><span class="check">✓</span> Consultation booking with calendar</li>
+          <li><span class="check">✓</span> Legal: Privacy Policy, Terms of Service</li>
+        </ul>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon blue">🔐</div>
+        <h3>User Authentication</h3>
+        <ul class="feature-list" style="grid-template-columns:1fr;margin-top:12px;">
+          <li><span class="check">✓</span> Registration with email verification</li>
+          <li><span class="check">✓</span> Login with brute-force protection</li>
+          <li><span class="check">✓</span> Password: set, forgot, reset, change</li>
+          <li><span class="check">✓</span> Account page with notifications</li>
+          <li><span class="check">✓</span> GDPR: data export & account deletion</li>
+          <li><span class="check">✓</span> Auto-account creation from forms</li>
+          <li><span class="check">✓</span> httpOnly JWT cookie sessions</li>
+        </ul>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon green">📋</div>
+        <h3>Admin Dashboard (7 Tabs)</h3>
+        <ul class="feature-list" style="grid-template-columns:1fr;margin-top:12px;">
+          <li><span class="check">✓</span> Overview with stats & charts</li>
+          <li><span class="check">✓</span> Submissions — table, filters, bulk actions</li>
+          <li><span class="check">✓</span> Consultation management</li>
+          <li><span class="check">✓</span> User management with CRUD</li>
+          <li><span class="check">✓</span> Session tracking & revocation</li>
+          <li><span class="check">✓</span> Availability slot CRUD</li>
+          <li><span class="check">✓</span> YouTube video management</li>
+        </ul>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon amber">📝</div>
+        <h3>Forms & Submissions</h3>
+        <ul class="feature-list" style="grid-template-columns:1fr;margin-top:12px;">
+          <li><span class="check">✓</span> Study Application — 16 fields + file uploads</li>
+          <li><span class="check">✓</span> Sourcing Inquiry — 15 fields + file uploads</li>
+          <li><span class="check">✓</span> Contact Form — CTA pre-selection</li>
+          <li><span class="check">✓</span> Zod validation + React Hook Form</li>
+          <li><span class="check">✓</span> Reference codes (STU-/SOU-)</li>
+          <li><span class="check">✓</span> Auto-save, throttling, cooldown</li>
+          <li><span class="check">✓</span> Status pipelines (6 stages each)</li>
+        </ul>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon purple">📅</div>
+        <h3>Consultation Booking</h3>
+        <ul class="feature-list" style="grid-template-columns:1fr;margin-top:12px;">
+          <li><span class="check">✓</span> Slot-based calendar booking</li>
+          <li><span class="check">✓</span> Timezone-aware display</li>
+          <li><span class="check">✓</span> Double-booking prevention</li>
+          <li><span class="check">✓</span> User cancellation with slot release</li>
+          <li><span class="check">✓</span> Admin bulk slot creation</li>
+          <li><span class="check">✓</span> 5 statuses with email notifications</li>
+        </ul>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon red">⚡</div>
+        <h3>Real-Time & Notifications</h3>
+        <ul class="feature-list" style="grid-template-columns:1fr;margin-top:12px;">
+          <li><span class="check">✓</span> Server-Sent Events (SSE) stream</li>
+          <li><span class="check">✓</span> In-app user notifications</li>
+          <li><span class="check">✓</span> 8 email notification types</li>
+          <li><span class="check">✓</span> Admin email on every submission</li>
+          <li><span class="check">✓</span> Status change emails to users</li>
+          <li><span class="check">✓</span> Booking confirmation & updates</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECURITY ═══════════════ -->
+<section class="section" id="security">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Security & Reliability</div>
+      <h2>Enterprise-Grade Protection</h2>
+      <p>Multi-layered security architecture protecting user data and system integrity.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card fade-in"><div class="card-icon red">🛡️</div><h3>CSRF Protection</h3><p>Double-submit cookie pattern on all mutating requests. Cross-subdomain support via .the86connect.com domain.</p></div>
+      <div class="card fade-in"><div class="card-icon blue">⏱️</div><h3>7 Rate Limit Tiers</h3><p>Granular limits from 3 req/2min (admin login) to 100 req/15min (general API). IP-based submission tracking (10/hr, 20/day).</p></div>
+      <div class="card fade-in"><div class="card-icon green">🔒</div><h3>Brute-Force Protection</h3><p>LoginAttempt table tracks IP + email, 15-minute lockout after 5 consecutive failures. Rate limits skip successful logins.</p></div>
+      <div class="card fade-in"><div class="card-icon amber">🤖</div><h3>Bot Protection</h3><p>Honeypot field detection on all form submissions. Applied to study application, sourcing inquiry, and consultation routes.</p></div>
+      <div class="card fade-in"><div class="card-icon purple">🍪</div><h3>Secure Cookies</h3><p>httpOnly, Secure (production), SameSite=Lax, Domain scope (.the86connect.com) for cross-subdomain JWT sessions.</p></div>
+      <div class="card fade-in"><div class="card-icon red">🔍</div><h3>Input Validation</h3><p>Zod validation on both frontend (React Hook Form) and backend (server-side re-validation). SQL injection prevented via Prisma ORM.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ PRICING ═══════════════ -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Project Valuation</div>
+      <h2>Estimated Development Cost</h2>
+      <p>Real-world pricing based on US/EU agency rates ($100–$200/hr) and freelance rates ($50–$100/hr) for a full-stack application of this scope.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card fade-in">
+        <div class="card-icon red">🎨</div>
+        <h3>UI/UX Design</h3>
+        <p style="margin-bottom:16px;">Custom design system, 12+ page layouts, 25+ components, responsive mobile/tablet/desktop, glass morphism, animations</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--border);">
+          <span style="color:var(--text-dim);font-size:14px;">Est. 80–120 hours</span>
+          <span style="font-family:'DM Sans',sans-serif;font-size:22px;font-weight:800;color:var(--red-light);">$8,000–$18,000</span>
+        </div>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon blue">⚛️</div>
+        <h3>Frontend Development</h3>
+        <p style="margin-bottom:16px;">Next.js 16 App Router, 12 routes, SSR/SSG/ISR, 3 form types with validation, auth pages, tracking, booking calendar, SEO</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--border);">
+          <span style="color:var(--text-dim);font-size:14px;">Est. 160–240 hours</span>
+          <span style="font-family:'DM Sans',sans-serif;font-size:22px;font-weight:800;color:var(--red-light);">$16,000–$36,000</span>
+        </div>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon green">🖥️</div>
+        <h3>Backend Development</h3>
+        <p style="margin-bottom:16px;">Express.js API, 50+ endpoints, Prisma ORM, 10 database models, JWT auth, CSRF, rate limiting, file uploads, email system, SSE</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--border);">
+          <span style="color:var(--text-dim);font-size:14px;">Est. 180–280 hours</span>
+          <span style="font-family:'DM Sans',sans-serif;font-size:22px;font-weight:800;color:var(--red-light);">$18,000–$42,000</span>
+        </div>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon purple">🎯</div>
+        <h3>Admin Dashboard</h3>
+        <p style="margin-bottom:16px;">7-tab panel, real-time SSE, bulk operations, CSV export, session management, availability CRUD, video management, role-based access</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--border);">
+          <span style="color:var(--text-dim);font-size:14px;">Est. 100–160 hours</span>
+          <span style="font-family:'DM Sans',sans-serif;font-size:22px;font-weight:800;color:var(--red-light);">$10,000–$24,000</span>
+        </div>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon amber">🔐</div>
+        <h3>Security & DevOps</h3>
+        <p style="margin-bottom:16px;">7-tier rate limiting, brute-force protection, CSRF, bot detection, Docker + Render, CI/CD pipeline, Sentry monitoring, SSL, health checks</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--border);">
+          <span style="color:var(--text-dim);font-size:14px;">Est. 60–100 hours</span>
+          <span style="font-family:'DM Sans',sans-serif;font-size:22px;font-weight:800;color:var(--red-light);">$6,000–$15,000</span>
+        </div>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon red">🧪</div>
+        <h3>Testing & QA</h3>
+        <p style="margin-bottom:16px;">End-to-end testing, form validation, auth flows, cross-browser, mobile responsive, API testing, edge cases, performance optimization</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--border);">
+          <span style="color:var(--text-dim);font-size:14px;">Est. 60–90 hours</span>
+          <span style="font-family:'DM Sans',sans-serif;font-size:22px;font-weight:800;color:var(--red-light);">$6,000–$13,500</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-diagram fade-in" style="margin-top:32px;text-align:center;">
+      <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;margin-bottom:32px;">
+        <div style="text-align:center;">
+          <div style="font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-muted);margin-bottom:8px;">FREELANCE RATE</div>
+          <div style="font-family:'DM Sans',sans-serif;font-size:48px;font-weight:800;color:var(--blue);">$64K–$148K</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">640–990 hrs × $50–$100/hr</div>
+          <div style="font-size:12px;color:#6B7280;margin-top:2px;">Individual developer · 4–6 months</div>
+        </div>
+        <div style="width:1px;background:var(--border);"></div>
+        <div style="text-align:center;">
+          <div style="font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-muted);margin-bottom:8px;">AGENCY RATE</div>
+          <div style="font-family:'DM Sans',sans-serif;font-size:48px;font-weight:800;color:var(--red-light);background:linear-gradient(135deg,#DC2626,#991B1B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">$128K–$297K</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">640–990 hrs × $100–$200/hr</div>
+          <div style="font-size:12px;color:#6B7280;margin-top:2px;">Team of 3–5 · 3–4 months</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;max-width:900px;margin:0 auto;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;">
+          <div style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-muted);margin-bottom:4px;">Hourly Breakdown</div>
+          <div style="font-size:13px;color:var(--text-dim);">Design: 80–120h</div>
+          <div style="font-size:13px;color:var(--text-dim);">Frontend: 160–240h</div>
+          <div style="font-size:13px;color:var(--text-dim);">Backend: 180–280h</div>
+          <div style="font-size:13px;color:var(--text-dim);">Admin: 100–160h</div>
+          <div style="font-size:13px;color:var(--text-dim);">DevOps: 60–100h</div>
+          <div style="font-size:13px;color:var(--text-dim);">QA: 60–90h</div>
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-family:'DM Sans',sans-serif;font-weight:700;color:var(--white);font-size:15px;">Total: 640–990h</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;">
+          <div style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-muted);margin-bottom:4px;">Ongoing Costs /mo</div>
+          <div style="font-size:13px;color:var(--text-dim);">Vercel Pro: $20</div>
+          <div style="font-size:13px;color:var(--text-dim);">Render Starter: $7</div>
+          <div style="font-size:13px;color:var(--text-dim);">PostgreSQL: $20</div>
+          <div style="font-size:13px;color:var(--text-dim);">Cloudinary: $0–$89</div>
+          <div style="font-size:13px;color:var(--text-dim);">Resend Email: $0–$20</div>
+          <div style="font-size:13px;color:var(--text-dim);">Sentry: $0–$26</div>
+          <div style="font-size:13px;color:var(--text-dim);">Domain: ~$15/yr</div>
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-family:'DM Sans',sans-serif;font-weight:700;color:var(--green);font-size:15px;">~$62–$197/mo</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;">
+          <div style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-muted);margin-bottom:4px;">Maintenance /mo</div>
+          <div style="font-size:13px;color:var(--text-dim);">Bug fixes</div>
+          <div style="font-size:13px;color:var(--text-dim);">Dependency updates</div>
+          <div style="font-size:13px;color:var(--text-dim);">Security patches</div>
+          <div style="font-size:13px;color:var(--text-dim);">Minor features</div>
+          <div style="font-size:13px;color:var(--text-dim);">Performance tuning</div>
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-family:'DM Sans',sans-serif;font-weight:700;color:var(--amber);font-size:15px;">$500–$2,000/mo</div>
+          <div style="font-size:11px;color:var(--text-muted);">5–20 hours/month</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:24px;color:var(--text-muted);font-size:12px;">
+      * Estimates based on 2026 US/EU market rates. Prices vary by region — Asia/South Asia: 40–60% lower, Eastern Europe: 30–40% lower. These are agency/freelance quotes for building from scratch; this project represents a <strong style="color:var(--red-light);">$128,000–$297,000</strong> asset at agency valuation.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SEO ═══════════════ -->
+<section class="section" style="background: var(--dark);">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">SEO & Discoverability</div>
+      <h2>Search Engine Optimized</h2>
+      <p>Comprehensive SEO implementation targeting "Study in China" and "Product Sourcing from China" keywords.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card fade-in"><div class="card-icon blue">🏷️</div><h3>Meta Tags</h3><p>Per-page Open Graph, Twitter Cards (1200×630), 20+ keywords, canonical URLs, alternate language links (en, zh), geo tags.</p></div>
+      <div class="card fade-in"><div class="card-icon green">📊</div><h3>6 JSON-LD Schemas</h3><p>Organization, WebSite, ProfessionalService (LocalBusiness), ItemList (Services), FAQPage, BreadcrumbList — all embedded for rich results.</p></div>
+      <div class="card fade-in"><div class="card-icon amber">🤖</div><h3>Dynamic Robots & Sitemap</h3><p>Programmatic robots.txt and sitemap.xml generation. Search engine verification for Google, Yandex, Baidu, Bing.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ DATABASE ═══════════════ -->
+<section class="section" id="database">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Data Layer</div>
+      <h2>Database Models (10)</h2>
+      <p>Prisma ORM with dual-schema setup — SQLite for local development, PostgreSQL for production.</p>
+    </div>
+
+    <div class="db-grid fade-in">
+      <div class="db-item"><h4>User</h4><p>Client accounts with bcrypt password hashing, soft delete, GDPR export</p></div>
+      <div class="db-item"><h4>Submission</h4><p>All form submissions with 6-stage status pipelines, JSON status history, reference codes</p></div>
+      <div class="db-item"><h4>SubmissionNote</h4><p>Admin internal notes on submissions</p></div>
+      <div class="db-item"><h4>Attachment</h4><p>Files linked to submissions, Cloudinary/R2 storage provider tracking</p></div>
+      <div class="db-item"><h4>Consultation</h4><p>Booking records with 5 statuses, timezone-aware scheduling</p></div>
+      <div class="db-item"><h4>AvailabilitySlot</h4><p>Bookable time slots with unique constraint for double-booking prevention</p></div>
+      <div class="db-item"><h4>Video</h4><p>YouTube video entries with page assignment and ordering</p></div>
+      <div class="db-item"><h4>Notification</h4><p>In-app user notifications with read/unread state</p></div>
+      <div class="db-item"><h4>LoginAttempt</h4><p>Brute-force protection: IP + email tracking with lockout timers</p></div>
+      <div class="db-item"><h4>AdminUser</h4><p>Admin accounts with role-based access (admin/superadmin)</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CI/CD ═══════════════ -->
+<section class="section" style="background: var(--dark);">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-tag">Deployment Pipeline</div>
+      <h2>CI/CD & DevOps</h2>
+      <p>Automated deployment pipeline with zero-downtime updates.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card fade-in"><div class="card-icon red">🚀</div><h3>Vercel Auto-Deploy</h3><p>Frontend auto-deploys from Git main branch. Custom domains with automatic SSL. Environment variables managed in dashboard.</p></div>
+      <div class="card fade-in"><div class="card-icon blue">🐳</div><h3>Docker + Render</h3><p>Multi-stage Dockerfile (deps → build → prod). Render Blueprint for infra-as-code. Non-root user, health check via wget.</p></div>
+      <div class="card fade-in"><div class="card-icon green">🔄</div><h3>GitHub Actions CI</h3><p>Automated CI workflow on every push. Type checking, linting, build verification across frontend and backend.</p></div>
+      <div class="card fade-in"><div class="card-icon amber">⏰</div><h3>Scheduled Tasks</h3><p>Past slot cleanup (hourly), soft-delete purge (6hr, 7-day grace), login tracker cleanup, submission tracker cleanup.</p></div>
+    </div>
+
+    <div class="timeline fade-in" style="margin-top:48px;">
+      <div class="section-tag" style="margin-bottom:24px;">Development Timeline</div>
+      <div class="timeline-item"><div class="timeline-dot"></div><h4>Phase 1: Core Platform</h4><p>Homepage, service pages, contact forms, admin dashboard with submissions management</p></div>
+      <div class="timeline-item"><div class="timeline-dot"></div><h4>Phase 2: Authentication & Users</h4><p>User registration/login, password management, account page, notifications, GDPR compliance</p></div>
+      <div class="timeline-item"><div class="timeline-dot"></div><h4>Phase 3: Advanced Features</h4><p>Consultation booking, availability management, video gallery, application/quote tracking, file uploads</p></div>
+      <div class="timeline-item"><div class="timeline-dot"></div><h4>Phase 4: Production Hardening</h4><p>Docker deployment, Render migration, Sentry monitoring, rate limiting, bot protection, email notifications, SEO optimization</p></div>
+      <div class="timeline-item"><div class="timeline-dot"></div><h4>Phase 5: Admin Subdomain & Infra</h4><p>Subdomain routing, cross-domain cookies, CSRF domain fix, deployment documentation, CI/CD pipeline</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<div class="divider"></div>
+<footer class="footer">
+  <div class="container">
+    <h2>86 Connects</h2>
+    <p>Bridging the World to China</p>
+    <div class="contact-info">
+      <span>🌐 the86connect.com</span>
+      <span>📍 Beijing, Chaoyang District</span>
+      <span>📞 +86 176 1153 3296</span>
+      <span>📧 info@the86connect.com</span>
+    </div>
+    <p style="margin-top:24px;">© 2023–2026 86 Connects. All rights reserved. | Founded November 23, 2023</p>
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>

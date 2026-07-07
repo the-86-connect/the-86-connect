@@ -1534,6 +1534,159 @@ adminRouter.delete("/videos/:id", authenticateToken, async (req, res) => {
   }
 });
 
+// ===== Blog Posts Management =====
+
+const VALID_BLOG_CATEGORIES = ["Study in China", "Product Sourcing", "Guide"];
+
+adminRouter.get("/blog", authenticateToken, async (_req, res) => {
+  try {
+    const posts = await prisma.blogPost.findMany({
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    });
+    res.json({ posts });
+  } catch (error) {
+    console.error("Admin fetch blog posts error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to retrieve blog posts" });
+  }
+});
+
+adminRouter.post("/blog", authenticateToken, async (req, res) => {
+  const {
+    slug,
+    title,
+    excerpt,
+    category,
+    date,
+    readTime,
+    author,
+    tags,
+    content,
+  } = req.body;
+
+  if (!slug || !title) {
+    return res.status(400).json({ error: "Slug and title are required" });
+  }
+
+  if (category && !VALID_BLOG_CATEGORIES.includes(category)) {
+    return res.status(400).json({ error: "Invalid category" });
+  }
+
+  try {
+    // Auto-assign order: place after the last post
+    const lastPost = await prisma.blogPost.findFirst({
+      orderBy: { order: "desc" },
+      select: { order: true },
+    });
+    const order = (lastPost?.order ?? -1) + 1;
+
+    const post = await prisma.blogPost.create({
+      data: {
+        slug: slug.trim(),
+        title: title.trim(),
+        excerpt: (excerpt || "").trim(),
+        category: category || "Guide",
+        date: (date || new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })).trim(),
+        readTime: (readTime || "5 min read").trim(),
+        author: (author || "86 Connect Team").trim(),
+        tags: Array.isArray(tags) ? tags : [],
+        content: Array.isArray(content) ? content : [],
+        order,
+      },
+    });
+    res.status(201).json({ post });
+  } catch (error) {
+    const msg = (error as Error).message;
+    if (msg.includes("UNIQUE") || msg.includes("unique")) {
+      return res.status(409).json({ error: "A post with this slug already exists" });
+    }
+    console.error("Create blog post error:", msg);
+    res.status(500).json({ error: "Failed to create blog post" });
+  }
+});
+
+adminRouter.patch("/blog/reorder", authenticateToken, async (req, res) => {
+  const { items } = req.body;
+  if (!Array.isArray(items)) {
+    return res.status(400).json({ error: "items must be an array of {id, order}" });
+  }
+
+  try {
+    await prisma.$transaction(
+      items.map((item: { id: string; order: number }) =>
+        prisma.blogPost.update({
+          where: { id: item.id },
+          data: { order: item.order },
+        }),
+      ),
+    );
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Reorder blog posts error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to reorder blog posts" });
+  }
+});
+
+adminRouter.patch("/blog/:id", authenticateToken, async (req, res) => {
+  const id = String(req.params.id);
+  const {
+    slug,
+    title,
+    excerpt,
+    category,
+    date,
+    readTime,
+    author,
+    tags,
+    content,
+    order,
+    published,
+  } = req.body;
+
+  if (category && !VALID_BLOG_CATEGORIES.includes(category)) {
+    return res.status(400).json({ error: "Invalid category" });
+  }
+
+  try {
+    const data: Record<string, unknown> = {};
+    if (slug !== undefined) data.slug = slug.trim();
+    if (title !== undefined) data.title = title.trim();
+    if (excerpt !== undefined) data.excerpt = excerpt.trim();
+    if (category !== undefined) data.category = category;
+    if (date !== undefined) data.date = date.trim();
+    if (readTime !== undefined) data.readTime = readTime.trim();
+    if (author !== undefined) data.author = author.trim();
+    if (tags !== undefined) data.tags = Array.isArray(tags) ? tags : [];
+    if (content !== undefined) data.content = Array.isArray(content) ? content : [];
+    if (order !== undefined) data.order = order;
+    if (published !== undefined) data.published = published;
+
+    const post = await prisma.blogPost.update({
+      where: { id },
+      data,
+    });
+    res.json({ post });
+  } catch (error) {
+    const msg = (error as Error).message;
+    if (msg.includes("UNIQUE") || msg.includes("unique")) {
+      return res.status(409).json({ error: "A post with this slug already exists" });
+    }
+    console.error("Update blog post error:", msg);
+    res.status(500).json({ error: "Failed to update blog post" });
+  }
+});
+
+adminRouter.delete("/blog/:id", authenticateToken, async (req, res) => {
+  const id = String(req.params.id);
+
+  try {
+    await prisma.blogPost.delete({ where: { id } });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Delete blog post error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to delete blog post" });
+  }
+});
+
 // ===== Consultation Management =====
 
 const VALID_CONSULTATION_STATUSES = [

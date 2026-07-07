@@ -3,6 +3,8 @@ import Link from "next/link";
 import { BookOpen, Clock, Calendar, ArrowRight, GraduationCap, ShoppingCart, Compass } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { fetchBlogPosts } from "@/lib/api";
+import type { BlogPostMeta } from "@/lib/api";
 import { BLOG_POSTS } from "@/data/blog";
 
 export const metadata: Metadata = {
@@ -43,7 +45,26 @@ const CATEGORY_COLORS = {
   "Guide": "bg-amber-50 text-amber-700 border-amber-200",
 } as const;
 
-export default function ResourcesPage() {
+export default async function ResourcesPage() {
+  let posts = await fetchBlogPosts();
+
+  // Fallback to hardcoded data if API returns empty
+  if (posts.length === 0) {
+    posts = BLOG_POSTS.map((p) => ({
+      id: p.slug,
+      slug: p.slug,
+      title: p.title,
+      excerpt: p.excerpt,
+      category: p.category,
+      date: p.date,
+      readTime: p.readTime,
+      author: p.author,
+      tags: p.tags,
+      order: 0,
+      published: true,
+    }));
+  }
+
   return (
     <>
       <Navbar />
@@ -71,9 +92,10 @@ export default function ResourcesPage() {
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            {BLOG_POSTS.map((post) => {
-              const CatIcon = CATEGORY_ICONS[post.category];
-              const catColor = CATEGORY_COLORS[post.category];
+            {posts.map((post) => {
+              const category = post.category as keyof typeof CATEGORY_ICONS;
+              const CatIcon = CATEGORY_ICONS[category] || Compass;
+              const catColor = CATEGORY_COLORS[category] || CATEGORY_COLORS["Guide"];
               return (
                 <Link
                   key={post.slug}

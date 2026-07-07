@@ -12,6 +12,7 @@ import {
   Users,
   Video,
   MonitorSmartphone,
+  FileText,
   Loader2,
   RefreshCw,
 } from "lucide-react";
@@ -22,6 +23,7 @@ import UsersTab from "@/components/admin/users-tab";
 import { VideosTab } from "@/components/admin/videos-tab";
 import { AvailabilityTab } from "@/components/admin/availability-tab";
 import SessionsTab from "@/components/admin/sessions-tab";
+import { BlogTab } from "@/components/admin/blog-tab";
 import { API_URL, getCsrfToken } from "@/lib/api";
 
 /* ------------------------------------------------------------------ */
@@ -62,6 +64,7 @@ const TABS = [
   { key: "consultations", label: "Consultations", icon: Calendar },
   { key: "users", label: "Users", icon: Users },
   { key: "videos", label: "Videos", icon: Video },
+  { key: "blog", label: "Blog Posts", icon: FileText },
   { key: "sessions", label: "Sessions", icon: MonitorSmartphone },
 ] as const;
 
@@ -429,6 +432,10 @@ export default function AdminPage() {
 
           {activeTab === "videos" && (
             <VideosTab />
+          )}
+
+          {activeTab === "blog" && (
+            <BlogTab />
           )}
 
           {activeTab === "sessions" && (

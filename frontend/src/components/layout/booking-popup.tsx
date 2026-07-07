@@ -132,34 +132,34 @@ export function BookingPopup() {
 
   return (
     <div
-      className={`fixed top-1/2 -translate-y-1/2 right-4 z-50 max-w-[300px] w-[calc(100vw-2rem)] transition-all duration-300 ${
+      className={`fixed top-1/2 -translate-y-1/2 right-3 sm:right-4 z-50 max-w-[280px] sm:max-w-[300px] w-[calc(100vw-1.5rem)] sm:w-[calc(100vw-2rem)] transition-all duration-300 ${
         exiting ? "opacity-0 translate-x-4 scale-95" : "opacity-100 translate-x-0 scale-100"
       }`}
     >
       <div className="bg-gradient-to-br from-red-600 via-red-500 to-rose-500 rounded-2xl shadow-2xl shadow-red-900/30 overflow-hidden text-white">
-        <div className="p-4">
+        <div className="p-3 sm:p-4">
           {/* Close button */}
           <button
             onClick={dismiss}
             aria-label="Dismiss"
-            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-700/60 hover:bg-red-800 flex items-center justify-center transition-colors"
+            className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-700/60 hover:bg-red-800 flex items-center justify-center transition-colors"
           >
-            <X className="h-4 w-4 text-white" strokeWidth={3} />
+            <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" strokeWidth={3} />
           </button>
 
           {/* Icon + Rotating text */}
-          <div className="flex items-start gap-3 mb-3 pr-6">
-            <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
-              <Phone className="h-4 w-4 text-white" />
+          <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3 pr-5 sm:pr-6">
+            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+              <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
             </div>
             <div>
               <p
                 key={msgIndex}
-                className="text-sm font-bold text-white leading-snug animate-in fade-in slide-in-from-bottom-1 duration-300"
+                className="text-xs sm:text-sm font-bold text-white leading-snug animate-in fade-in slide-in-from-bottom-1 duration-300"
               >
                 {MESSAGES[msgIndex]}
               </p>
-              <p className="text-xs text-white/80 font-medium mt-0.5">
+              <p className="text-[11px] sm:text-xs text-white/80 font-medium mt-0.5">
                 Book a{" "}
                 <span className="font-bold text-white underline decoration-white/40">
                   free 30-min
@@ -173,14 +173,14 @@ export function BookingPopup() {
           <Link
             href="/book-consultation"
             onClick={dismiss}
-            className="flex items-center justify-center gap-1.5 w-full h-10 bg-white text-red-600 rounded-xl font-bold text-sm hover:bg-white/90 transition-all duration-200 cursor-pointer press"
+            className="flex items-center justify-center gap-1.5 w-full h-9 sm:h-10 bg-white text-red-600 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm hover:bg-white/90 transition-all duration-200 cursor-pointer press"
           >
-            <Calendar className="h-4 w-4" />
+            <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span>Book Free Call</span>
-            <ArrowRight className="h-3.5 w-3.5" />
+            <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           </Link>
 
-          <p className="text-[10px] text-white/50 text-center mt-2 font-medium">
+          <p className="text-[9px] sm:text-[10px] text-white/50 text-center mt-1.5 sm:mt-2 font-medium">
             No commitment · Cancel anytime
           </p>
         </div>

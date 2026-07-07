@@ -23,6 +23,9 @@ const FOOTER_LINKS = [
 const LEGAL_LINKS = [
   { label: "Privacy Policy", href: "/privacy-policy" },
   { label: "Terms of Service", href: "/terms-of-service" },
+  { label: "Data Processing", href: "/data-processing-agreement" },
+  { label: "Security Policy", href: "/security-policy" },
+  { label: "NDA", href: "/nda" },
 ];
 
 export function Footer() {
@@ -208,7 +211,9 @@ export function Footer() {
         <div className="mt-8 sm:mt-10 md:mt-12 pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-white/50 text-center sm:text-left font-bold flex items-center gap-1.5 flex-wrap justify-center">
             <span>
-              &copy; {new Date().getFullYear()} 86 Connect. All rights reserved.
+              &copy; {new Date().getFullYear()}{" "}
+              <span className="text-primary font-black">86 Connect</span>. All
+              rights reserved.
             </span>
             <span className="hidden sm:inline text-white/30">&middot;</span>
             <span className="inline-flex items-center gap-1">
@@ -224,7 +229,7 @@ export function Footer() {
               </a>
             </span>
           </p>
-          <div className="flex items-center gap-4 sm:gap-5 text-xs">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:gap-5 text-xs">
             {LEGAL_LINKS.map((link) => (
               <Link
                 key={link.href}

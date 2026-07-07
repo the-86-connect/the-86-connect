@@ -439,6 +439,65 @@ export async function fetchVideos(
   }
 }
 
+/* ============== Blog Posts (Public) ============== */
+
+export interface BlogPostMeta {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  date: string;
+  readTime: string;
+  author: string;
+  tags: string[];
+  order: number;
+  published: boolean;
+}
+
+export interface BlogSection {
+  type: "paragraph" | "heading" | "list" | "tip";
+  text?: string;
+  level?: 2 | 3;
+  items?: string[];
+}
+
+export interface BlogPostFull extends BlogPostMeta {
+  content: BlogSection[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Fetch all published blog posts for the resources listing page */
+export async function fetchBlogPosts(): Promise<BlogPostMeta[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/blog`, {
+      next: { revalidate: 60 },
+    });
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.posts || [];
+  } catch {
+    return [];
+  }
+}
+
+/** Fetch a single blog post by slug for the detail page */
+export async function fetchBlogPost(
+  slug: string,
+): Promise<BlogPostFull | null> {
+  try {
+    const response = await fetch(`${API_URL}/api/blog/${slug}`, {
+      next: { revalidate: 60 },
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.post || null;
+  } catch {
+    return null;
+  }
+}
+
 /* ============== Tracking ============== */
 
 export async function trackSubmission(

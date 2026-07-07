@@ -112,7 +112,7 @@ export function AboutUsSection() {
               </div>
               <p className="text-sm text-muted-foreground font-medium leading-relaxed">
                 The number{" "}
-                <span className="font-black text-primary">86</span> is
+                <span className="font-black text-primary">86</span>{" "}is
                 China&apos;s international dialing code — it symbolizes our role
                 as the direct line connecting you to everything China has to
                 offer.

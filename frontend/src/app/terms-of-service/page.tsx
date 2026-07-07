@@ -23,6 +23,8 @@ export default function TermsOfServicePage() {
   return (
     <>
       <Navbar />
+      {/* Dark backdrop behind navbar for white logo/text visibility */}
+      <div aria-hidden="true" className="fixed top-0 inset-x-0 h-24 bg-gradient-to-b from-slate-900 to-transparent z-40 pointer-events-none" />
       <main className="flex-1 px-4 sm:px-6 lg:px-8 bg-section-warm relative overflow-hidden">
         <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
           <div className="absolute top-20 left-1/4 w-[28rem] h-[28rem] bg-primary/5 rounded-full blur-3xl animate-pulse-soft" />

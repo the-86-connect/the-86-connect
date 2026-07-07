@@ -40,7 +40,7 @@ const CONTACT_INFO = [
     label: "WhatsApp",
     value: "+86 176 1153 3296",
     sub: "Fastest response — chat with us",
-    href: "https://wa.me/8617611533296",
+    href: "https://wa.me/8617611533296?text=Hello%21%20I%27m%20checking%20out%20your%20website%20and%20would%20love%20to%20learn%20more%20about%20your%20services.",
     iconBgClass: "bg-[#25D366]",
     isExternal: true,
   },

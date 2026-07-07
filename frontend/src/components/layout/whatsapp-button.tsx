@@ -91,7 +91,7 @@ export function WhatsAppButton() {
   };
 
   return (
-    <div className="fixed bottom-24 sm:bottom-6 right-3 sm:right-5 z-50 flex flex-col items-end gap-2 safe-bottom">
+    <div className="fixed bottom-24 sm:bottom-6 right-3 sm:right-5 z-[60] flex flex-col items-end gap-2 safe-bottom">
       {isOpen && (
         <div className="bg-white rounded-2xl shadow-soft-xl w-[calc(100vw-24px)] max-w-80 sm:w-80 border border-border animate-in slide-in-from-bottom-4 fade-in duration-250 origin-bottom-right overflow-hidden">
           <div className="bg-[#25D366] px-4 py-3.5 flex items-center justify-between">
