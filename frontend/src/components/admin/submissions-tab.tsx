@@ -999,7 +999,7 @@ export default function SubmissionsTab({
         >
           <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-md" />
           <div
-            className="relative w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-3xl glass-strong p-7 animate-in fade-in zoom-in-95 duration-200"
+            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl glass-strong p-7 animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -1370,24 +1370,25 @@ export default function SubmissionsTab({
       {/* Image lightbox */}
       {lightboxImage && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-8 bg-black/80 backdrop-blur-sm"
           onClick={() => setLightboxImage(null)}
         >
           <button
             type="button"
             onClick={() => setLightboxImage(null)}
-            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer z-10"
             aria-label="Close preview"
           >
             <X className="h-5 w-5" />
           </button>
-          <div className="relative max-w-[90vw] max-h-[90vh] rounded-xl overflow-hidden">
-            <Image
+          <div
+            className="relative max-w-[90vw] max-h-[90vh] rounded-xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
               src={lightboxImage}
               alt="Full size preview"
-              width={1200}
-              height={900}
-              className="object-contain max-h-[90vh] w-auto"
+              className="max-w-[90vw] max-h-[90vh] object-contain"
             />
           </div>
         </div>
