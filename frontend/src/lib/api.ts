@@ -431,10 +431,14 @@ export async function fetchVideos(
     const response = await fetch(url, {
       next: { revalidate: 60 },
     });
-    if (!response.ok) return [];
+    if (!response.ok) {
+      console.error(`fetchVideos failed: ${response.status} ${response.statusText} from ${url}`);
+      return [];
+    }
     const data = await response.json();
     return data.videos || [];
-  } catch {
+  } catch (err) {
+    console.error("fetchVideos error:", err instanceof Error ? err.message : err);
     return [];
   }
 }

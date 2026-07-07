@@ -33,6 +33,8 @@ import { fetchVideos } from "@/lib/api";
 import { STUDY_TESTIMONIALS } from "@/data/testimonials";
 import { FAQ_SECTIONS } from "@/data/faq";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Study in China — Scholarships, Admissions & Visa Guidance",
   description:

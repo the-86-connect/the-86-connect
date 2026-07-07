@@ -10,6 +10,9 @@ import { AboutUsSection } from "@/components/sections/about-us";
 import { ContactSection } from "@/components/sections/contact";
 import { fetchVideos } from "@/lib/api";
 
+// Force dynamic rendering so videos are fetched fresh on every request
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: {
     default: "86 Connect — Study in China & Product Sourcing from China",

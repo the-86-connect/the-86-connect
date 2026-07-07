@@ -37,6 +37,8 @@ import { fetchVideos } from "@/lib/api";
 import { SOURCING_TESTIMONIALS } from "@/data/testimonials";
 import { FAQ_SECTIONS } from "@/data/faq";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Product Sourcing from China — Suppliers, Procurement & Logistics",
   description:
