@@ -23,6 +23,17 @@ export function getCsrfToken(): string {
   return match ? decodeURIComponent(match.split("=")[1]) : "";
 }
 
+/** Fetch a CSRF token from the backend before any mutation requests.
+ *  Must be called once on page load so the cookie is set before uploads. */
+export async function refreshCsrfToken(): Promise<void> {
+  if (getCsrfToken()) return; // Already have one
+  try {
+    await fetch(`${API_URL}/health`, { credentials: "include" });
+  } catch {
+    // Non-critical — the upload will fail gracefully if CSRF is missing
+  }
+}
+
 /** Build headers for JSON mutations, including the CSRF token if present. */
 function jsonHeaders(): Record<string, string> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };

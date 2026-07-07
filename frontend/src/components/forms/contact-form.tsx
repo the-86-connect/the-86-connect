@@ -18,7 +18,7 @@ import {
   type ContactFormData,
   SERVICE_OPTIONS,
 } from "@/lib/validation";
-import { submitContactForm } from "@/lib/api";
+import { submitContactForm, refreshCsrfToken } from "@/lib/api";
 import { useContact, type ServiceType } from "@/context/contact-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,6 +73,11 @@ export function ContactForm() {
       setValue("serviceInterest", selectedService, { shouldValidate: true });
     }
   }, [selectedService, setValue]);
+
+  // Fetch CSRF token on mount so form submission works
+  useEffect(() => {
+    refreshCsrfToken();
+  }, []);
 
   const currentService = useWatch({ control, name: "serviceInterest" });
   const messageValue = useWatch({ control, name: "message" });

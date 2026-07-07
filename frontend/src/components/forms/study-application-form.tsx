@@ -25,6 +25,7 @@ import {
 import {
   submitStudyApplication,
   uploadFiles,
+  refreshCsrfToken,
   type UploadedAttachment,
 } from "@/lib/api";
 import { Input } from "@/components/ui/input";
@@ -65,6 +66,11 @@ export function StudyApplicationForm() {
       setFormLoadedAt(Date.now());
     }, 0);
     return () => clearTimeout(id);
+  }, []);
+
+  // Fetch CSRF token on mount so file uploads work
+  useEffect(() => {
+    refreshCsrfToken();
   }, []);
 
   const {

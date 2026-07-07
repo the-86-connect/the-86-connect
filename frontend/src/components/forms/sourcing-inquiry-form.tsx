@@ -26,6 +26,7 @@ import {
 import {
   submitSourcingInquiry,
   uploadFiles,
+  refreshCsrfToken,
   type UploadedAttachment,
 } from "@/lib/api";
 import { Input } from "@/components/ui/input";
@@ -61,6 +62,11 @@ export function SourcingInquiryForm() {
 
   useEffect(() => {
     formLoadedAtRef.current = Date.now();
+  }, []);
+
+  // Fetch CSRF token on mount so file uploads work
+  useEffect(() => {
+    refreshCsrfToken();
   }, []);
 
   const {
