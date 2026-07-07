@@ -46,9 +46,10 @@ export function SlotCalendar({
   const [viewMonth, setViewMonth] = useState(today.getMonth());
 
   const todayIso = useMemo(() => {
-    const y = String(today.getFullYear());
-    const m = String(today.getMonth() + 1).padStart(2, "0");
-    const d = String(today.getDate()).padStart(2, "0");
+    const t = new Date();
+    const y = String(t.getFullYear());
+    const m = String(t.getMonth() + 1).padStart(2, "0");
+    const d = String(t.getDate()).padStart(2, "0");
     return `${y}-${m}-${d}`;
   }, []);
 

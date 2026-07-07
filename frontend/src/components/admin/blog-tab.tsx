@@ -88,7 +88,10 @@ export function BlogTab() {
   }, []);
 
   useEffect(() => {
-    fetchPosts();
+    const id = setTimeout(() => {
+      fetchPosts();
+    }, 0);
+    return () => clearTimeout(id);
   }, [fetchPosts]);
 
   const resetForm = () => {

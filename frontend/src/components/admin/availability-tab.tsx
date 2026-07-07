@@ -60,12 +60,6 @@ function formatDate(iso: string): string {
   });
 }
 
-function formatDateShort(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-}
 
 function formatTime(hhmm: string): string {
   const [hStr, mStr] = hhmm.split(":");
