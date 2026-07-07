@@ -254,6 +254,16 @@ authRouter.get("/me", authenticateUser, async (req, res) => {
             message: true,
             referenceCode: true,
             createdAt: true,
+            attachments: {
+              select: {
+                id: true,
+                originalName: true,
+                url: true,
+                mimeType: true,
+                size: true,
+                storageProvider: true,
+              },
+            },
           },
         },
         consultations: {

@@ -75,6 +75,14 @@ export interface UserSubmission {
   message: string;
   referenceCode: string | null;
   createdAt: string;
+  attachments: {
+    id: string;
+    originalName: string;
+    url: string;
+    mimeType: string;
+    size: number;
+    storageProvider: string;
+  }[];
 }
 
 export interface UserConsultation {

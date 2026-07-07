@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Loader2,
@@ -36,6 +37,7 @@ import {
   MessageSquare,
   Bell,
   BellDot,
+  FileText,
 } from "lucide-react";
 import { useUserAuth } from "@/context/user-auth-context";
 import {
@@ -1595,6 +1597,7 @@ function SubmissionCard({
   onCopy: (id: string, referenceCode: string | null) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const isStudy = submission.submissionType === "study";
   const referenceId =
     submission.referenceCode ?? submission.id.slice(-8).toUpperCase();
@@ -1693,6 +1696,40 @@ function SubmissionCard({
               )}
             </div>
           )}
+
+          {submission.attachments && submission.attachments.length > 0 && (
+            <div className="mt-3">
+              <p className="text-[11px] font-semibold text-muted-foreground mb-2">
+                Attachments ({submission.attachments.length})
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {submission.attachments.map((att) => (
+                  <div
+                    key={att.id}
+                    className="flex items-center gap-2 p-1.5 pr-3 rounded-lg bg-white/60 border border-slate-100/80 hover:border-primary/30 transition-colors"
+                  >
+                    <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                      {att.mimeType.startsWith("image/") ? (
+                        <Image
+                          src={att.url}
+                          alt={att.originalName}
+                          fill
+                          className="object-cover cursor-pointer"
+                          sizes="32px"
+                          onClick={() => setLightboxImage(att.url)}
+                        />
+                      ) : (
+                        <FileText className="h-4 w-4 text-primary" />
+                      )}
+                    </div>
+                    <span className="text-xs font-medium truncate max-w-[120px]">
+                      {att.originalName}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <Link
@@ -1703,6 +1740,31 @@ function SubmissionCard({
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>
+
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxImage(null)}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+            aria-label="Close preview"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <div className="relative max-w-[90vw] max-h-[90vh] rounded-xl overflow-hidden">
+            <Image
+              src={lightboxImage}
+              alt="Full size preview"
+              width={1200}
+              height={900}
+              className="object-contain max-h-[90vh] w-auto"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

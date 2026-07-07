@@ -26,6 +26,7 @@ import {
   Download,
   MessageCircle,
 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -316,6 +317,7 @@ export default function SubmissionsTab({
   const [copiedRef, setCopiedRef] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [batchDownloadLoading, setBatchDownloadLoading] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   // Sync pendingStatus when selectedSubmission changes
   useEffect(() => {
@@ -1268,8 +1270,19 @@ export default function SubmissionsTab({
                         key={att.id}
                         className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border"
                       >
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                          <FileText className="h-5 w-5 text-primary" />
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                          {att.mimeType.startsWith("image/") ? (
+                            <Image
+                              src={att.url}
+                              alt={att.originalName}
+                              fill
+                              className="object-cover cursor-pointer"
+                              sizes="40px"
+                              onClick={() => setLightboxImage(att.url)}
+                            />
+                          ) : (
+                            <FileText className="h-5 w-5 text-primary" />
+                          )}
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium truncate">
@@ -1350,6 +1363,32 @@ export default function SubmissionsTab({
                 )}
               </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image lightbox */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxImage(null)}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+            aria-label="Close preview"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <div className="relative max-w-[90vw] max-h-[90vh] rounded-xl overflow-hidden">
+            <Image
+              src={lightboxImage}
+              alt="Full size preview"
+              width={1200}
+              height={900}
+              className="object-contain max-h-[90vh] w-auto"
+            />
           </div>
         </div>
       )}
