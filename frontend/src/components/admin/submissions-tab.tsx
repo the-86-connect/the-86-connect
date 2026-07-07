@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useState, useMemo, useCallback, useEffect } from "react";
-import Image from "next/image";
+
 import {
   RefreshCw,
   Loader2,
@@ -94,10 +94,6 @@ function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function isImageAttachment(mimeType: string): boolean {
-  return mimeType.startsWith("image/");
 }
 
 function getStages(submissionType: string) {
@@ -1272,18 +1268,8 @@ export default function SubmissionsTab({
                         key={att.id}
                         className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border"
                       >
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-                          {isImageAttachment(att.mimeType) ? (
-                            <Image
-                              src={att.url}
-                              alt={att.originalName}
-                              fill
-                              className="object-cover"
-                              sizes="40px"
-                            />
-                          ) : (
-                            <FileText className="h-5 w-5 text-primary" />
-                          )}
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <FileText className="h-5 w-5 text-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium truncate">
