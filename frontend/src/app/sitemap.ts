@@ -89,37 +89,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Blog post pages (from resources)
   const blogPosts: MetadataRoute.Sitemap = [
     {
-      url: `${SITE_URL}/resources/study-in-china-guide`,
+      url: `${SITE_URL}/resources/complete-guide-studying-in-china-2026`,
       lastModified,
       changeFrequency: "monthly",
       priority: 0.65,
     },
     {
-      url: `${SITE_URL}/resources/product-sourcing-guide`,
+      url: `${SITE_URL}/resources/how-to-source-products-from-china`,
       lastModified,
       changeFrequency: "monthly",
       priority: 0.65,
     },
     {
-      url: `${SITE_URL}/resources/csc-scholarship-guide`,
+      url: `${SITE_URL}/resources/chinese-government-scholarship-csc`,
       lastModified,
       changeFrequency: "monthly",
       priority: 0.65,
     },
     {
-      url: `${SITE_URL}/resources/china-supplier-verification`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.65,
-    },
-    {
-      url: `${SITE_URL}/resources/china-import-costs`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.65,
-    },
-    {
-      url: `${SITE_URL}/resources/china-student-visa`,
+      url: `${SITE_URL}/resources/alibaba-vs-1688-supplier-sourcing`,
       lastModified,
       changeFrequency: "monthly",
       priority: 0.65,
