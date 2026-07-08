@@ -1089,7 +1089,7 @@ adminRouter.post(
   },
 );
 
-// Hard delete a user (admin — permanent, deletes files from storage)
+// Hard delete a user (admin — permanent, deletes everything)
 adminRouter.delete("/users/:id", authenticateToken, async (req, res) => {
   const id = String(req.params.id);
 
@@ -1099,7 +1099,7 @@ adminRouter.delete("/users/:id", authenticateToken, async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Load user's submissions with attachments to delete files from storage
+    // Find all user's submissions with attachments to delete files from storage
     const submissions = await prisma.submission.findMany({
       where: { userId: id },
       include: { attachments: true },
@@ -1114,9 +1114,13 @@ adminRouter.delete("/users/:id", authenticateToken, async (req, res) => {
       );
     }
 
-    // Hard delete the user
-    // Submissions/consultations have onDelete: SetNull → become anonymous
-    // Notifications cascade delete
+    // Hard delete submissions (cascades to attachments + notes)
+    await prisma.submission.deleteMany({ where: { userId: id } });
+
+    // Hard delete consultations
+    await prisma.consultation.deleteMany({ where: { userId: id } });
+
+    // Hard delete the user (cascades to notifications)
     await prisma.user.delete({ where: { id } });
 
     broadcastToAdmins("user:deleted", { userId: id });

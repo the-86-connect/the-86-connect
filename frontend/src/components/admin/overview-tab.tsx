@@ -128,7 +128,6 @@ export function OverviewTab({ onViewSubmissions }: { onViewSubmissions?: () => v
   const [trashStats, setTrashStats] = useState<TrashStats | null>(null);
   const [trashStatsLoading, setTrashStatsLoading] = useState(false);
   const [purgeLoading, setPurgeLoading] = useState(false);
-  const [cleanOrphansLoading, setCleanOrphansLoading] = useState(false);
   const [showPurgeConfirm, setShowPurgeConfirm] = useState(false);
 
   const fetchOverview = useCallback(async () => {
@@ -201,39 +200,6 @@ export function OverviewTab({ onViewSubmissions }: { onViewSubmissions?: () => v
       setPurgeLoading(false);
     }
   }, [fetchTrashStats]);
-
-  const handleCleanOrphans = useCallback(async () => {
-    setCleanOrphansLoading(true);
-    try {
-      const res = await fetch(
-        `${API_URL}/api/admin/submissions/cleanup-orphans`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-csrf-token": getCsrfToken(),
-          },
-          credentials: "include",
-        },
-      );
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.error || `Server returned ${res.status}`);
-      }
-      const removed = data?.deleted ?? data?.removed ?? data?.count;
-      toast.success("Orphan files cleaned", {
-        description:
-          typeof removed === "number"
-            ? `${removed} orphan file(s) removed.`
-            : "Orphan file cleanup complete.",
-      });
-    } catch (err) {
-      console.error("Failed to clean orphan files:", err);
-      toast.error("Failed to clean orphan files");
-    } finally {
-      setCleanOrphansLoading(false);
-    }
-  }, []);
 
   if (loading) {
     return (
@@ -618,22 +584,6 @@ export function OverviewTab({ onViewSubmissions }: { onViewSubmissions?: () => v
                   )}
                 </Button>
               )}
-
-              <Button
-                variant="outline"
-                onClick={handleCleanOrphans}
-                disabled={cleanOrphansLoading}
-                className="cursor-pointer btn-glass rounded-xl w-full border-0 hover:bg-white/95"
-              >
-                {cleanOrphansLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    <FileWarning className="h-4 w-4" />
-                    Clean Orphan Files
-                  </>
-                )}
-              </Button>
             </div>
           </div>
         ) : (

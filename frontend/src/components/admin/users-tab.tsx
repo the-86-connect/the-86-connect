@@ -131,13 +131,13 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
   const [trashError, setTrashError] = useState("");
   const [purgingIds, setPurgingIds] = useState<string[]>([]);
   const [purgeAllLoading, setPurgeAllLoading] = useState(false);
+  const [confirmPurgeId, setConfirmPurgeId] = useState<string | null>(null);
 
   // Cleanup modal
   const [cleanupOpen, setCleanupOpen] = useState(false);
   const [cleanupStats, setCleanupStats] = useState<TrashStats | null>(null);
   const [cleanupStatsLoading, setCleanupStatsLoading] = useState(false);
   const [cleanupPurgeLoading, setCleanupPurgeLoading] = useState(false);
-  const [cleanOrphansLoading, setCleanOrphansLoading] = useState(false);
 
   const fetchUsers = useCallback(async () => {
     setUserLoading(true);
@@ -488,39 +488,6 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
     }
   }, [fetchTrashStats, fetchDeletedUsers, trashView]);
 
-  const handleCleanOrphans = useCallback(async () => {
-    setCleanOrphansLoading(true);
-    try {
-      const res = await fetch(
-        `${API_URL}/api/admin/submissions/cleanup-orphans`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-csrf-token": getCsrfToken(),
-          },
-          credentials: "include",
-        },
-      );
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.error || `Server returned ${res.status}`);
-      }
-      const removed = data?.deleted ?? data?.removed ?? data?.count;
-      toast.success("Orphan files cleaned", {
-        description:
-          typeof removed === "number"
-            ? `${removed} orphan file(s) removed.`
-            : "Orphan file cleanup complete.",
-      });
-    } catch (err) {
-      console.error("Failed to clean orphan files:", err);
-      toast.error("Failed to clean orphan files");
-    } finally {
-      setCleanOrphansLoading(false);
-    }
-  }, []);
-
   return (
     <>
       {/* Stats */}
@@ -758,22 +725,53 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
                             </span>
                           </td>
                           <td className="px-5 py-4">
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => handlePurgeUser(u.id)}
-                              disabled={isPurging}
-                              className="cursor-pointer rounded-xl"
-                            >
-                              {isPurging ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <>
-                                  <Trash2 className="h-4 w-4" />
-                                  Purge Now
-                                </>
-                              )}
-                            </Button>
+                            {confirmPurgeId === u.id ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-medium text-red-600">Are you sure?</span>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => {
+                                    handlePurgeUser(u.id);
+                                    setConfirmPurgeId(null);
+                                  }}
+                                  disabled={isPurging}
+                                  className="cursor-pointer rounded-xl"
+                                >
+                                  {isPurging ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    "Yes"
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setConfirmPurgeId(null)}
+                                  disabled={isPurging}
+                                  className="cursor-pointer btn-glass rounded-xl border-0"
+                                >
+                                  No
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => setConfirmPurgeId(u.id)}
+                                disabled={isPurging}
+                                className="cursor-pointer rounded-xl"
+                              >
+                                {isPurging ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <>
+                                    <Trash2 className="h-4 w-4" />
+                                    Purge Now
+                                  </>
+                                )}
+                              </Button>
+                            )}
                           </td>
                         </tr>
                       );
@@ -1377,12 +1375,12 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
           >
             <h2 className="text-lg font-semibold mb-2">Delete user?</h2>
             <p className="text-sm text-muted-foreground mb-6">
-              This will permanently remove the user{" "}
+              This will permanently delete the user{" "}
               <span className="font-medium text-foreground">
                 {deleteUser.name}
               </span>
-              . Their submissions will remain but be unlinked. This action
-              cannot be undone.
+              , all their submissions, consultations, and uploaded files. This
+              action cannot be undone.
             </p>
             {userError && (
               <p className="text-sm text-destructive mb-4">{userError}</p>
@@ -1500,31 +1498,6 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
                       <>
                         <Trash2 className="h-4 w-4" />
                         Purge All Soft-deleted Records
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                <div className="rounded-2xl bg-amber-50/60 border border-amber-200/60 p-4">
-                  <div className="flex items-start gap-2 mb-3">
-                    <FileWarning className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-                    <p className="text-xs text-amber-700">
-                      Remove uploaded files that are no longer referenced by any
-                      submission.
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    onClick={handleCleanOrphans}
-                    disabled={cleanOrphansLoading}
-                    className="cursor-pointer btn-glass rounded-xl w-full border-0 hover:bg-white/95"
-                  >
-                    {cleanOrphansLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <>
-                        <FileWarning className="h-4 w-4" />
-                        Clean Orphan Files
                       </>
                     )}
                   </Button>
