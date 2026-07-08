@@ -1565,6 +1565,7 @@ adminRouter.post("/blog", authenticateToken, async (req, res) => {
     author,
     tags,
     content,
+    imageUrl,
   } = req.body;
 
   if (!slug || !title) {
@@ -1593,7 +1594,8 @@ adminRouter.post("/blog", authenticateToken, async (req, res) => {
         readTime: (readTime || "5 min read").trim(),
         author: (author || "86 Connect Team").trim(),
         tags: Array.isArray(tags) ? tags : [],
-        content: Array.isArray(content) ? content : [],
+        content: typeof content === "string" ? content : "",
+        imageUrl: imageUrl || null,
         order,
       },
     });
@@ -1642,6 +1644,7 @@ adminRouter.patch("/blog/:id", authenticateToken, async (req, res) => {
     author,
     tags,
     content,
+    imageUrl,
     order,
     published,
   } = req.body;
@@ -1660,7 +1663,8 @@ adminRouter.patch("/blog/:id", authenticateToken, async (req, res) => {
     if (readTime !== undefined) data.readTime = readTime.trim();
     if (author !== undefined) data.author = author.trim();
     if (tags !== undefined) data.tags = Array.isArray(tags) ? tags : [];
-    if (content !== undefined) data.content = Array.isArray(content) ? content : [];
+    if (content !== undefined) data.content = typeof content === "string" ? content : "";
+    if (imageUrl !== undefined) data.imageUrl = imageUrl || null;
     if (order !== undefined) data.order = order;
     if (published !== undefined) data.published = published;
 

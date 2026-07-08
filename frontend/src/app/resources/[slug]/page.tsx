@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Calendar, Clock, ArrowLeft, GraduationCap, ShoppingCart, Compass, Lightbulb } from "lucide-react";
+import { Calendar, Clock, ArrowLeft, GraduationCap, ShoppingCart, Compass } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { fetchBlogPost } from "@/lib/api";
 import { BLOG_POSTS, getPostBySlug } from "@/data/blog";
-import type { BlogSection } from "@/data/blog";
 
 export function generateStaticParams() {
   return BLOG_POSTS.map((post) => ({ slug: post.slug }));
@@ -43,48 +42,32 @@ const CATEGORY_COLORS = {
   "Guide": "bg-amber-50 text-amber-700 border-amber-200",
 } as const;
 
-function renderSection(section: BlogSection, idx: number) {
-  switch (section.type) {
-    case "paragraph":
-      return (
-        <p key={idx} className="text-base leading-[1.8] text-foreground/90 mb-5">
-          {section.text}
-        </p>
-      );
-    case "heading":
-      if (section.level === 2) {
-        return (
-          <h2 key={idx} className="font-display font-black text-2xl sm:text-3xl mt-10 mb-4 tracking-tight">
-            {section.text}
-          </h2>
-        );
-      }
-      return (
-        <h3 key={idx} className="font-display font-bold text-xl mt-8 mb-3 tracking-tight">
-          {section.text}
-        </h3>
-      );
-    case "list":
-      return (
-        <ul key={idx} className="space-y-2.5 mb-6 pl-1">
-          {section.items?.map((item, i) => (
-            <li key={i} className="flex items-start gap-3 text-base leading-relaxed text-foreground/90">
-              <span className="shrink-0 w-2 h-2 rounded-full bg-primary mt-2" />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      );
-    case "tip":
-      return (
-        <div key={idx} className="flex gap-3 p-5 my-6 rounded-2xl bg-amber-50 border border-amber-200/70">
-          <Lightbulb className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-          <p className="text-sm leading-relaxed text-amber-900 font-medium">{section.text}</p>
-        </div>
-      );
-    default:
-      return null;
+/** Render HTML content from TipTap or fallback static JSON content */
+function renderContent(content: unknown): string {
+  // If it's already an HTML string (from TipTap editor)
+  if (typeof content === "string") return content;
+  // If it's old-style JSON BlogSection[] (from static fallback data)
+  if (Array.isArray(content)) {
+    return content
+      .map((section) => {
+        switch (section.type) {
+          case "paragraph":
+            return `<p>${section.text || ""}</p>`;
+          case "heading":
+            return section.level === 2
+              ? `<h2>${section.text || ""}</h2>`
+              : `<h3>${section.text || ""}</h3>`;
+          case "list":
+            return `<ul>${(section.items || []).map((item: string) => `<li>${item}</li>`).join("")}</ul>`;
+          case "tip":
+            return `<blockquote><p>${section.text || ""}</p></blockquote>`;
+          default:
+            return "";
+        }
+      })
+      .join("\n");
   }
+  return "";
 }
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
@@ -106,6 +89,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
       author: fallback.author,
       tags: fallback.tags,
       content: fallback.content,
+      imageUrl: fallback.imageUrl || null,
       order: 0,
       published: true,
       createdAt: "",
@@ -115,6 +99,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
   const CatIcon = CATEGORY_ICONS[post.category as keyof typeof CATEGORY_ICONS] || Compass;
   const catColor = CATEGORY_COLORS[post.category as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS["Guide"];
+  const htmlContent = renderContent(post.content);
 
   return (
     <>
@@ -164,9 +149,19 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
             </div>
           </header>
 
-          <div className="prose prose-lg max-w-none">
-            {post.content.map((section, idx) => renderSection(section, idx))}
-          </div>
+          {/* Featured image */}
+          {post.imageUrl && (
+            <img
+              src={post.imageUrl}
+              alt={post.title}
+              className="w-full rounded-2xl mb-10 object-cover max-h-[400px]"
+            />
+          )}
+
+          <div
+            className="prose prose-lg max-w-none prose-headings:font-display prose-headings:font-black prose-headings:tracking-tight prose-h2:text-2xl prose-h2:sm:text-3xl prose-h2:mt-10 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-p:text-base prose-p:leading-[1.8] prose-p:text-foreground/90 prose-p:mb-5 prose-ul:mb-6 prose-li:text-base prose-li:leading-relaxed prose-li:text-foreground/90 prose-blockquote:border-l-4 prose-blockquote:border-amber-300 prose-blockquote:bg-amber-50 prose-blockquote:rounded-r-2xl prose-blockquote:py-4 prose-blockquote:px-5 prose-blockquote:not-italic prose-blockquote:text-amber-900 prose-blockquote:font-medium prose-blockquote:text-sm prose-img:rounded-xl prose-img:max-w-full prose-img:my-6 prose-a:text-primary prose-a:underline"
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
+          />
 
           <div className="mt-16 pt-8 border-t border-border">
             <div className="p-6 rounded-3xl bg-primary/5 border border-primary/15 text-center">

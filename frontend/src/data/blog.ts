@@ -1,4 +1,4 @@
-﻿export interface BlogPost {
+export interface BlogPost {
   slug: string;
   title: string;
   excerpt: string;
@@ -7,6 +7,7 @@
   readTime: string;
   author: string;
   tags: string[];
+  imageUrl?: string | null;
   content: BlogSection[];
 }
 

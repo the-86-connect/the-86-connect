@@ -15,6 +15,7 @@ import {
   UserRound,
   CalendarCheck,
   Search,
+  BookOpen,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,12 @@ const NAV_LINKS: NavLink[] = [
     shortLabel: "Sourcing",
     href: "/product-sourcing",
     icon: ShoppingCart,
+  },
+  {
+    label: "Resources",
+    shortLabel: "Resources",
+    href: "/resources",
+    icon: BookOpen,
   },
   { label: "Contact", shortLabel: "Contact", target: "contact", icon: Mail },
   {
@@ -427,7 +434,7 @@ export function Navbar() {
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 safe-bottom pointer-events-none">
         <div className="mx-1.5 sm:mx-3 mb-1.5 sm:mb-3 pointer-events-auto">
           <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-soft-xl px-1 py-1 sm:px-2 sm:py-2 border border-border/60">
-            <div className="grid grid-cols-6 gap-0">
+            <div className="grid grid-cols-7 gap-0">
               {NAV_LINKS.map((link) => {
                 const Icon = link.icon;
                 const active = isActive(link);

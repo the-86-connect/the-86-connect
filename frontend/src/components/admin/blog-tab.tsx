@@ -13,12 +13,14 @@ import {
   EyeOff,
   ArrowUp,
   ArrowDown,
+  ImageIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { API_URL, getCsrfToken } from "@/lib/api";
+import { BlogEditor } from "./blog-editor";
 
 const CATEGORIES = ["Study in China", "Product Sourcing", "Guide"] as const;
 
@@ -32,20 +34,12 @@ interface AdminBlogPost {
   readTime: string;
   author: string;
   tags: string[];
-  content: BlogSection[];
+  content: string;
+  imageUrl: string | null;
   order: number;
   published: boolean;
   createdAt: string;
 }
-
-interface BlogSection {
-  type: "paragraph" | "heading" | "list" | "tip";
-  text?: string;
-  level?: 2 | 3;
-  items?: string[];
-}
-
-const EMPTY_SECTION: BlogSection = { type: "paragraph", text: "" };
 
 export function BlogTab() {
   const [posts, setPosts] = useState<AdminBlogPost[]>([]);
@@ -65,8 +59,10 @@ export function BlogTab() {
   const [formReadTime, setFormReadTime] = useState("");
   const [formAuthor, setFormAuthor] = useState("");
   const [formTags, setFormTags] = useState("");
-  const [formContent, setFormContent] = useState<BlogSection[]>([EMPTY_SECTION]);
+  const [formContent, setFormContent] = useState("");
+  const [formImageUrl, setFormImageUrl] = useState("");
   const [formError, setFormError] = useState("");
+  const [imageUploading, setImageUploading] = useState(false);
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
@@ -103,7 +99,8 @@ export function BlogTab() {
     setFormReadTime("");
     setFormAuthor("");
     setFormTags("");
-    setFormContent([EMPTY_SECTION]);
+    setFormContent("");
+    setFormImageUrl("");
     setFormError("");
   };
 
@@ -120,56 +117,36 @@ export function BlogTab() {
     }
   };
 
-  const addSection = (type: BlogSection["type"] = "paragraph") => {
-    const section: BlogSection =
-      type === "heading"
-        ? { type: "heading", text: "", level: 2 }
-        : type === "list"
-          ? { type: "list", items: [""] }
-          : { type, text: "" };
-    setFormContent([...formContent, section]);
-  };
+  const handleFeaturedImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const removeSection = (idx: number) => {
-    if (formContent.length <= 1) return;
-    setFormContent(formContent.filter((_, i) => i !== idx));
-  };
+    setImageUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-  const updateSection = (
-    idx: number,
-    updates: Partial<BlogSection>,
-  ) => {
-    setFormContent(
-      formContent.map((s, i) => (i === idx ? { ...s, ...updates } : s)),
-    );
-  };
+      const res = await fetch(`${API_URL}/api/upload/single`, {
+        method: "POST",
+        headers: { "x-csrf-token": getCsrfToken() },
+        body: formData,
+      });
 
-  const addListItem = (sectionIdx: number) => {
-    const section = formContent[sectionIdx];
-    if (section.type !== "list") return;
-    updateSection(sectionIdx, {
-      items: [...(section.items || [""]), ""],
-    });
-  };
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Upload failed");
+      }
 
-  const updateListItem = (
-    sectionIdx: number,
-    itemIdx: number,
-    value: string,
-  ) => {
-    const section = formContent[sectionIdx];
-    if (section.type !== "list" || !section.items) return;
-    const items = [...section.items];
-    items[itemIdx] = value;
-    updateSection(sectionIdx, { items });
-  };
-
-  const removeListItem = (sectionIdx: number, itemIdx: number) => {
-    const section = formContent[sectionIdx];
-    if (section.type !== "list" || !section.items) return;
-    updateSection(sectionIdx, {
-      items: section.items.filter((_, i) => i !== itemIdx),
-    });
+      const data = await res.json();
+      setFormImageUrl(data.url);
+      toast.success("Featured image uploaded");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to upload image",
+      );
+    } finally {
+      setImageUploading(false);
+    }
   };
 
   const openAdd = () => {
@@ -187,7 +164,8 @@ export function BlogTab() {
     setFormReadTime(post.readTime);
     setFormAuthor(post.author);
     setFormTags(post.tags.join(", "));
-    setFormContent(post.content);
+    setFormContent(typeof post.content === "string" ? post.content : "");
+    setFormImageUrl(post.imageUrl || "");
     setEditing(post);
     setModalOpen(true);
   };
@@ -201,28 +179,15 @@ export function BlogTab() {
       return;
     }
 
+    if (!formContent.trim()) {
+      setFormError("Content is required");
+      return;
+    }
+
     const tags = formTags
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean);
-
-    // Clean content before saving — remove empty paragraphs/lists
-    const cleanContent = formContent
-      .map((s) => {
-        if (s.type === "list" && s.items) {
-          return { ...s, items: s.items.filter((i) => i.trim()) };
-        }
-        return s;
-      })
-      .filter((s) => {
-        if (s.type === "paragraph" || s.type === "tip" || s.type === "heading") {
-          return s.text?.trim();
-        }
-        if (s.type === "list") {
-          return s.items && s.items.length > 0;
-        }
-        return true;
-      });
 
     setActionLoading(true);
     try {
@@ -235,7 +200,8 @@ export function BlogTab() {
         readTime: formReadTime.trim(),
         author: formAuthor.trim(),
         tags,
-        content: cleanContent,
+        content: formContent,
+        imageUrl: formImageUrl || null,
       };
 
       if (editing) {
@@ -409,6 +375,13 @@ export function BlogTab() {
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-1">
+                    {post.imageUrl && (
+                      <img
+                        src={post.imageUrl}
+                        alt=""
+                        className="w-8 h-8 rounded-lg object-cover shrink-0"
+                      />
+                    )}
                     <span className="font-semibold text-sm truncate">
                       {post.title}
                     </span>
@@ -493,7 +466,7 @@ export function BlogTab() {
           onClick={() => !actionLoading && setModalOpen(false)}
         >
           <div
-            className="w-full max-w-3xl my-8 rounded-2xl bg-card border border-border p-6 shadow-2xl"
+            className="w-full max-w-4xl my-8 rounded-2xl bg-card border border-border p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-5">
@@ -628,171 +601,52 @@ export function BlogTab() {
                 />
               </div>
 
-              {/* Content Editor */}
+              {/* Featured Image */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>Content Sections</Label>
-                  <div className="flex gap-1">
-                    <Button
+                <Label>Featured Image</Label>
+                <div className="flex items-center gap-3">
+                  {formImageUrl && (
+                    <img
+                      src={formImageUrl}
+                      alt="Featured"
+                      className="w-16 h-16 rounded-xl object-cover border border-border"
+                    />
+                  )}
+                  <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-background hover:bg-muted/50 transition-colors cursor-pointer text-sm font-medium">
+                    {imageUploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <ImageIcon className="h-4 w-4" />
+                    )}
+                    {formImageUrl ? "Change Image" : "Upload Image"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFeaturedImageUpload}
+                      disabled={imageUploading}
+                    />
+                  </label>
+                  {formImageUrl && (
+                    <button
                       type="button"
-                      size="sm"
-                      variant="outline"
-                      className="rounded-lg text-xs h-8"
-                      onClick={() => addSection("paragraph")}
+                      onClick={() => setFormImageUrl("")}
+                      className="text-sm text-muted-foreground hover:text-destructive transition-colors"
                     >
-                      + Paragraph
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="rounded-lg text-xs h-8"
-                      onClick={() => addSection("heading")}
-                    >
-                      + Heading
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="rounded-lg text-xs h-8"
-                      onClick={() => addSection("list")}
-                    >
-                      + List
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="rounded-lg text-xs h-8"
-                      onClick={() => addSection("tip")}
-                    >
-                      + Tip
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-3 max-h-[40vh] overflow-y-auto rounded-xl border border-border bg-muted/30 p-3">
-                  {formContent.map((section, idx) => (
-                    <div
-                      key={idx}
-                      className="rounded-xl bg-card border border-border p-3 relative group"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                          {section.type}
-                        </span>
-                        {section.type === "heading" && section.level && (
-                          <span className="text-[10px] text-muted-foreground">
-                            H{section.level}
-                          </span>
-                        )}
-                        <div className="flex-1" />
-                        <button
-                          type="button"
-                          onClick={() => removeSection(idx)}
-                          className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all"
-                          disabled={formContent.length <= 1}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-
-                      {(section.type === "paragraph" ||
-                        section.type === "tip") && (
-                        <textarea
-                          value={section.text || ""}
-                          onChange={(e) =>
-                            updateSection(idx, { text: e.target.value })
-                          }
-                          className="w-full min-h-[60px] rounded-lg border border-input bg-background px-3 py-2 text-sm resize-y"
-                          placeholder={
-                            section.type === "paragraph"
-                              ? "Write your paragraph..."
-                              : "Write a helpful tip..."
-                          }
-                          disabled={actionLoading}
-                        />
-                      )}
-
-                      {section.type === "heading" && (
-                        <div className="flex gap-2">
-                          <select
-                            value={section.level || 2}
-                            onChange={(e) =>
-                              updateSection(idx, {
-                                level: Number(e.target.value) as 2 | 3,
-                              })
-                            }
-                            className="w-20 rounded-lg border border-input bg-background px-2 py-2 text-sm"
-                            disabled={actionLoading}
-                          >
-                            <option value={2}>H2</option>
-                            <option value={3}>H3</option>
-                          </select>
-                          <Input
-                            value={section.text || ""}
-                            onChange={(e) =>
-                              updateSection(idx, { text: e.target.value })
-                            }
-                            className="h-9 flex-1"
-                            placeholder="Heading text"
-                            disabled={actionLoading}
-                          />
-                        </div>
-                      )}
-
-                      {section.type === "list" && (
-                        <div className="space-y-2">
-                          {(section.items || [""]).map((item, itemIdx) => (
-                            <div
-                              key={itemIdx}
-                              className="flex items-center gap-2"
-                            >
-                              <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
-                              <Input
-                                value={item}
-                                onChange={(e) =>
-                                  updateListItem(idx, itemIdx, e.target.value)
-                                }
-                                className="h-9 flex-1"
-                                placeholder={`Item ${itemIdx + 1}`}
-                                disabled={actionLoading}
-                              />
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  removeListItem(idx, itemIdx)
-                                }
-                                className="p-1.5 rounded hover:bg-destructive/10 hover:text-destructive transition-colors shrink-0"
-                                disabled={
-                                  (section.items || []).length <= 1
-                                }
-                              >
-                                <X className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          ))}
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="ghost"
-                            className="text-xs h-7 rounded-lg"
-                            onClick={() => addListItem(idx)}
-                          >
-                            + Add item
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {formContent.length === 0 && (
-                    <div className="text-center py-6 text-sm text-muted-foreground">
-                      Add sections to build your post content.
-                    </div>
+                      Remove
+                    </button>
                   )}
                 </div>
+              </div>
+
+              {/* Rich Text Editor */}
+              <div className="space-y-2">
+                <Label>Content *</Label>
+                <BlogEditor
+                  content={formContent}
+                  onChange={setFormContent}
+                  disabled={actionLoading}
+                />
               </div>
 
               {formError && (

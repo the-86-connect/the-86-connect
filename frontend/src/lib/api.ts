@@ -474,19 +474,13 @@ export interface BlogPostMeta {
   readTime: string;
   author: string;
   tags: string[];
+  imageUrl: string | null;
   order: number;
   published: boolean;
 }
 
-export interface BlogSection {
-  type: "paragraph" | "heading" | "list" | "tip";
-  text?: string;
-  level?: 2 | 3;
-  items?: string[];
-}
-
 export interface BlogPostFull extends BlogPostMeta {
-  content: BlogSection[];
+  content: string | unknown; // HTML string from TipTap, or JSON array from static fallback
   createdAt: string;
   updatedAt: string;
 }

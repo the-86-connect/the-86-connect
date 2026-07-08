@@ -32,7 +32,6 @@ export function ImageWithSkeleton({
       {isLoading && (
         <div className="absolute inset-0 bg-muted animate-pulse" />
       )}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={alt}

@@ -124,7 +124,6 @@ function VideoCard({ video, onClick }: { video: Video; onClick: () => void }) {
       )}
     >
       <div className="relative aspect-video overflow-hidden bg-muted">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={thumbnailUrl}
           alt={video.title}

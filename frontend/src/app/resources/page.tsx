@@ -60,6 +60,7 @@ export default async function ResourcesPage() {
       readTime: p.readTime,
       author: p.author,
       tags: p.tags,
+      imageUrl: p.imageUrl || null,
       order: 0,
       published: true,
     }));

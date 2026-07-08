@@ -9,6 +9,7 @@ import { ProductSourcingSection } from "@/components/sections/product-sourcing";
 import { VideoGallery } from "@/components/sections/video-gallery";
 import { AboutUsSection } from "@/components/sections/about-us";
 import { ContactSection } from "@/components/sections/contact";
+import { LatestArticles } from "@/components/sections/latest-articles";
 import { fetchVideos } from "@/lib/api";
 
 // Force dynamic rendering so videos are fetched fresh on every request
@@ -87,6 +88,7 @@ export default async function Home() {
             subtitle="Watch our latest videos showcasing study abroad experiences in China and product sourcing success stories."
           />
         )}
+        <LatestArticles />
         <AboutUsSection />
         <ContactSection />
       </main>

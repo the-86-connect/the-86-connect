@@ -471,7 +471,6 @@ function VideoGroup({
                 rel="noopener noreferrer"
                 className="relative shrink-0 w-24 h-14 rounded-lg overflow-hidden bg-muted group"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={`https://i.ytimg.com/vi/${video.youtubeId}/mqdefault.jpg`}
                   alt={video.title}
