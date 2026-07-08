@@ -5,9 +5,10 @@ import { BLOG_POSTS } from "@/data/blog";
 
 export async function LatestArticles() {
   // Try API first, fallback to static
-  let posts = await fetchBlogPosts();
-  if (posts.length === 0) {
-    posts = BLOG_POSTS.map((p) => ({
+  let { posts } = await fetchBlogPosts(1, 6);
+  let allPosts = posts;
+  if (allPosts.length === 0) {
+    allPosts = BLOG_POSTS.map((p) => ({
       id: p.slug,
       slug: p.slug,
       title: p.title,
@@ -23,7 +24,7 @@ export async function LatestArticles() {
     }));
   }
 
-  const latest = posts.slice(0, 3);
+  const latest = allPosts.slice(0, 3);
 
   if (latest.length === 0) return null;
 

@@ -485,22 +485,37 @@ export interface BlogPostFull extends BlogPostMeta {
   updatedAt: string;
 }
 
-/** Fetch all published blog posts for the resources listing page */
-export async function fetchBlogPosts(): Promise<BlogPostMeta[]> {
-  const url = `${API_URL}/api/blog`;
+export interface BlogPostsResponse {
+  posts: BlogPostMeta[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+/** Fetch published blog posts with pagination */
+export async function fetchBlogPosts(
+  page = 1,
+  limit = 8,
+): Promise<BlogPostsResponse> {
+  const url = `${API_URL}/api/blog?page=${page}&limit=${limit}`;
   try {
     const response = await fetch(url, {
       cache: "no-store",
     });
     if (!response.ok) {
       console.error(`[fetchBlogPosts] HTTP ${response.status} for ${url}`);
-      return [];
+      return { posts: [], total: 0, page: 1, totalPages: 0 };
     }
     const data = await response.json();
-    return data.posts || [];
+    return {
+      posts: data.posts || [],
+      total: data.total || 0,
+      page: data.page || 1,
+      totalPages: data.totalPages || 0,
+    };
   } catch (err) {
     console.error(`[fetchBlogPosts] Error fetching ${url}:`, err instanceof Error ? err.message : err);
-    return [];
+    return { posts: [], total: 0, page: 1, totalPages: 0 };
   }
 }
 
