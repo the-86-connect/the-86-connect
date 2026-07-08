@@ -5,7 +5,7 @@ import { BLOG_POSTS } from "@/data/blog";
 
 export async function LatestArticles() {
   // Try API first, fallback to static
-  let { posts } = await fetchBlogPosts(1, 6);
+  const { posts } = await fetchBlogPosts(1, 6);
   let allPosts = posts;
   if (allPosts.length === 0) {
     allPosts = BLOG_POSTS.map((p) => ({

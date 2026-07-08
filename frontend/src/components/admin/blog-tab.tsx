@@ -13,7 +13,6 @@ import {
   EyeOff,
   ArrowUp,
   ArrowDown,
-  ImageIcon,
   Pin,
   PinOff,
   Upload,
@@ -192,7 +191,6 @@ export function BlogTab() {
 
     // Check image count (content images + featured image)
     const contentImages = countContentImages(formContent);
-    const totalImages = contentImages + (formImageUrl ? 1 : 0);
     if (contentImages > MAX_IMAGES) {
       setFormError(`Max ${MAX_IMAGES} images allowed in content (found ${contentImages})`);
       return;
@@ -440,7 +438,7 @@ export function BlogTab() {
         <div className="rounded-2xl border border-border bg-card py-16 text-center">
           <FileText className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
           <p className="text-muted-foreground mb-4">
-            No blog posts yet. Click "Seed Static Posts" to add the 4 default posts, or create one manually.
+            No blog posts yet. Click &ldquo;Seed Static Posts&rdquo; to add the 4 default posts, or create one manually.
           </p>
           <div className="flex items-center justify-center gap-3">
             <Button onClick={handleSeed} disabled={seeding} variant="outline" className="rounded-xl">
