@@ -99,6 +99,8 @@ export default async function ResourcesPage() {
                 <Link
                   key={post.slug}
                   href={`/resources/${post.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="group rounded-3xl bg-card border border-border/60 p-6 sm:p-7 shadow-soft-sm hover:shadow-soft-xl hover:border-primary/30 transition-all duration-300 cursor-pointer press"
                 >
                   <div className="flex items-center gap-2 mb-4">

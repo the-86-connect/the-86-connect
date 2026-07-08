@@ -435,6 +435,29 @@ export default function AdminPage() {
           </div>
         </header>
 
+        {/* ========== Tab Navigation ========== */}
+        <nav className="flex items-center gap-1 mb-6 overflow-x-auto pb-1 scrollbar-hide">
+          {TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => handleTabChange(tab.key)}
+                className={cn(
+                  "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer",
+                  isActive
+                    ? "bg-primary text-white shadow-md"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </nav>
+
         {/* ========== Tab Content ========== */}
         <div className="min-h-[60vh]">
           {activeTab === "overview" && (
