@@ -5,13 +5,10 @@ import { Calendar, Clock, ArrowLeft, GraduationCap, ShoppingCart, Compass } from
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { fetchBlogPost } from "@/lib/api";
-import { BLOG_POSTS, getPostBySlug } from "@/data/blog";
+import { getPostBySlug } from "@/data/blog";
 
 export const dynamic = "force-dynamic";
-
-export function generateStaticParams() {
-  return BLOG_POSTS.map((post) => ({ slug: post.slug }));
-}
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const { slug } = params;
