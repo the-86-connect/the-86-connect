@@ -60,10 +60,12 @@ const NAV_LINKS: NavLink[] = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolledState, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const pathname = usePathname();
   const isHome = pathname === "/";
+  // On non-home pages, always treat as "scrolled" so text is visible against light backgrounds
+  const scrolled = isHome ? scrolledState : true;
   const { isAuthenticated } = useUserAuth();
 
   useEffect(() => {

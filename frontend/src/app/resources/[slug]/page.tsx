@@ -62,6 +62,12 @@ const CATEGORY_COLORS = {
   "Guide": "bg-amber-50 text-amber-700 border-amber-200",
 } as const;
 
+const CATEGORY_PAGE_BG = {
+  "Study in China": "bg-gradient-to-b from-red-50/40 to-white",
+  "Product Sourcing": "bg-gradient-to-b from-blue-50/40 to-white",
+  "Guide": "bg-gradient-to-b from-amber-50/40 to-white",
+} as const;
+
 /** Render HTML content from TipTap or fallback static JSON content */
 function renderContent(content: unknown): string {
   // If it's already an HTML string (from TipTap editor)
@@ -119,12 +125,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   const CatIcon = CATEGORY_ICONS[post.category as keyof typeof CATEGORY_ICONS] || Compass;
   const catColor = CATEGORY_COLORS[post.category as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS["Guide"];
+  const pageBg = CATEGORY_PAGE_BG[post.category as keyof typeof CATEGORY_PAGE_BG] || "";
   const htmlContent = renderContent(post.content);
 
   return (
     <>
       <Navbar />
-      <main className="flex-1 bg-white">
+      <main className={`flex-1 ${pageBg}`}>
         <article className="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
           <Link
             href="/resources"
