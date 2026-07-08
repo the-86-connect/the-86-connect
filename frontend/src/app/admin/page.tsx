@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import {
   Bell,
   LogOut,
@@ -176,29 +177,56 @@ export default function AdminPage() {
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
     function connect() {
-      eventSource = new EventSource(`${API_URL}/api/admin/events`, {
+      eventSource = new EventSource(`${API_URL}/api/admin/stream`, {
         withCredentials: true,
       });
 
-      eventSource.onmessage = (event) => {
+      eventSource.addEventListener("submission:new", (event) => {
         try {
           const data = JSON.parse(event.data);
-          if (data.type === "new_submission") {
-            setSubmissions((prev) => [data.submission, ...prev]);
-            toast.success("New submission received!", {
-              description: `From ${data.submission.name}`,
-            });
-          } else if (data.type === "submission_updated") {
-            setSubmissions((prev) =>
-              prev.map((s) =>
-                s.id === data.submission.id ? data.submission : s,
-              ),
-            );
-          }
-        } catch {
-          // ignore malformed events
-        }
-      };
+          setSubmissions((prev) => [data.submission, ...prev]);
+          toast.success("New submission received!", {
+            description: `From ${data.submission.name}`,
+          });
+        } catch { /* ignore */ }
+      });
+
+      eventSource.addEventListener("submission:updated", (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          setSubmissions((prev) =>
+            prev.map((s) =>
+              s.id === data.id ? { ...s, ...data } : s,
+            ),
+          );
+        } catch { /* ignore */ }
+      });
+
+      eventSource.addEventListener("submission:deleted", (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          setSubmissions((prev) => prev.filter((s) => s.id !== data.id));
+        } catch { /* ignore */ }
+      });
+
+      eventSource.addEventListener("user:deleted", () => {
+        toast.info("A user was deleted");
+      });
+
+      eventSource.addEventListener("consultation:updated", () => {
+        toast.info("A consultation was updated");
+      });
+
+      eventSource.addEventListener("consultation:deleted", (event) => {
+        try {
+          JSON.parse(event.data);
+          toast.info("A consultation was deleted");
+        } catch { /* ignore */ }
+      });
+
+      eventSource.addEventListener("availability:updated", () => {
+        toast.info("Availability updated");
+      });
 
       eventSource.onerror = () => {
         eventSource?.close();
@@ -359,16 +387,17 @@ export default function AdminPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Unread badge */}
+            {/* Notification bell */}
             <button
               type="button"
-              className="relative p-2.5 rounded-xl glass-card hover:bg-white/80 transition-colors cursor-default"
+              onClick={() => handleTabChange("submissions")}
+              className="relative p-2.5 rounded-xl glass-card hover:bg-white/80 transition-colors cursor-pointer"
               aria-label={`${stats.unread} unread submissions`}
             >
               <Bell className="h-5 w-5 text-muted-foreground" />
               {stats.unread > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center rounded-full bg-accent text-white text-[10px] font-bold px-1.5 animate-in zoom-in duration-200">
-                  {stats.unread}
+                  {stats.unread > 99 ? "99+" : stats.unread}
                 </span>
               )}
             </button>
@@ -376,12 +405,13 @@ export default function AdminPage() {
             {/* Refresh */}
             <button
               type="button"
-              onClick={() => window.location.reload()}
-              className="p-2.5 rounded-xl glass-card hover:bg-white/80 transition-colors cursor-pointer"
-              aria-label="Refresh page"
+              onClick={fetchSubmissions}
+              disabled={fetchLoading}
+              className="p-2.5 rounded-xl glass-card hover:bg-white/80 transition-colors cursor-pointer disabled:opacity-50"
+              aria-label="Refresh data"
               title="Refresh"
             >
-              <RefreshCw className="h-5 w-5 text-muted-foreground" />
+              <RefreshCw className={cn("h-5 w-5 text-muted-foreground", fetchLoading && "animate-spin")} />
             </button>
 
             {/* Logout */}
@@ -401,12 +431,14 @@ export default function AdminPage() {
         <div className="min-h-[60vh]">
           {activeTab === "overview" && (
             <OverviewTab
+              key="overview"
               onViewSubmissions={() => handleTabChange("submissions")}
             />
           )}
 
           {activeTab === "submissions" && (
             <SubmissionsTab
+              key="submissions"
               submissions={submissions}
               fetchLoading={fetchLoading}
               fetchError={fetchError}
@@ -420,26 +452,28 @@ export default function AdminPage() {
           )}
 
           {activeTab === "consultations" && (
-            <AvailabilityTab />
+            <AvailabilityTab key="consultations" />
           )}
 
           {activeTab === "users" && (
             <UsersTab
+              key="users"
               active={activeTab === "users"}
               onSearchSubmissions={handleSearchFromUser}
             />
           )}
 
           {activeTab === "videos" && (
-            <VideosTab />
+            <VideosTab key="videos" />
           )}
 
           {activeTab === "blog" && (
-            <BlogTab />
+            <BlogTab key="blog" />
           )}
 
           {activeTab === "sessions" && (
             <SessionsTab
+              key="sessions"
               active={activeTab === "sessions"}
               onLogout={logout}
             />
