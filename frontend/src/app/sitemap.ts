@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = "https://the86connects.com";
+const SITE_URL = "https://www.the86connect.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
