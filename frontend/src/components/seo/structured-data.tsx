@@ -12,12 +12,6 @@ interface BreadcrumbItem {
   href: string;
 }
 
-interface ServiceItem {
-  name: string;
-  description: string;
-  url: string;
-}
-
 // ── Constants ────────────────────────────────────────────────────────
 
 const SITE_URL = "https://www.the86connect.com";

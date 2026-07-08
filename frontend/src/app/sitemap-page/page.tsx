@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { FileText, GraduationCap, ShoppingCart, HelpCircle, BookOpen, Shield, Scale, Lock, Mail } from "lucide-react";
+import { FileText, BookOpen, Shield, Scale, Lock, Mail } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Sitemap",

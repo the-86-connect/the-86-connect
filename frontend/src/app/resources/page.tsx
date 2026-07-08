@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GraduationCap, ShoppingCart, Compass, Clock, ArrowRight } from "lucide-react";
+import { GraduationCap, ShoppingCart, Compass, Clock, ArrowRight, BookOpen, Calendar } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { fetchBlogPosts } from "@/lib/api";
