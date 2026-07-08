@@ -1708,7 +1708,7 @@ function SubmissionCard({
                     key={att.id}
                     className="flex items-center gap-2 p-1.5 pr-3 rounded-lg bg-white/60 border border-slate-100/80 hover:border-primary/30 transition-colors"
                   >
-                    <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                    <div className="relative w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                       {att.mimeType.startsWith("image/") ? (
                         <Image
                           src={att.url}

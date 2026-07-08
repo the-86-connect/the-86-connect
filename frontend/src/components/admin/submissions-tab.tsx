@@ -1270,7 +1270,7 @@ export default function SubmissionsTab({
                         key={att.id}
                         className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border"
                       >
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                        <div className="relative w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                           {att.mimeType.startsWith("image/") ? (
                             <Image
                               src={att.url}
