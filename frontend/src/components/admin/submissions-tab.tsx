@@ -77,6 +77,7 @@ interface SubmissionsTabProps {
   onStatusUpdate: (submissionId: string, newStatus: string) => Promise<void>;
   onDeleteSubmission: (submissionId: string) => Promise<void>;
   initialSearch?: string;
+  initialReadFilter?: ReadFilter;
 }
 
 function formatDate(iso: string): string {
@@ -296,13 +297,14 @@ export default function SubmissionsTab({
   onStatusUpdate,
   onDeleteSubmission,
   initialSearch,
+  initialReadFilter,
 }: SubmissionsTabProps) {
   // Filter state
   const [filter, setFilter] = useState<FilterType>("all");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
-  const [readFilter, setReadFilter] = useState<ReadFilter>("all");
+  const [readFilter, setReadFilter] = useState<ReadFilter>(initialReadFilter ?? "all");
 
   // UI state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());

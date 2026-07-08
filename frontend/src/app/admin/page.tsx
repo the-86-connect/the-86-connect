@@ -83,6 +83,9 @@ export default function AdminPage() {
   /* ---- Tab switching --------------------------------------------- */
   const [activeTab, setActiveTab] = useState("overview");
 
+  /* ---- Bell filter (navigate to unread on bell click) ------------ */
+  const [bellFilter, setBellFilter] = useState<"all" | "unread">("all");
+
   /* ---- Submissions (shared state — used by SSE + header + tab) --- */
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [fetchLoading, setFetchLoading] = useState(false);
@@ -373,6 +376,7 @@ export default function AdminPage() {
   const handleTabChange = (key: string) => {
     setActiveTab(key);
     window.location.hash = key;
+    setBellFilter("all"); // reset unread filter on normal tab switch
   };
 
   return (
@@ -390,7 +394,11 @@ export default function AdminPage() {
             {/* Notification bell */}
             <button
               type="button"
-              onClick={() => handleTabChange("submissions")}
+              onClick={() => {
+                setBellFilter("unread");
+                setActiveTab("submissions");
+                window.location.hash = "submissions";
+              }}
               className="relative p-2.5 rounded-xl glass-card hover:bg-white/80 transition-colors cursor-pointer"
               aria-label={`${stats.unread} unread submissions`}
             >
@@ -438,7 +446,7 @@ export default function AdminPage() {
 
           {activeTab === "submissions" && (
             <SubmissionsTab
-              key="submissions"
+              key={`submissions-${bellFilter}`}
               submissions={submissions}
               fetchLoading={fetchLoading}
               fetchError={fetchError}
@@ -448,6 +456,7 @@ export default function AdminPage() {
               onStatusUpdate={handleStatusUpdate}
               onDeleteSubmission={handleDeleteSubmission}
               initialSearch={searchFromUser}
+              initialReadFilter={bellFilter}
             />
           )}
 
