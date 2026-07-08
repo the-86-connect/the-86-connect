@@ -7,7 +7,7 @@
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || ""; // Admin notification target
-const FROM_EMAIL = process.env.FROM_EMAIL || "beijingbridgepath@gmail.com";
+const FROM_EMAIL = process.env.FROM_EMAIL || "info@the86connect.com";
 
 interface EmailPayload {
   to: string | string[];
