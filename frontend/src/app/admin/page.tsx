@@ -375,7 +375,7 @@ export default function AdminPage() {
   /* ---- Tab change handler ---------------------------------------- */
   const handleTabChange = (key: string) => {
     setActiveTab(key);
-    window.location.hash = key;
+    window.history.replaceState(null, "", `#${key}`);
     setBellFilter("all"); // reset unread filter on normal tab switch
   };
 
@@ -397,7 +397,7 @@ export default function AdminPage() {
               onClick={() => {
                 setBellFilter("unread");
                 setActiveTab("submissions");
-                window.location.hash = "submissions";
+                window.history.replaceState(null, "", "#submissions");
               }}
               className="relative p-2.5 rounded-xl glass-card hover:bg-white/80 transition-colors cursor-pointer"
               aria-label={`${stats.unread} unread submissions`}
