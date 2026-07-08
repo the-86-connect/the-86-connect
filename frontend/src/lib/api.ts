@@ -487,14 +487,19 @@ export interface BlogPostFull extends BlogPostMeta {
 
 /** Fetch all published blog posts for the resources listing page */
 export async function fetchBlogPosts(): Promise<BlogPostMeta[]> {
+  const url = `${API_URL}/api/blog`;
   try {
-    const response = await fetch(`${API_URL}/api/blog`, {
+    const response = await fetch(url, {
       cache: "no-store",
     });
-    if (!response.ok) return [];
+    if (!response.ok) {
+      console.error(`[fetchBlogPosts] HTTP ${response.status} for ${url}`);
+      return [];
+    }
     const data = await response.json();
     return data.posts || [];
-  } catch {
+  } catch (err) {
+    console.error(`[fetchBlogPosts] Error fetching ${url}:`, err instanceof Error ? err.message : err);
     return [];
   }
 }
@@ -503,14 +508,19 @@ export async function fetchBlogPosts(): Promise<BlogPostMeta[]> {
 export async function fetchBlogPost(
   slug: string,
 ): Promise<BlogPostFull | null> {
+  const url = `${API_URL}/api/blog/${slug}`;
   try {
-    const response = await fetch(`${API_URL}/api/blog/${slug}`, {
+    const response = await fetch(url, {
       cache: "no-store",
     });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.error(`[fetchBlogPost] HTTP ${response.status} for ${url}`);
+      return null;
+    }
     const data = await response.json();
     return data.post || null;
-  } catch {
+  } catch (err) {
+    console.error(`[fetchBlogPost] Error fetching ${url}:`, err instanceof Error ? err.message : err);
     return null;
   }
 }
