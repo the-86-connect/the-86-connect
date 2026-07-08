@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Loader2,
@@ -1709,10 +1710,13 @@ function SubmissionCard({
                   >
                     <div className="relative w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                       {att.mimeType.startsWith("image/") ? (
-                        <img
+                        <Image
                           src={att.url}
                           alt={att.originalName}
-                          className="w-full h-full object-cover cursor-pointer"
+                          fill
+                          sizes="40px"
+                          className="object-cover cursor-pointer"
+                          unoptimized
                           onClick={() => setLightboxImage(att.url)}
                         />
                       ) : (
@@ -1755,10 +1759,13 @@ function SubmissionCard({
             className="relative max-w-[90vw] max-h-[90vh] rounded-xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
+            <Image
               src={lightboxImage}
               alt="Full size preview"
-              className="max-w-[90vw] max-h-[90vh] object-contain"
+              fill
+              sizes="90vw"
+              className="object-contain"
+              unoptimized
             />
           </div>
         </div>
