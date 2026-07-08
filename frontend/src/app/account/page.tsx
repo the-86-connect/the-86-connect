@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Loader2,
@@ -1706,23 +1705,21 @@ function SubmissionCard({
                 {submission.attachments.map((att) => (
                   <div
                     key={att.id}
-                    className="flex items-center gap-2 p-1.5 pr-3 rounded-lg bg-white/60 border border-slate-100/80 hover:border-primary/30 transition-colors"
+                    className="flex items-center gap-2 p-2 pr-3 rounded-lg bg-white/60 border border-slate-100/80 hover:border-primary/30 transition-colors"
                   >
-                    <div className="relative w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                    <div className="relative w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                       {att.mimeType.startsWith("image/") ? (
-                        <Image
+                        <img
                           src={att.url}
                           alt={att.originalName}
-                          fill
-                          className="object-cover cursor-pointer"
-                          sizes="32px"
+                          className="w-full h-full object-cover cursor-pointer"
                           onClick={() => setLightboxImage(att.url)}
                         />
                       ) : (
-                        <FileText className="h-4 w-4 text-primary" />
+                        <FileText className="h-5 w-5 text-primary" />
                       )}
                     </div>
-                    <span className="text-xs font-medium truncate max-w-[120px]">
+                    <span className="text-xs font-medium truncate max-w-[160px]">
                       {att.originalName}
                     </span>
                   </div>

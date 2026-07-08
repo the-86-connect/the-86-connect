@@ -26,7 +26,6 @@ import {
   Download,
   MessageCircle,
 } from "lucide-react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -851,13 +850,14 @@ export default function SubmissionsTab({
                                 setSelectedSubmission(s);
                                 if (!s.read) onMarkAsRead(s.id);
                               }}
-                              className="relative p-2 rounded-lg hover:bg-slate-100/80 transition-colors cursor-pointer"
+                              className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer"
                               aria-label="View message"
-                              title="View message"
+                              title="View details"
                             >
-                              <Eye className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                              <Eye className="h-3.5 w-3.5" />
+                              View
                               {!s.read && (
-                                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
+                                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
                               )}
                             </button>
                             <button
@@ -1077,6 +1077,55 @@ export default function SubmissionsTab({
                 </span>
               </div>
 
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                  Application Details
+                </p>
+                {(() => {
+                  const { fields, note } = parseSubmissionMessage(
+                    selectedSubmission.message,
+                  );
+                  if (fields.length === 0 && !note) {
+                    return (
+                      <p className="text-sm text-muted-foreground italic">
+                        No details provided.
+                      </p>
+                    );
+                  }
+                  return (
+                    <div className="space-y-3">
+                      {fields.length > 0 && (
+                        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 p-3 rounded-xl bg-white/60 border border-slate-200/60">
+                          {fields.map((f, i) => (
+                            <div
+                              key={i}
+                              className="flex flex-col gap-0.5 min-w-0"
+                            >
+                              <dt className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                                {f.label}
+                              </dt>
+                              <dd className="text-sm font-semibold text-foreground break-words">
+                                {f.value}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                      )}
+                      {note && (
+                        <div className="p-3 rounded-xl bg-accent/5 border border-accent/20">
+                          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                            Message
+                          </p>
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                            {note}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+
               {/* Status update section */}
               <div className="p-4 rounded-2xl bg-white/40 border border-white/60">
                 <div className="flex items-center justify-between mb-3">
@@ -1190,55 +1239,6 @@ export default function SubmissionsTab({
                 </div>
               </div>
 
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                  Application Details
-                </p>
-                {(() => {
-                  const { fields, note } = parseSubmissionMessage(
-                    selectedSubmission.message,
-                  );
-                  if (fields.length === 0 && !note) {
-                    return (
-                      <p className="text-sm text-muted-foreground italic">
-                        No details provided.
-                      </p>
-                    );
-                  }
-                  return (
-                    <div className="space-y-3">
-                      {fields.length > 0 && (
-                        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 p-3 rounded-xl bg-muted/40 border border-border">
-                          {fields.map((f, i) => (
-                            <div
-                              key={i}
-                              className="flex flex-col gap-0.5 min-w-0"
-                            >
-                              <dt className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                                {f.label}
-                              </dt>
-                              <dd className="text-sm font-medium break-words">
-                                {f.value}
-                              </dd>
-                            </div>
-                          ))}
-                        </dl>
-                      )}
-                      {note && (
-                        <div className="p-3 rounded-xl bg-accent/5 border border-accent/20">
-                          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
-                            Message
-                          </p>
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                            {note}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
-              </div>
-
               {selectedSubmission.attachments.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -1272,12 +1272,10 @@ export default function SubmissionsTab({
                       >
                         <div className="relative w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                           {att.mimeType.startsWith("image/") ? (
-                            <Image
+                            <img
                               src={att.url}
                               alt={att.originalName}
-                              fill
-                              className="object-cover cursor-pointer"
-                              sizes="40px"
+                              className="w-full h-full object-cover cursor-pointer"
                               onClick={() => setLightboxImage(att.url)}
                             />
                           ) : (
