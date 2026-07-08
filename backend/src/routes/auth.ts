@@ -347,7 +347,7 @@ authRouter.post("/forgot-password", async (req, res) => {
       { expiresIn: "1h" },
     );
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://the86connects.com";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.the86connect.com";
     const resetUrl = `${baseUrl}/reset-password#token=${resetToken}`;
 
     // Fire-and-forget email

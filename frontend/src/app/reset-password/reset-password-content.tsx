@@ -8,7 +8,7 @@ import { Lock, Loader2, ArrowLeft, KeyRound } from "lucide-react";
 import { useUserAuth } from "@/context/user-auth-context";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { API_URL, getCsrfToken } from "@/lib/api";
+import { API_URL, getCsrfToken, refreshCsrfToken } from "@/lib/api";
 
 export function ResetPasswordContent() {
   const [password, setPassword] = useState("");
@@ -20,6 +20,10 @@ export function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const [hashToken, setHashToken] = useState<string | null>(null);
   const [hashChecked, setHashChecked] = useState(false);
+
+  useEffect(() => {
+    refreshCsrfToken();
+  }, []);
 
   useEffect(() => {
     const hash = window.location.hash;
