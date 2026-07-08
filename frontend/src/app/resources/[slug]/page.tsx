@@ -10,8 +10,8 @@ import { getPostBySlug } from "@/data/blog";
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const { slug } = params;
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
   // Try API first for dynamic posts, fallback to static
   try {
     const post = await fetchBlogPost(slug);
@@ -90,8 +90,8 @@ function renderContent(content: unknown): string {
   return "";
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
 
   // Try API first, fallback to static
   let post = await fetchBlogPost(slug);

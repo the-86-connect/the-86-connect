@@ -517,7 +517,13 @@ export async function fetchBlogPost(
       console.error(`[fetchBlogPost] HTTP ${response.status} for ${url}`);
       return null;
     }
-    const data = await response.json();
+    const text = await response.text();
+    if (!text) {
+      console.error(`[fetchBlogPost] Empty response body for ${url}`);
+      return null;
+    }
+    const data = JSON.parse(text);
+    console.error(`[fetchBlogPost] Success for ${url}, has post: ${!!data.post}`);
     return data.post || null;
   } catch (err) {
     console.error(`[fetchBlogPost] Error fetching ${url}:`, err instanceof Error ? err.message : err);
