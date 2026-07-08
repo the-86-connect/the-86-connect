@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { BreadcrumbSchema, ServiceSchema } from "@/components/seo/structured-data";
 import { cn } from "@/lib/utils";
 import {
   Search,
@@ -49,6 +50,33 @@ export const metadata: Metadata = {
     "China manufacturer sourcing", "Import from China", "China wholesale sourcing", "China logistics",
     "China quality control", "China sourcing agent", "China factory sourcing", "China supply chain",
     "China purchasing agent", "China trade", "China B2B sourcing",
+    // African countries
+    "Import from China to Nigeria", "Import from China to South Africa",
+    "Import from China to Kenya", "Import from China to Ghana",
+    "Import from China to Ethiopia", "Import from China to Tanzania",
+    "Import from China to Uganda", "Import from China to Egypt",
+    "Import from China to Morocco", "Product sourcing from China to Nigeria",
+    "China suppliers for African businesses", "China to Ghana shipping",
+    "China to Nigeria shipping", "China to Kenya shipping",
+    // Asian countries
+    "Import from China to India", "Import from China to Pakistan",
+    "Import from China to Bangladesh", "Import from China to Indonesia",
+    "Import from China to Philippines", "Import from China to Vietnam",
+    "Import from China to Thailand", "Import from China to Malaysia",
+    // Middle East
+    "Import from China to UAE", "Import from China to Saudi Arabia",
+    "Import from China to Qatar", "Import from China to Oman",
+    "Import from China to Kuwait", "China sourcing for Dubai businesses",
+    // Europe & Americas
+    "Import from China to USA", "Import from China to UK",
+    "Import from China to Canada", "Import from China to Australia",
+    "Import from China to Germany", "Import from China to France",
+    "Import from China to Brazil", "Import from China to Mexico",
+    // General
+    "China freight forwarding", "China to worldwide shipping",
+    "China product inspection", "China trade consulting",
+    "Find Chinese suppliers", "China import export",
+    "China supply chain management", "China factory audit",
   ],
   openGraph: {
     title: "Product Sourcing from China — Suppliers, Procurement & Logistics | 86 Connect",
@@ -258,6 +286,26 @@ export default async function ProductSourcingPage() {
   const videos = await fetchVideos("sourcing");
   return (
     <>
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Product Sourcing", href: "/product-sourcing" },
+        ]}
+      />
+      <ServiceSchema
+        name="Product Sourcing from China"
+        description="End-to-end product sourcing from China including supplier finding and vetting, procurement management, quality control inspections, freight forwarding, and logistics coordination. 50,000+ verified suppliers, shipping to 150+ countries."
+        url="/product-sourcing"
+        providerName="86 Connect"
+        areaServed={["Nigeria", "Kenya", "Ghana", "South Africa", "Ethiopia", "India", "Pakistan", "Bangladesh", "Indonesia", "Philippines", "Vietnam", "Thailand", "UAE", "Saudi Arabia", "Qatar", "Oman", "Kuwait", "USA", "UK", "Canada", "Australia", "Germany", "France", "Brazil", "Mexico", "Russia"]}
+        serviceType="ProcurementService"
+        offers={[
+          { name: "Supplier Finding", description: "50,000+ verified suppliers across all industries" },
+          { name: "Quality Control", description: "Factory audits, pre-shipment inspections" },
+          { name: "Logistics", description: "Sea, air, and express freight worldwide" },
+          { name: "Customs Clearance", description: "Export and import customs handling" },
+        ]}
+      />
       <PageNavbar
         accent="Sourcing"
         subLinks={SUB_LINKS}

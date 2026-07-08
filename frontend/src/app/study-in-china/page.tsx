@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { BreadcrumbSchema, ServiceSchema } from "@/components/seo/structured-data";
 import {
   GraduationCap,
   BookOpen,
@@ -44,6 +45,38 @@ export const metadata: Metadata = {
     "Study in China", "Study abroad China", "Chinese university application", "CSC scholarship",
     "China scholarship", "China student visa", "International students China", "China university admission",
     "Study in Beijing", "China education consultancy", "MBBS in China", "Master in China", "PhD in China",
+    // African countries
+    "Study in China from Nigeria", "Study in China for Nigerian students",
+    "Study in China for African students", "China scholarship for Nigerian students",
+    "Study abroad in China from Kenya", "Study in China from Ghana",
+    "Study in China from South Africa", "Study in China from Ethiopia",
+    "Study in China from Tanzania", "Study in China from Uganda",
+    "Study in China from Egypt", "Study in China from Morocco",
+    "Study in China from Rwanda", "Study in China from Cameroon",
+    "Study in China from Zambia", "Study in China from Zimbabwe",
+    "Study in China from Senegal", "Scholarship in China for African students",
+    "MBBS in China for African students", "China scholarship for African students",
+    // Asian countries
+    "Study in China from India", "Study in China from Pakistan",
+    "Study in China from Bangladesh", "Study in China from Indonesia",
+    "Study in China from Philippines", "Study in China from Vietnam",
+    "Study in China from Thailand", "Study in China from Malaysia",
+    "Study in China from Nepal", "Study in China from Sri Lanka",
+    "China scholarship for Indian students", "MBBS in China for Pakistani students",
+    // Middle East
+    "Study in China from UAE", "Study in China from Saudi Arabia",
+    "Study in China from Qatar", "Study in China from Oman",
+    "Study in China from Kuwait", "Study in China from Jordan",
+    // Europe & Americas
+    "Study in China from UK", "Study in China from USA",
+    "Study in China from Canada", "Study in China from Australia",
+    "Study in China from Germany", "Study in China from France",
+    // CIS
+    "Study in China from Russia", "Study in China from Kazakhstan",
+    "Study in China from Uzbekistan",
+    // General
+    "Chinese government scholarship", "China study abroad agency",
+    "Cheap universities in China", "Best universities in China for international students",
   ],
   openGraph: {
     title: "Study in China — Scholarships, Admissions & Visa Guidance | 86 Connect",
@@ -481,6 +514,26 @@ export default async function StudyInChinaPage() {
   const videos = await fetchVideos("study");
   return (
     <>
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Study in China", href: "/study-in-china" },
+        ]}
+      />
+      <ServiceSchema
+        name="Study in China Services"
+        description="End-to-end study in China services including scholarship applications (CSC, provincial, university), university admissions, visa processing, accommodation, and pre-departure guidance. 200+ partner universities, 98% success rate."
+        url="/study-in-china"
+        providerName="86 Connect"
+        areaServed={["Nigeria", "Kenya", "Ghana", "South Africa", "Ethiopia", "Tanzania", "Uganda", "Egypt", "Morocco", "Rwanda", "Cameroon", "Zambia", "Zimbabwe", "Senegal", "India", "Pakistan", "Bangladesh", "Indonesia", "Philippines", "Vietnam", "Thailand", "Malaysia", "Nepal", "Sri Lanka", "UAE", "Saudi Arabia", "Qatar", "Oman", "Kuwait", "Jordan", "UK", "USA", "Canada", "Australia", "Germany", "France", "Russia", "Kazakhstan", "Uzbekistan"]}
+        serviceType="EducationConsultancy"
+        offers={[
+          { name: "Scholarship Application", description: "CSC, provincial, and university scholarship applications" },
+          { name: "University Admission", description: "200+ partner universities, all programs" },
+          { name: "Visa Processing", description: "X1/X2 student visa support" },
+          { name: "Accommodation", description: "On-campus and off-campus housing arrangements" },
+        ]}
+      />
       <PageNavbar
         accent="Study"
         subLinks={SUB_LINKS}

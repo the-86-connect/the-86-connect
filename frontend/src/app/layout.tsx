@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { RouteLayout } from "@/components/layout/route-layout";
 import { NavigationProgress } from "@/components/layout/navigation-progress";
+import { OrganizationSchema, WebSiteSchema } from "@/components/seo/structured-data";
 import "./globals.css";
 
 const nunito = localFont({
@@ -32,7 +33,7 @@ const dmSans = localFont({
   fallback: ["system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
 });
 
-const SITE_URL = "https://the86connects.com";
+const SITE_URL = "https://www.the86connect.com";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -51,6 +52,7 @@ export const metadata: Metadata = {
   description:
     "86 Connect is your trusted gateway to China. We provide end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics). Serving clients in 30+ countries worldwide.",
   keywords: [
+    // Core
     "Study in China",
     "Product Sourcing from China",
     "Scholarship Applications China",
@@ -71,6 +73,98 @@ export const metadata: Metadata = {
     "Import from China",
     "China wholesale sourcing",
     "Beijing education consultancy",
+    // African countries
+    "Study in China from Nigeria",
+    "Study in China for Nigerian students",
+    "Study in China for African students",
+    "China scholarship for Nigerian students",
+    "Study abroad in China from Kenya",
+    "Study in China from Ghana",
+    "Study in China from South Africa",
+    "Study in China from Ethiopia",
+    "Study in China from Tanzania",
+    "Study in China from Uganda",
+    "Study in China from Egypt",
+    "Study in China from Morocco",
+    "Study in China from Rwanda",
+    "Study in China from Cameroon",
+    "Study in China from Zambia",
+    "Study in China from Zimbabwe",
+    "Study in China from Senegal",
+    "Product sourcing from China to Nigeria",
+    "Import from China to South Africa",
+    "Import from China to Kenya",
+    "Import from China to Ghana",
+    "China suppliers for African businesses",
+    "China to Ghana shipping",
+    "China to Nigeria shipping",
+    "China to Kenya shipping",
+    "Scholarship in China for African students",
+    "MBBS in China for African students",
+    "Study in China for African students scholarship",
+    // Asian countries
+    "Study in China from India",
+    "Study in China from Pakistan",
+    "Study in China from Bangladesh",
+    "Study in China from Indonesia",
+    "Study in China from Philippines",
+    "Study in China from Vietnam",
+    "Study in China from Thailand",
+    "Study in China from Malaysia",
+    "Study in China from Nepal",
+    "Study in China from Sri Lanka",
+    "China scholarship for Indian students",
+    "MBBS in China for Pakistani students",
+    "China scholarship for Pakistani students",
+    "Import from China to India",
+    "Import from China to Pakistan",
+    "Import from China to Bangladesh",
+    "Import from China to Indonesia",
+    // Middle East
+    "Study in China from UAE",
+    "Study in China from Saudi Arabia",
+    "Study in China from Qatar",
+    "Study in China from Oman",
+    "Study in China from Kuwait",
+    "Study in China from Jordan",
+    "China sourcing for Dubai businesses",
+    "Import from China to UAE",
+    "Import from China to Saudi Arabia",
+    // Europe & Americas
+    "Study in China from UK",
+    "Study in China from USA",
+    "Study in China from Canada",
+    "Study in China from Australia",
+    "Study in China from Germany",
+    "Study in China from France",
+    "Import from China to USA",
+    "Import from China to UK",
+    "Import from China to Canada",
+    "Import from China to Australia",
+    "Import from China to Germany",
+    // CIS
+    "Study in China from Russia",
+    "Study in China from Kazakhstan",
+    "Study in China from Uzbekistan",
+    // General
+    "China study abroad agency",
+    "China sourcing company",
+    "China procurement agent",
+    "Find Chinese suppliers",
+    "China factory sourcing",
+    "China supply chain management",
+    "China import export",
+    "Chinese government scholarship",
+    "Study in Beijing",
+    "China student visa",
+    "China business visa",
+    "China trade consulting",
+    "China product inspection",
+    "China freight forwarding",
+    "China to worldwide shipping",
+    "Cheap universities in China",
+    "China scholarship for international students",
+    "Best universities in China for international students",
   ],
   authors: [{ name: "86 Connect", url: SITE_URL }],
   creator: "86 Connect",
@@ -123,6 +217,12 @@ export const metadata: Metadata = {
     "geo.position": "39.9042;116.4074",
     "ICBM": "39.9042, 116.4074",
     "fb:page_id": process.env.NEXT_PUBLIC_FACEBOOK_PAGE_ID || "",
+    "baidu-site-verification": process.env.NEXT_PUBLIC_BAIDU_VERIFICATION
+      ? `code-${process.env.NEXT_PUBLIC_BAIDU_VERIFICATION}`
+      : "",
+    "renderer": "webkit",
+    "applicable-device": "pc,mobile",
+    "og:locale:alternate": "zh_CN",
   },
   robots: {
     index: true,
@@ -159,6 +259,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans">
+        <OrganizationSchema />
+        <WebSiteSchema />
         <NavigationProgress />
         <RouteLayout>{children}</RouteLayout>
       </body>

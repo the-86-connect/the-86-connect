@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = "https://the86connects.com";
+const SITE_URL = "https://www.the86connect.com";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -12,6 +12,18 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: "Baiduspider",
+        allow: "/",
+        disallow: ["/admin/", "/api/", "/account/", "/login", "/signup", "/forgot-password", "/reset-password", "/set-password"],
+        crawlDelay: 1,
+      },
+      {
+        userAgent: "Sogou web spider",
+        allow: "/",
+        disallow: ["/admin/", "/api/", "/account/", "/login", "/signup", "/forgot-password", "/reset-password", "/set-password"],
+        crawlDelay: 1,
+      },
+      {
+        userAgent: "360Spider",
         allow: "/",
         disallow: ["/admin/", "/api/", "/account/", "/login", "/signup", "/forgot-password", "/reset-password", "/set-password"],
         crawlDelay: 1,

@@ -5,6 +5,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
 import { FAQ_SECTIONS } from "@/data/faq";
+import { FAQPageSchema } from "@/components/seo/structured-data";
 
 export const metadata: Metadata = {
   title: "Frequently Asked Questions",
@@ -35,6 +36,7 @@ export const metadata: Metadata = {
 export default function FAQPage() {
   return (
     <>
+      <FAQPageSchema sections={FAQ_SECTIONS} />
       <Navbar />
       <main className="flex-1 bg-section-warm relative overflow-hidden">
         <div aria-hidden="true" className="absolute inset-0 pointer-events-none">

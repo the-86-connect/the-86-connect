@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BookOpen, Clock, Calendar, ArrowRight, GraduationCap, ShoppingCart, Compass } from "lucide-react";
+import { GraduationCap, ShoppingCart, Compass, Clock, ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { fetchBlogPosts } from "@/lib/api";
 import { BLOG_POSTS } from "@/data/blog";
+import { BreadcrumbSchema } from "@/components/seo/structured-data";
 
 export const metadata: Metadata = {
   title: "Resources & Guides",
@@ -66,6 +67,12 @@ export default async function ResourcesPage() {
 
   return (
     <>
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Resources & Guides", href: "/resources" },
+        ]}
+      />
       <Navbar />
       <main className="flex-1 bg-section-warm relative overflow-hidden">
         <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
