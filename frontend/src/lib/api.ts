@@ -489,7 +489,7 @@ export interface BlogPostFull extends BlogPostMeta {
 export async function fetchBlogPosts(): Promise<BlogPostMeta[]> {
   try {
     const response = await fetch(`${API_URL}/api/blog`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
     if (!response.ok) return [];
     const data = await response.json();
@@ -505,7 +505,7 @@ export async function fetchBlogPost(
 ): Promise<BlogPostFull | null> {
   try {
     const response = await fetch(`${API_URL}/api/blog/${slug}`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
     if (!response.ok) return null;
     const data = await response.json();

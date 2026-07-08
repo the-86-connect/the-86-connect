@@ -7,25 +7,48 @@ import { Footer } from "@/components/layout/footer";
 import { fetchBlogPost } from "@/lib/api";
 import { BLOG_POSTS, getPostBySlug } from "@/data/blog";
 
+export const dynamic = "force-dynamic";
+
 export function generateStaticParams() {
   return BLOG_POSTS.map((post) => ({ slug: post.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const post = getPostBySlug(params.slug);
-  if (!post) return { title: "Article Not Found" };
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const { slug } = params;
+  // Try API first for dynamic posts, fallback to static
+  try {
+    const post = await fetchBlogPost(slug);
+    if (post) {
+      return {
+        title: post.title,
+        description: post.excerpt,
+        alternates: { canonical: `/resources/${post.slug}` },
+        robots: { index: true, follow: true },
+        openGraph: {
+          title: post.title,
+          description: post.excerpt,
+          type: "article",
+          publishedTime: post.date,
+          authors: [post.author],
+          tags: post.tags,
+        },
+      };
+    }
+  } catch { /* fall through to static */ }
+  const fallback = getPostBySlug(slug);
+  if (!fallback) return { title: "Article Not Found" };
   return {
-    title: post.title,
-    description: post.excerpt,
-    alternates: { canonical: `/resources/${post.slug}` },
+    title: fallback.title,
+    description: fallback.excerpt,
+    alternates: { canonical: `/resources/${fallback.slug}` },
     robots: { index: true, follow: true },
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title: fallback.title,
+      description: fallback.excerpt,
       type: "article",
-      publishedTime: post.date,
-      authors: [post.author],
-      tags: post.tags,
+      publishedTime: fallback.date,
+      authors: [fallback.author],
+      tags: fallback.tags,
     },
   };
 }
