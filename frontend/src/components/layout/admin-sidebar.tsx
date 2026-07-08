@@ -13,6 +13,7 @@ import {
   Menu,
   Film,
   CalendarCheck,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { cn } from "@/lib/utils";
@@ -30,11 +31,12 @@ const NAV_ITEMS: NavItem[] = [
   { id: "consultations", label: "Consultations", icon: CalendarCheck, hash: "#consultations" },
   { id: "users", label: "Users", icon: Users, hash: "#users" },
   { id: "videos", label: "Videos", icon: Film, hash: "#videos" },
+  { id: "blog", label: "Blog Posts", icon: FileText, hash: "#blog" },
   { id: "sessions", label: "Sessions", icon: MonitorSmartphone, hash: "#sessions" },
 ];
 
 export function AdminSidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [activeHash, setActiveHash] = useState("#submissions");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -93,7 +95,7 @@ export function AdminSidebar() {
 
   if (!mounted) {
     return (
-      <aside className="hidden lg:block w-64 shrink-0 border-r border-border/40 bg-white/60" />
+      <aside className="hidden lg:block w-[64px] shrink-0 border-r border-border/40 bg-white/60" />
     );
   }
 

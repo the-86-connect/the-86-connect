@@ -24,7 +24,10 @@ export async function LatestArticles() {
     }));
   }
 
-  const latest = allPosts.slice(0, 3);
+  // Sort by most recent first, then take top 3
+  const latest = allPosts
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 3);
 
   if (latest.length === 0) return null;
 
