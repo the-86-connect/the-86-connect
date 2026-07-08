@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
+import { useAuth } from "@/context/auth-context";
 
 export function AdminLayoutClient({
   children,
@@ -10,8 +11,14 @@ export function AdminLayoutClient({
 }) {
   const pathname = usePathname();
   const isLoginPage = pathname === "/admin/login";
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoginPage) {
+    return <>{children}</>;
+  }
+
+  // Don't show sidebar until auth is confirmed
+  if (isLoading || !isAuthenticated) {
     return <>{children}</>;
   }
 

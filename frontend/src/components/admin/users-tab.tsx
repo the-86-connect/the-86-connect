@@ -21,6 +21,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   FileWarning,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -453,6 +454,26 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
     fetchTrashStats();
   }, [fetchTrashStats]);
 
+  const handleDownloadUsers = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/users/export`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `users-export-${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download users failed:", err);
+    }
+  }, []);
+
   const handleCleanupPurgeAll = useCallback(async () => {
     setCleanupPurgeLoading(true);
     try {
@@ -608,6 +629,16 @@ export default function UsersTab({ active, onSearchSubmissions }: UsersTabProps)
           />
           Refresh
         </Button>
+        {!trashView && (
+          <Button
+            variant="outline"
+            onClick={handleDownloadUsers}
+            className="cursor-pointer shrink-0 btn-glass rounded-xl border-0 hover:bg-white/95"
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
+        )}
       </div>
 
       {/* Users table / Trash table */}

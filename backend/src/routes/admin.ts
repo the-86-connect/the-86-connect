@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
+import * as XLSX from "xlsx";
 import { prisma } from "../lib/prisma";
 import {
   authenticateToken,
@@ -990,6 +991,56 @@ adminRouter.get("/users", authenticateToken, async (_req, res) => {
   } catch (error) {
     console.error("Fetch users error:", (error as Error).message);
     res.status(500).json({ error: "Failed to retrieve users" });
+  }
+});
+
+// Export users as XLSX
+adminRouter.get("/users/export", authenticateToken, async (_req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      where: { deletedAt: null },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        createdAt: true,
+        _count: { select: { submissions: true } },
+      },
+    });
+
+    const rows = users.map((u) => ({
+      Name: u.name || "N/A",
+      Email: u.email,
+      Phone: u.phone || "N/A",
+      "Total Submissions": u._count.submissions,
+      "Joined Date": u.createdAt.toISOString().split("T")[0],
+    }));
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    // Auto-fit column widths
+    const colWidths = [
+      { wch: 30 }, // Name
+      { wch: 35 }, // Email
+      { wch: 20 }, // Phone
+      { wch: 18 }, // Total Submissions
+      { wch: 15 }, // Joined Date
+    ];
+    ws["!cols"] = colWidths;
+
+    XLSX.utils.book_append_sheet(wb, ws, "Users");
+
+    const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename="users-export-${new Date().toISOString().split("T")[0]}.xlsx"`);
+    res.send(buf);
+  } catch (error) {
+    console.error("Export users error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to export users" });
   }
 });
 
