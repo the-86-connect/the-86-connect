@@ -33,11 +33,17 @@ interface BlogEditorProps {
   content: string;
   onChange: (html: string) => void;
   disabled?: boolean;
+  maxImages?: number;
 }
 
-export function BlogEditor({ content, onChange, disabled }: BlogEditorProps) {
+export function BlogEditor({ content, onChange, disabled, maxImages }: BlogEditorProps) {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const countImages = (html: string): number => {
+    const matches = html.match(/<img[^>]+src="([^"]+)"/g);
+    return matches ? matches.length : 0;
+  };
 
   const editor = useEditor({
     extensions: [
@@ -76,6 +82,17 @@ export function BlogEditor({ content, onChange, disabled }: BlogEditorProps) {
       const file = e.target.files?.[0];
       if (!file || !editor) return;
 
+      // Check image limit
+      if (maxImages) {
+        const currentHtml = editor.getHTML();
+        const currentCount = countImages(currentHtml);
+        if (currentCount >= maxImages) {
+          toast.error(`Max ${maxImages} images allowed in content`);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+          return;
+        }
+      }
+
       setUploading(true);
       try {
         const formData = new FormData();
@@ -104,7 +121,7 @@ export function BlogEditor({ content, onChange, disabled }: BlogEditorProps) {
         if (fileInputRef.current) fileInputRef.current.value = "";
       }
     },
-    [editor],
+    [editor, maxImages],
   );
 
   const setLink = useCallback(() => {

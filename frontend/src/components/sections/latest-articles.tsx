@@ -56,13 +56,17 @@ export async function LatestArticles() {
               href={`/resources/${post.slug}`}
               className="group rounded-2xl bg-card border border-border overflow-hidden hover:shadow-soft-lg transition-all duration-300 lift"
             >
-              {post.imageUrl && (
+              {post.imageUrl ? (
                 <div className="aspect-[16/9] overflow-hidden">
                   <img
                     src={post.imageUrl}
                     alt={post.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
+                </div>
+              ) : (
+                <div className="aspect-[16/9] bg-gradient-to-br from-primary/10 via-primary/5 to-transparent flex items-center justify-center">
+                  <BookOpen className="h-8 w-8 text-primary/25" />
                 </div>
               )}
               <div className="p-5">

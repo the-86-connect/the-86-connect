@@ -1560,8 +1560,6 @@ adminRouter.post("/blog", authenticateToken, async (req, res) => {
     title,
     excerpt,
     category,
-    date,
-    readTime,
     author,
     tags,
     content,
@@ -1584,14 +1582,20 @@ adminRouter.post("/blog", authenticateToken, async (req, res) => {
     });
     const order = (lastPost?.order ?? -1) + 1;
 
+    // Auto-generate date and readTime
+    const now = new Date();
+    const date = now.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    const wordCount = typeof content === "string" ? content.replace(/<[^>]*>/g, "").split(/\s+/).filter(Boolean).length : 0;
+    const readTime = wordCount > 0 ? `${Math.max(1, Math.ceil(wordCount / 200))} min read` : "5 min read";
+
     const post = await prisma.blogPost.create({
       data: {
         slug: slug.trim(),
         title: title.trim(),
         excerpt: (excerpt || "").trim(),
         category: category || "Guide",
-        date: (date || new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })).trim(),
-        readTime: (readTime || "5 min read").trim(),
+        date,
+        readTime,
         author: (author || "86 Connect Team").trim(),
         tags: Array.isArray(tags) ? tags : [],
         content: typeof content === "string" ? content : "",
@@ -1639,14 +1643,13 @@ adminRouter.patch("/blog/:id", authenticateToken, async (req, res) => {
     title,
     excerpt,
     category,
-    date,
-    readTime,
     author,
     tags,
     content,
     imageUrl,
     order,
     published,
+    pinned,
   } = req.body;
 
   if (category && !VALID_BLOG_CATEGORIES.includes(category)) {
@@ -1659,14 +1662,20 @@ adminRouter.patch("/blog/:id", authenticateToken, async (req, res) => {
     if (title !== undefined) data.title = title.trim();
     if (excerpt !== undefined) data.excerpt = excerpt.trim();
     if (category !== undefined) data.category = category;
-    if (date !== undefined) data.date = date.trim();
-    if (readTime !== undefined) data.readTime = readTime.trim();
     if (author !== undefined) data.author = author.trim();
     if (tags !== undefined) data.tags = Array.isArray(tags) ? tags : [];
-    if (content !== undefined) data.content = typeof content === "string" ? content : "";
+    if (content !== undefined) {
+      data.content = typeof content === "string" ? content : "";
+      // Auto-update date and readTime when content changes
+      const now = new Date();
+      data.date = now.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+      const wordCount = typeof content === "string" ? content.replace(/<[^>]*>/g, "").split(/\s+/).filter(Boolean).length : 0;
+      data.readTime = wordCount > 0 ? `${Math.max(1, Math.ceil(wordCount / 200))} min read` : "5 min read";
+    }
     if (imageUrl !== undefined) data.imageUrl = imageUrl || null;
     if (order !== undefined) data.order = order;
     if (published !== undefined) data.published = published;
+    if (pinned !== undefined) data.pinned = pinned;
 
     const post = await prisma.blogPost.update({
       where: { id },
@@ -1692,6 +1701,80 @@ adminRouter.delete("/blog/:id", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Delete blog post error:", (error as Error).message);
     res.status(500).json({ error: "Failed to delete blog post" });
+  }
+});
+
+// Seed static blog posts into the database
+adminRouter.post("/blog/seed", authenticateToken, async (_req, res) => {
+  const staticPosts = [
+    {
+      slug: "complete-guide-studying-in-china-2026",
+      title: "The Complete Guide to Studying in China in 2026",
+      excerpt: "Everything international students need to know about admissions, scholarships, visas, and student life in China.",
+      category: "Study in China",
+      date: "June 20, 2026",
+      readTime: "12 min read",
+      author: "86 Connect Education Team",
+      tags: ["study abroad", "scholarships", "student visa", "universities"],
+      content: "<h2>Why Study in China?</h2><p>China has become one of the most popular study destinations in Asia, attracting over 500,000 international students annually. With world-class universities, affordable tuition, generous scholarships, and a rich cultural experience, it's no surprise that more students are choosing China for their higher education.</p><ul><li>World-ranked universities (Tsinghua, Peking, Fudan consistently rank in global top 100)</li><li>Affordable tuition compared to Western countries ($2,000-$10,000/year)</li><li>Generous scholarship programs covering full tuition and living stipends</li><li>Post-study work opportunities in China's booming economy</li><li>Learn Mandarin — the most spoken language in the world</li><li>Safe, modern cities with excellent public transportation</li></ul><h2>Types of Programs Available</h2><p>Chinese universities offer programs at Bachelor's (4 years), Master's (2-3 years), and PhD (3-4 years) levels. Many universities now offer English-taught programs in Medicine, Engineering, Business, Computer Science, and International Relations, so you don't need to know Chinese to apply.</p><h3>Popular Fields of Study</h3><ul><li>MBBS (Medicine) — recognized by WHO and medical councils worldwide</li><li>Engineering (Civil, Mechanical, Electrical, Computer Science)</li><li>Business and MBA programs (especially at CEIBS, CKGSB, Tsinghua SEM)</li><li>Chinese Language and Culture programs</li><li>International Trade and Economics</li></ul><h2>Scholarship Opportunities</h2><p>There are multiple scholarship tiers available to international students. The Chinese Government Scholarship (CSC) is the most prestigious, covering full tuition, accommodation, a monthly living stipend (¥3,000-3,500), and comprehensive medical insurance.</p><blockquote><p>Apply for scholarships 6-8 months before the intake. Deadlines for CSC scholarships are typically January-April for September intake. Working with an experienced agency like 86 Connect significantly increases your chances of scholarship success.</p></blockquote><h2>Application Timeline</h2><ul><li>6-12 months before: Research universities and programs, prepare documents</li><li>6-8 months before: Submit applications and scholarship applications</li><li>3-4 months before: Receive admission decisions and JW202 form</li><li>2-3 months before: Apply for student visa (X1)</li><li>1 month before: Book flights, arrange airport pickup</li><li>Arrival: Register at university, apply for residence permit</li></ul><h2>Ready to Start Your Journey?</h2><p>The application process can feel overwhelming, but you don't have to navigate it alone. Our education consultants have helped thousands of students successfully apply to Chinese universities. Fill out our free assessment form to get personalized recommendations.</p>",
+      order: 0,
+    },
+    {
+      slug: "how-to-source-products-from-china",
+      title: "How to Source Products from China: A Step-by-Step Guide",
+      excerpt: "The complete playbook for finding reliable suppliers, negotiating prices, ensuring quality, and shipping products worldwide.",
+      category: "Product Sourcing",
+      date: "June 15, 2026",
+      readTime: "10 min read",
+      author: "86 Connect Sourcing Team",
+      tags: ["sourcing", "suppliers", "quality control", "shipping", "import"],
+      content: "<h2>Step 1: Define Your Product Requirements</h2><p>Before contacting any supplier, be crystal clear about your specifications: materials, dimensions, certifications, packaging requirements, target price, and order quantity. Vague requirements lead to miscommunication and quality issues.</p><blockquote><p>Create a detailed product specification sheet with photos, technical drawings, and reference samples. Suppliers who ask clarifying questions are usually more reliable than those who immediately say 'yes, we can do that.'</p></blockquote><h2>Step 2: Find Verified Suppliers</h2><ul><li>Alibaba.com and Made-in-China.com for initial supplier discovery</li><li>Trade shows like Canton Fair and Yiwu International Commodities Fair</li><li>Factory audits and on-the-ground verification (critical for large orders)</li><li>Use a local sourcing agent who understands Chinese business culture</li><li>Always verify business licenses, ISO certifications, and export experience</li></ul><h2>Step 3: Request Samples Before Bulk Orders</h2><p>Never place a bulk order without first approving a production sample. Expect to pay for samples and shipping — this is normal and shows you are a serious buyer. Test the sample thoroughly for quality, functionality, and durability.</p><h2>Step 4: Negotiate Terms and Pricing</h2><p>Chinese suppliers expect negotiation, but don't squeeze prices unrealistically — quality always suffers if the margin is too thin. Negotiate payment terms (standard is 30% deposit, 70% before shipment), production lead times, and quality standards in writing.</p><h2>Step 5: Quality Control is Non-Negotiable</h2><ul><li>Pre-production inspection: Verify raw materials and first articles</li><li>During-production inspection (DUPRO): Check at 20-30% completion</li><li>Pre-shipment inspection (PSI): Check random samples when 80%+ is packed</li><li>Container loading check: Ensure correct quantities and proper loading</li><li>Third-party inspection (SGS, BV, Intertek) for high-value orders</li></ul><h2>Step 6: Shipping and Logistics</h2><p>Choose your shipping method based on urgency and volume: Express courier (3-7 days, expensive), air freight (5-10 days), or sea freight (20-45 days, most economical). Consider customs duties, import taxes, and Incoterms (FOB, CIF, DDP) when calculating total landed cost.</p>",
+      order: 1,
+    },
+    {
+      slug: "chinese-government-scholarship-csc",
+      title: "How to Win the Chinese Government Scholarship (CSC) in 2026",
+      excerpt: "Insider tips and strategies to maximize your chances of getting a fully-funded CSC scholarship.",
+      category: "Study in China",
+      date: "June 10, 2026",
+      readTime: "8 min read",
+      author: "86 Connect Education Team",
+      tags: ["CSC scholarship", "full scholarship", "study in China", "application tips"],
+      content: "<h2>Understand the CSC Scholarship Types</h2><ul><li>Type A: Bilateral programs through Chinese embassies in your home country</li><li>Type B: University programs — apply directly to Chinese universities</li><li>Type C: Regional programs for specific regions (EU, ASEAN, Africa, etc.)</li><li>Great Wall Program: For developing countries via UNESCO</li></ul><blockquote><p>Type B (university program) generally has higher acceptance rates than Type A (embassy channel), but embassy channels sometimes have more slots. We recommend applying through multiple channels simultaneously.</p></blockquote><h2>Build a Strong Application</h2><p>CSC review panels look for academic excellence, clear study plans, and alignment between your background and the chosen program. Your personal statement (study plan) is the most important document — make it compelling, specific, and tied to China's development priorities.</p><h2>Key Documents You Need</h2><ul><li>Notarized highest diploma and academic transcripts</li><li>Study plan or research proposal (minimum 800 words)</li><li>Two recommendation letters from professors</li><li>HSK certificate (for Chinese-taught programs) or IELTS/TOEFL (English-taught)</li><li>Foreigner Physical Examination Form (filled by official doctor)</li><li>Passport copy and passport-sized photos</li><li>Acceptance letter from a professor (pre-admission notice dramatically increases chances)</li></ul><h2>Common Mistakes to Avoid</h2><ul><li>Applying to too many universities (2-3 is optimal)</li><li>Generic study plan not tailored to each university</li><li>Missing application deadlines (varies by university, typically Jan-Apr)</li><li>Not contacting potential supervisors before applying</li><li>Submitting documents in languages other than Chinese/English without translation</li></ul>",
+      order: 2,
+    },
+    {
+      slug: "alibaba-vs-1688-supplier-sourcing",
+      title: "Alibaba vs 1688: Which Platform is Better for Sourcing?",
+      excerpt: "Understanding the differences between Alibaba (international) and 1688 (domestic Chinese) for product sourcing.",
+      category: "Product Sourcing",
+      date: "June 5, 2026",
+      readTime: "6 min read",
+      author: "86 Connect Sourcing Team",
+      tags: ["Alibaba", "1688", "supplier platforms", "B2B", "pricing"],
+      content: "<h2>Alibaba.com (International)</h2><ul><li>English-language interface, designed for export</li><li>Suppliers are experienced in international trade</li><li>Trade Assurance protection for orders</li><li>Higher prices (suppliers build in margins for foreign buyers)</li><li>Higher MOQs (usually 500+ units)</li><li>Accepts T/T, L/C, credit cards, Western Union</li></ul><h2>1688.com (Domestic Chinese)</h2><ul><li>Chinese-language only, designed for domestic Chinese trade</li><li>Factory-direct prices, often 20-40% cheaper than Alibaba</li><li>Lower MOQs (many items available at 1-10 units)</li><li>Suppliers may have no export experience or English support</li><li>Payment in RMB via Alipay/bank transfer only</li><li>Direct access to factories and trading companies alike</li></ul><blockquote><p>If you have a Chinese-speaking agent or partner, 1688.com offers significantly better pricing for most products. We routinely save clients 30%+ by sourcing through 1688 with verified suppliers.</p></blockquote><h2>Our Recommendation</h2><p>For first-time importers with small orders, start with Alibaba.com for ease of use and buyer protection. As your volume grows, work with a local sourcing agent to access 1688.com, factory direct prices, and negotiate better terms. The best strategy combines both platforms: use Alibaba for initial product research and price benchmarks, then find the same factories on 1688 for better pricing.</p>",
+      order: 3,
+    },
+  ];
+
+  try {
+    let created = 0;
+    let skipped = 0;
+
+    for (const post of staticPosts) {
+      const existing = await prisma.blogPost.findUnique({ where: { slug: post.slug } });
+      if (existing) {
+        skipped++;
+        continue;
+      }
+      await prisma.blogPost.create({ data: post });
+      created++;
+    }
+
+    res.json({ success: true, created, skipped, message: `Seeded ${created} posts, ${skipped} already existed` });
+  } catch (error) {
+    console.error("Seed blog posts error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to seed blog posts" });
   }
 });
 

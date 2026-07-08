@@ -14,6 +14,10 @@ import {
   ArrowUp,
   ArrowDown,
   ImageIcon,
+  Pin,
+  PinOff,
+  Upload,
+  Database,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +27,7 @@ import { API_URL, getCsrfToken } from "@/lib/api";
 import { BlogEditor } from "./blog-editor";
 
 const CATEGORIES = ["Study in China", "Product Sourcing", "Guide"] as const;
+const MAX_IMAGES = 3;
 
 interface AdminBlogPost {
   id: string;
@@ -38,6 +43,7 @@ interface AdminBlogPost {
   imageUrl: string | null;
   order: number;
   published: boolean;
+  pinned: boolean;
   createdAt: string;
 }
 
@@ -49,14 +55,13 @@ export function BlogTab() {
   const [editing, setEditing] = useState<AdminBlogPost | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminBlogPost | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [seeding, setSeeding] = useState(false);
 
   // Form state
   const [formSlug, setFormSlug] = useState("");
   const [formTitle, setFormTitle] = useState("");
   const [formExcerpt, setFormExcerpt] = useState("");
   const [formCategory, setFormCategory] = useState<string>("Guide");
-  const [formDate, setFormDate] = useState("");
-  const [formReadTime, setFormReadTime] = useState("");
   const [formAuthor, setFormAuthor] = useState("");
   const [formTags, setFormTags] = useState("");
   const [formContent, setFormContent] = useState("");
@@ -95,8 +100,6 @@ export function BlogTab() {
     setFormTitle("");
     setFormExcerpt("");
     setFormCategory("Guide");
-    setFormDate("");
-    setFormReadTime("");
     setFormAuthor("");
     setFormTags("");
     setFormContent("");
@@ -115,6 +118,11 @@ export function BlogTab() {
     if (!editing) {
       setFormSlug(slugify(val));
     }
+  };
+
+  const countContentImages = (html: string): number => {
+    const matches = html.match(/<img[^>]+src="([^"]+)"/g);
+    return matches ? matches.length : 0;
   };
 
   const handleFeaturedImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,8 +168,6 @@ export function BlogTab() {
     setFormTitle(post.title);
     setFormExcerpt(post.excerpt);
     setFormCategory(post.category);
-    setFormDate(post.date);
-    setFormReadTime(post.readTime);
     setFormAuthor(post.author);
     setFormTags(post.tags.join(", "));
     setFormContent(typeof post.content === "string" ? post.content : "");
@@ -184,6 +190,14 @@ export function BlogTab() {
       return;
     }
 
+    // Check image count (content images + featured image)
+    const contentImages = countContentImages(formContent);
+    const totalImages = contentImages + (formImageUrl ? 1 : 0);
+    if (contentImages > MAX_IMAGES) {
+      setFormError(`Max ${MAX_IMAGES} images allowed in content (found ${contentImages})`);
+      return;
+    }
+
     const tags = formTags
       .split(",")
       .map((t) => t.trim())
@@ -196,8 +210,6 @@ export function BlogTab() {
         title: formTitle.trim(),
         excerpt: formExcerpt.trim(),
         category: formCategory,
-        date: formDate.trim(),
-        readTime: formReadTime.trim(),
         author: formAuthor.trim(),
         tags,
         content: formContent,
@@ -269,6 +281,31 @@ export function BlogTab() {
     }
   };
 
+  const handleTogglePin = async (post: AdminBlogPost) => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/blog/${post.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
+        credentials: "include",
+        body: JSON.stringify({ pinned: !post.pinned }),
+      });
+      if (!res.ok) throw new Error("Failed to toggle pin status");
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === post.id ? { ...p, pinned: !p.pinned } : p,
+        ),
+      );
+      toast.success(post.pinned ? "Post unpinned" : "Post pinned");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update post",
+      );
+    }
+  };
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setActionLoading(true);
@@ -288,6 +325,30 @@ export function BlogTab() {
       );
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/blog/seed`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Seed failed");
+      toast.success(data.message || "Static posts seeded");
+      await fetchPosts();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to seed posts",
+      );
+    } finally {
+      setSeeding(false);
     }
   };
 
@@ -331,7 +392,11 @@ export function BlogTab() {
     );
   }
 
-  const sorted = [...posts].sort((a, b) => a.order - b.order);
+  // Sort: pinned first, then by order
+  const sorted = [...posts].sort((a, b) => {
+    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+    return a.order - b.order;
+  });
 
   return (
     <div className="space-y-6">
@@ -345,25 +410,52 @@ export function BlogTab() {
         <div>
           <p className="text-sm text-muted-foreground">
             Manage blog posts displayed on the Resources page. Published posts
-            are visible to visitors.
+            are visible to visitors. Pin posts for quick access.
           </p>
         </div>
-        <Button onClick={openAdd} className="gap-2 rounded-xl">
-          <Plus className="h-4 w-4" />
-          New Post
-        </Button>
+        <div className="flex items-center gap-2">
+          {sorted.length === 0 && (
+            <Button
+              onClick={handleSeed}
+              disabled={seeding}
+              variant="outline"
+              className="gap-2 rounded-xl"
+            >
+              {seeding ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Database className="h-4 w-4" />
+              )}
+              Seed Static Posts
+            </Button>
+          )}
+          <Button onClick={openAdd} className="gap-2 rounded-xl">
+            <Plus className="h-4 w-4" />
+            New Post
+          </Button>
+        </div>
       </div>
 
       {sorted.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card py-16 text-center">
           <FileText className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
           <p className="text-muted-foreground mb-4">
-            No blog posts yet. Create your first one!
+            No blog posts yet. Click "Seed Static Posts" to add the 4 default posts, or create one manually.
           </p>
-          <Button onClick={openAdd} variant="outline" className="rounded-xl">
-            <Plus className="h-4 w-4" />
-            Create Post
-          </Button>
+          <div className="flex items-center justify-center gap-3">
+            <Button onClick={handleSeed} disabled={seeding} variant="outline" className="rounded-xl">
+              {seeding ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Database className="h-4 w-4" />
+              )}
+              Seed Static Posts
+            </Button>
+            <Button onClick={openAdd} className="rounded-xl gap-2">
+              <Plus className="h-4 w-4" />
+              Create Post
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="rounded-2xl border border-border bg-card overflow-hidden">
@@ -381,6 +473,9 @@ export function BlogTab() {
                         alt=""
                         className="w-8 h-8 rounded-lg object-cover shrink-0"
                       />
+                    )}
+                    {post.pinned && (
+                      <Pin className="h-3.5 w-3.5 text-amber-500 shrink-0" />
                     )}
                     <span className="font-semibold text-sm truncate">
                       {post.title}
@@ -426,6 +521,17 @@ export function BlogTab() {
                     title="Move down"
                   >
                     <ArrowDown className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleTogglePin(post)}
+                    className={`p-2 rounded-lg hover:bg-muted transition-colors ${post.pinned ? "text-amber-500" : ""}`}
+                    title={post.pinned ? "Unpin" : "Pin"}
+                  >
+                    {post.pinned ? (
+                      <PinOff className="h-4 w-4" />
+                    ) : (
+                      <Pin className="h-4 w-4" />
+                    )}
                   </button>
                   <button
                     onClick={() => handleTogglePublish(post)}
@@ -514,7 +620,7 @@ export function BlogTab() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="blog-category">Category *</Label>
                   <select
@@ -532,33 +638,6 @@ export function BlogTab() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="blog-date">Date *</Label>
-                  <Input
-                    id="blog-date"
-                    value={formDate}
-                    onChange={(e) => setFormDate(e.target.value)}
-                    className="h-11"
-                    placeholder="e.g. June 20, 2026"
-                    required
-                    disabled={actionLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="blog-read-time">Read Time *</Label>
-                  <Input
-                    id="blog-read-time"
-                    value={formReadTime}
-                    onChange={(e) => setFormReadTime(e.target.value)}
-                    className="h-11"
-                    placeholder="e.g. 12 min read"
-                    required
-                    disabled={actionLoading}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
                   <Label htmlFor="blog-author">Author *</Label>
                   <Input
                     id="blog-author"
@@ -570,22 +649,23 @@ export function BlogTab() {
                     disabled={actionLoading}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="blog-tags">
-                    Tags{" "}
-                    <span className="text-muted-foreground font-normal">
-                      (comma-separated)
-                    </span>
-                  </Label>
-                  <Input
-                    id="blog-tags"
-                    value={formTags}
-                    onChange={(e) => setFormTags(e.target.value)}
-                    className="h-11"
-                    placeholder="e.g. study abroad, scholarships"
-                    disabled={actionLoading}
-                  />
-                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="blog-tags">
+                  Tags{" "}
+                  <span className="text-muted-foreground font-normal">
+                    (comma-separated)
+                  </span>
+                </Label>
+                <Input
+                  id="blog-tags"
+                  value={formTags}
+                  onChange={(e) => setFormTags(e.target.value)}
+                  className="h-11"
+                  placeholder="e.g. study abroad, scholarships"
+                  disabled={actionLoading}
+                />
               </div>
 
               <div className="space-y-2">
@@ -601,9 +681,13 @@ export function BlogTab() {
                 />
               </div>
 
+              <div className="text-xs text-muted-foreground">
+                Date and read time are auto-generated based on current time and content length.
+              </div>
+
               {/* Featured Image */}
               <div className="space-y-2">
-                <Label>Featured Image</Label>
+                <Label>Featured Image (max 1, shown on homepage)</Label>
                 <div className="flex items-center gap-3">
                   {formImageUrl && (
                     <img
@@ -616,7 +700,7 @@ export function BlogTab() {
                     {imageUploading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <ImageIcon className="h-4 w-4" />
+                      <Upload className="h-4 w-4" />
                     )}
                     {formImageUrl ? "Change Image" : "Upload Image"}
                     <input
@@ -641,11 +725,17 @@ export function BlogTab() {
 
               {/* Rich Text Editor */}
               <div className="space-y-2">
-                <Label>Content *</Label>
+                <Label>
+                  Content *{" "}
+                  <span className="text-muted-foreground font-normal text-xs">
+                    (max {MAX_IMAGES} images in content, upload via toolbar)
+                  </span>
+                </Label>
                 <BlogEditor
                   content={formContent}
                   onChange={setFormContent}
                   disabled={actionLoading}
+                  maxImages={MAX_IMAGES}
                 />
               </div>
 

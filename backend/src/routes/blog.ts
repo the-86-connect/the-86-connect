@@ -19,6 +19,7 @@ blogRouter.get("/", async (_req, res) => {
         readTime: true,
         author: true,
         tags: true,
+        imageUrl: true,
         order: true,
         published: true,
         createdAt: true,
