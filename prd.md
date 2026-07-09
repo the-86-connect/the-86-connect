@@ -1,8 +1,8 @@
-# 86 Connects — Product Requirements Document
+# 86 Connect — Product Requirements Document
 
 ## 1. Application Overview
 
-**Application Name:** 86 Connects
+**Application Name:** 86 Connect
 
 **Tagline:** Bridging the World to China
 
@@ -23,7 +23,7 @@
 | Form Validation | React Hook Form + Zod | — | — |
 | File Storage | Cloudinary + Cloudflare R2 | — | Production |
 | Email | Resend (with console fallback) | — | Production |
-| Monitoring | Sentry (client, server, edge) | — | Production |
+| Monitoring | Sentry (client, server, edge) + Vercel Analytics | — | Production |
 | Containerization | Docker + Docker Compose | Optional | Render |
 
 ---
@@ -38,7 +38,7 @@ Single-page application with smooth-scroll sections:
 - **Product Sourcing Overview** — Service overview section
 - **Video Gallery** — Embedded YouTube video gallery (shown if videos exist)
 - **Testimonials** — Client success stories
-- **About Us Section** — Company mission, values, differentiators
+- **About Us Section** — About page (`/about`) with company mission, values, team, and differentiators. Dedicated page with full metadata and OG images.
 - **Contact Section** — General contact form + company info
 
 ### 3.2 Study in China (`/study-in-china`)
@@ -78,20 +78,24 @@ Full FAQ page with all sections:
 - Product Sourcing Process
 
 ### 3.5 Resources (`/resources`, `/resources/[slug]`)
-Blog/resource listing and individual article pages.
+Blog/resource listing with pagination (8 posts per page) and individual article pages with TipTap rich content. Homepage shows 3 most recent articles.
 
-### 3.6 Application Tracking (`/study-in-china/track-application`)
+### 3.6 About (`/about`)
+Dedicated about page with company mission, values, team, and competitive differentiators. Full metadata and Open Graph image for social sharing.
+
+### 3.7 Application Tracking (`/study-in-china/track-application`)
 User enters reference code + email to view 6-stage application timeline.
 
-### 3.7 Quote Tracking (`/product-sourcing/track-quote`)
+### 3.8 Quote Tracking (`/product-sourcing/track-quote`)
 User enters reference code + email to view 6-stage sourcing timeline.
 
-### 3.8 Consultation Booking (`/book-consultation`)
+### 3.9 Consultation Booking (`/book-consultation`)
 Slot-based booking page with timezone-aware calendar.
 
-### 3.9 Legal Pages
+### 3.10 Legal Pages
 - Privacy Policy (`/privacy-policy`)
 - Terms of Service (`/terms-of-service`)
+- Security Policy (`/security-policy`)
 
 ---
 
@@ -141,11 +145,11 @@ Slot-based booking page with timezone-aware calendar.
 - **Bootstrapping** — Falls back to `ADMIN_PASSWORD` env var when no `AdminUser` exists in DB
 - **Role-Based Access** — `admin` vs `superadmin` roles
 
-### 5.2 Dashboard Tabs
+### 5.2 Dashboard Tabs (8 total)
 
-**Overview** — Count cards (Total submissions, Unread, Study, Sourcing, Users, Videos), activity stats, recent submissions, status distribution
+**Overview** — Count cards (Total submissions, Unread, Study, Sourcing, Users, Videos), activity stats, recent submissions, status distribution, data maintenance (soft-delete purge controls)
 
-**Submissions** — Paginated table with filters (Service, Status, Read/Unread, Date range, Search), bulk actions (mark read, delete, update status), CSV export, attachment download proxy, 6-stage status pipelines:
+**Submissions** — Paginated table with filters (Service, Status, Read/Unread, Date range, Search), bulk actions (mark read, delete, update status), CSV export, DOCX export with watermark and Cloudinary image links, attachment download proxy, 6-stage status pipelines:
 - Study: `submitted` → `under_review` → `matched` → `verified` → `decision` → `visa`
 - Sourcing: `received` → `sourcing` → `quotes` → `sample` → `confirmed` → `shipping`
 
@@ -158,6 +162,8 @@ Slot-based booking page with timezone-aware calendar.
 **Sessions** — View/revoke active admin sessions, logout everywhere except current device
 
 **Availability** — Full CRUD for consultation time slots, bulk creation (date range + time range + days of week), status filtering, admin slot booking for clients, calendar view
+
+**Blog Posts** — Full CRUD for blog articles with TipTap rich text editor, categories, SEO metadata (title, description, keywords), image upload, publish/unpublish toggle, date management
 
 **Videos** — CRUD for YouTube videos, page assignment (study/sourcing), reorder, YouTube URL auto-parsing
 
@@ -288,7 +294,7 @@ Six schema types embedded as JSON-LD:
 ### 12.1 CSRF Protection
 Double-submit cookie pattern on all non-GET/HEAD/OPTIONS requests.
 
-### 12.2 Rate Limiting (7 tiers)
+### 12.2 Rate Limiting (6 tiers)
 | Tier | Limit | Window |
 |------|-------|--------|
 | General API | 100 | 15 min |
@@ -297,16 +303,26 @@ Double-submit cookie pattern on all non-GET/HEAD/OPTIONS requests.
 | Registration | 3 | 5 min |
 | File Uploads | 20 | 15 min |
 | Form Submissions | 3 | 3 min |
-| IP Submission Limit | 10/hr, 20/day | — |
+
+Submission cooldown: 4 minutes after exceeding 3 submissions in 3 minutes.
 
 ### 12.3 Other Security Measures
-- Helmet security headers
-- CORS with origin whitelisting + credentials
+- Helmet security headers with Content Security Policy (CSP)
+- CORS with dynamic origin validation + credentials
 - httpOnly cookies with Secure, SameSite, Domain scoping
 - Bot protection via honeypot fields
-- Brute-force protection (LoginAttempt tracking)
+- Brute-force protection (LoginAttempt tracking, in-memory + database)
 - Non-root Docker user
-- Content compression (excluding SSE streams)
+- Content compression with SSE stream exclusion
+- Request timeout (30s on all routes)
+- JSON body limit (100kb)
+- Structured JSON request logging (method, path, status, duration, IP)
+- Database connection retry at startup (3 attempts, 5s delay)
+- Graceful shutdown with SIGTERM handling (9s timeout)
+- PostgreSQL connection pool: 20 max connections, 10s timeout
+- Prisma transaction timeouts: 10s max wait, 20s max duration
+- In-memory tracker Maps capped at 10,000 entries (prevents memory leaks)
+- React ErrorBoundary component with fallback UI and Sentry integration
 
 ---
 
@@ -323,8 +339,8 @@ Double-submit cookie pattern on all non-GET/HEAD/OPTIONS requests.
 - **Navigation Progress** — Top page loading bar
 - **Scroll Arrow** — Scroll-to-top button
 
-### 13.2 UI Components (25+ shadcn/ui + custom)
-Button, Input, Textarea, Label, Form, Toaster (Sonner), Confirm Dialog, Skeleton, ImageWithSkeleton, Calendar (booking + admin), Date Picker (horizontal scrollable), Time Slots (selection grid)
+### 13.2 UI Components (30+ shadcn/ui + custom)
+Button, Input, Textarea, Label, Form, Toaster (Sonner), Confirm Dialog, Skeleton, ImageWithSkeleton, Calendar (booking + admin), Date Picker (horizontal scrollable), Time Slots (selection grid), ErrorBoundary, AnimatedCounter, FileUpload, Accordion, Tabs, Card, Badge, Avatar, Dropdown Menu, Dialog, Sheet, Table, Pagination, SearchInput, Select, RadioGroup, Checkbox, Switch, Slider, Progress
 
 ### 13.3 Design Tokens
 - **Fonts:** Nunito (400-900, body), DM Sans (400-700, display)
@@ -359,10 +375,11 @@ Vercel (Frontend) ──→ api.the86connect.com (Custom Domain) ──→ Rende
 - Soft-delete purge (every 6 hours, 7-day grace)
 - Login attempt cleanup
 - Submission tracker cleanup
+- Database connection retry at startup (3 attempts, 5s delay)
 
 ---
 
-## 15. Database Models (10 total)
+## 15. Database Models (11 total)
 
 | Model | Purpose |
 |-------|---------|
@@ -373,6 +390,7 @@ Vercel (Frontend) ──→ api.the86connect.com (Custom Domain) ──→ Rende
 | `Consultation` | Consultation booking records |
 | `AvailabilitySlot` | Bookable time slots |
 | `Video` | YouTube video entries |
+| `BlogPost` | Blog articles with TipTap rich content, categories, SEO metadata |
 | `Notification` | In-app user notifications |
 | `LoginAttempt` | Brute-force protection tracking |
 | `AdminUser` | Admin user accounts with roles |
@@ -411,7 +429,7 @@ Vercel (Frontend) ──→ api.the86connect.com (Custom Domain) ──→ Rende
 ### Backend (Render)
 | Variable | Purpose |
 |----------|---------|
-| `DATABASE_URL` | PostgreSQL connection string |
+| `DATABASE_URL` | PostgreSQL connection string with pool params (`?connection_limit=20&pool_timeout=10`) |
 | `JWT_SECRET` | JWT signing secret |
 | `ADMIN_PASSWORD` | Bootstrap admin password |
 | `CORS_ORIGIN` | Comma-separated allowed origins |
