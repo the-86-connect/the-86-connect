@@ -15,17 +15,23 @@ export const metadata: Metadata = {
     canonical: "/faq",
   },
   openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://www.the86connect.com/faq",
+    siteName: "86 Connect",
     title: "Frequently Asked Questions | 86 Connect",
     description:
       "Get answers about studying in China and sourcing products from China. Scholarships, admissions, suppliers, quality control, shipping, costs, and more.",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "86 Connect FAQ" }],
+    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "86 Connect FAQ", type: "image/png" }],
   },
   twitter: {
     card: "summary_large_image",
+    site: "@86connect",
+    creator: "@86connect",
     title: "Frequently Asked Questions | 86 Connect",
     description:
       "Get answers about studying in China and sourcing products from China. Everything you need to know.",
-    images: ["/og-image.jpg"],
+    images: ["https://www.the86connect.com/logo-main.png"],
   },
   robots: {
     index: true,

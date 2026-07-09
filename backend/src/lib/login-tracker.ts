@@ -26,6 +26,9 @@ const ADMIN_LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
 const USER_MAX_ATTEMPTS = 4;
 const USER_LOCKOUT_MS = 5 * 60 * 1000; // 5 minutes
 
+// Prevent unbounded Map growth on long-running servers
+const MAX_TRACKER_SIZE = 10_000;
+
 function getConfig(type: LoginType): { max: number; lockout: number } {
   return type === "admin"
     ? { max: ADMIN_MAX_ATTEMPTS, lockout: ADMIN_LOCKOUT_MS }
@@ -190,6 +193,11 @@ export function recordFailedLogin(
   if (emailRec.count >= max) {
     emailRec.lockedUntil = Date.now() + lockout;
   }
+  // Evict oldest entry if map exceeds size limit (prevents memory leak)
+  if (trackers.emailAttempts.size >= MAX_TRACKER_SIZE && !trackers.emailAttempts.has(normalizedEmail)) {
+    const firstKey = trackers.emailAttempts.keys().next().value;
+    if (firstKey) trackers.emailAttempts.delete(firstKey);
+  }
   trackers.emailAttempts.set(normalizedEmail, emailRec);
 
   // IP tracking (in-memory)
@@ -200,6 +208,11 @@ export function recordFailedLogin(
   ipRec.count += 1;
   if (ipRec.count >= max) {
     ipRec.lockedUntil = Date.now() + lockout;
+  }
+  // Evict oldest entry if map exceeds size limit (prevents memory leak)
+  if (trackers.ipAttempts.size >= MAX_TRACKER_SIZE && !trackers.ipAttempts.has(clientIp)) {
+    const firstKey = trackers.ipAttempts.keys().next().value;
+    if (firstKey) trackers.ipAttempts.delete(firstKey);
   }
   trackers.ipAttempts.set(clientIp, ipRec);
 

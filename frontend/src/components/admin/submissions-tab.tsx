@@ -98,6 +98,14 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function getStages(submissionType: string) {
   return submissionType === "sourcing" ? SOURCING_STAGES : STUDY_STAGES;
 }
@@ -157,6 +165,13 @@ function statusBadgeClass(status: string | null | undefined): string {
   return "bg-slate-100 text-slate-600";
 }
 
+const SITE_URL = "https://www.the86connect.com";
+const WATERMARK_LOGO = `${SITE_URL}/logo-main.png`;
+
+function isImageMime(mime: string): boolean {
+  return mime.startsWith("image/");
+}
+
 function downloadSubmissionDoc(sub: Submission): void {
   const dateStr = new Date(sub.createdAt).toISOString().slice(0, 10);
   const serviceSlug = sub.serviceInterest.replace(/[^a-zA-Z0-9]+/g, "-");
@@ -172,53 +187,109 @@ function downloadSubmissionDoc(sub: Submission): void {
     };
   });
 
+  const imageAttachments = sub.attachments.filter((a) => isImageMime(a.mimeType));
+  const nonImageAttachments = sub.attachments.filter(
+    (a) => !isImageMime(a.mimeType),
+  );
+
   const attachmentRows =
     sub.attachments.length > 0
       ? sub.attachments
           .map(
             (a) =>
-              `<tr><td style="padding:4px 12px;border:1px solid #e2e8f0;">${a.originalName}</td><td style="padding:4px 12px;border:1px solid #e2e8f0;">${a.mimeType}</td><td style="padding:4px 12px;border:1px solid #e2e8f0;">${formatFileSize(a.size)}</td></tr>`,
+              `<tr><td style="padding:4px 12px;border:1px solid #e2e8f0;">${escapeHtml(a.originalName)}</td><td style="padding:4px 12px;border:1px solid #e2e8f0;">${escapeHtml(a.mimeType)}</td><td style="padding:4px 12px;border:1px solid #e2e8f0;">${formatFileSize(a.size)}</td><td style="padding:4px 12px;border:1px solid #e2e8f0;"><a href="${a.url}" target="_blank" style="color:#dc2626;text-decoration:underline;">Open Link</a></td></tr>`,
           )
           .join("")
-      : `<tr><td colspan="3" style="padding:8px 12px;border:1px solid #e2e8f0;color:#64748b;">No attachments</td></tr>`;
+      : `<tr><td colspan="4" style="padding:8px 12px;border:1px solid #e2e8f0;color:#64748b;">No attachments</td></tr>`;
 
   const messageFieldRows = messageRows
     .map(
       (r) =>
-        `<tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;width:200px;">${r.label || "—"}</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${r.value}</td></tr>`,
+        `<tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;width:200px;">${r.label || "—"}</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${escapeHtml(r.value)}</td></tr>`,
     )
     .join("");
 
+  const imagesSection =
+    imageAttachments.length > 0
+      ? `<h3>Attached Images</h3>
+<table>
+<tr style="background:#f1f5f9;"><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;">Image</td><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;">File Name</td><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;">Cloudinary Link</td></tr>
+${imageAttachments
+  .map(
+    (a) =>
+      `<tr><td style="padding:8px 12px;border:1px solid #e2e8f0;text-align:center;"><img src="${a.url}" alt="${escapeHtml(a.originalName)}" style="max-width:360px;max-height:240px;object-fit:contain;" /></td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${escapeHtml(a.originalName)}</td><td style="padding:6px 12px;border:1px solid #e2e8f0;word-break:break-all;"><a href="${a.url}" target="_blank" style="color:#dc2626;text-decoration:underline;font-size:9pt;">${a.url}</a></td></tr>`,
+  )
+  .join("")}
+</table>`
+      : "";
+
+  const nonImageLinksSection =
+    nonImageAttachments.length > 0
+      ? `<p style="margin-top:12px;font-size:10pt;color:#475569;"><strong>Document Links (Cloudinary):</strong></p>
+<ul style="font-size:10pt;color:#334155;">
+${nonImageAttachments
+  .map(
+    (a) =>
+      `<li>${escapeHtml(a.originalName)} — <a href="${a.url}" target="_blank" style="color:#dc2626;text-decoration:underline;word-break:break-all;">${a.url}</a></li>`,
+  )
+  .join("")}
+</ul>`
+      : "";
+
   const html = `<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:v="urn:schemas-microsoft-com:vml" xmlns="http://www.w3.org/TR/REC-html40">
 <head>
 <meta charset="utf-8">
 <title>${sub.serviceInterest} — ${sub.name}</title>
 <!--[if gte mso 9]><xml>
 <w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument>
+<v:shape id="_x0000_s1025" type="#_x0000_t75" style="position:absolute;margin-left:0;margin-top:0;width:540pt;height:150pt;z-index:-251658240;mso-position-horizontal:center;mso-position-horizontal-relative:margin;mso-position-vertical:center;mso-position-vertical-relative:margin;rotation:315;opacity:.08" o:allowincell="f">
+<v:imagedata src="${WATERMARK_LOGO}" o:title="86 Connect Watermark"/>
+</v:shape>
 </xml><![endif]-->
 <style>
 @page { margin: 1in; }
-body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1e293b; }
+body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1e293b; position: relative; }
 h1 { font-size: 20pt; color: #dc2626; margin: 0 0 4px 0; }
 h2 { font-size: 12pt; color: #64748b; font-weight: normal; margin: 0 0 20px 0; }
 h3 { font-size: 11pt; color: #334155; margin: 20px 0 8px 0; border-bottom: 2px solid #dc2626; padding-bottom: 4px; }
 table { border-collapse: collapse; width: 100%; }
 .ref { font-size: 9pt; color: #94a3b8; margin: 0 0 16px 0; }
+.watermark {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  opacity: 0.08;
+  z-index: -1;
+  pointer-events: none;
+  width: 500px;
+  height: auto;
+}
+@media print {
+  .watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+  }
+}
 </style>
 </head>
 <body>
+<div class="watermark">
+<img src="${WATERMARK_LOGO}" alt="86 Connect" style="width:100%;height:auto;display:block;" />
+</div>
 <h1>86 Connect</h1>
-<h2>${sub.serviceInterest} Submission</h2>
+<h2>${escapeHtml(sub.serviceInterest)} Submission</h2>
 <p class="ref">Reference: ${sub.referenceCode ?? sub.id.slice(-8).toUpperCase()} &nbsp;|&nbsp; Submitted: ${formatDate(sub.createdAt)}</p>
 
 <h3>Applicant Information</h3>
 <table>
-<tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;width:200px;">Name</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${sub.name}</td></tr>
-<tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Email</td><td style="padding:6px 12px;border:1px solid #e2e8f0;"><a href="mailto:${sub.email}">${sub.email}</a></td></tr>
-<tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Phone</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${sub.phone || "Not provided"}</td></tr>
-<tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Service</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${sub.serviceInterest}</td></tr>
-<tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Current Status</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${getStatusLabel(sub.status)}</td></tr>
+<tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;width:200px;">Name</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${escapeHtml(sub.name)}</td></tr>
+<tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Email</td><td style="padding:6px 12px;border:1px solid #e2e8f0;"><a href="mailto:${escapeHtml(sub.email)}">${escapeHtml(sub.email)}</a></td></tr>
+<tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Phone</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${sub.phone ? escapeHtml(sub.phone) : "Not provided"}</td></tr>
+<tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Service</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${escapeHtml(sub.serviceInterest)}</td></tr>
+<tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Current Status</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${escapeHtml(getStatusLabel(sub.status))}</td></tr>
 </table>
 
 <h3>Application Details</h3>
@@ -228,9 +299,12 @@ ${messageFieldRows}
 
 <h3>Attachments</h3>
 <table>
-<tr style="background:#f1f5f9;"><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;">File Name</td><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;">Type</td><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;">Size</td></tr>
+<tr style="background:#f1f5f9;"><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;">File Name</td><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;">Type</td><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;">Size</td><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;">Link</td></tr>
 ${attachmentRows}
 </table>
+
+${imagesSection}
+${nonImageLinksSection}
 
 <p style="margin-top:24px;font-size:9pt;color:#94a3b8;">Generated by 86 Connect Admin Panel on ${new Date().toLocaleString("en-US")}</p>
 </body>

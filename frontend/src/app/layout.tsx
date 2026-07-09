@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { RouteLayout } from "@/components/layout/route-layout";
 import { NavigationProgress } from "@/components/layout/navigation-progress";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { OrganizationSchema, WebSiteSchema } from "@/components/seo/structured-data";
 import "./globals.css";
 
@@ -195,10 +196,11 @@ export const metadata: Metadata = {
       "86 Connect is your trusted gateway to China. We provide end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics).",
     images: [
       {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
+        url: `${SITE_URL}/logo-main.png`,
+        width: 180,
+        height: 49,
         alt: "86 Connect — Your Gateway to China",
+        type: "image/png",
       },
     ],
   },
@@ -209,7 +211,7 @@ export const metadata: Metadata = {
     title: "86 Connect — Study in China & Product Sourcing from China",
     description:
       "86 Connect is your trusted gateway to China. End-to-end services for studying in China and sourcing products from China.",
-    images: ["/og-image.jpg"],
+    images: [`${SITE_URL}/logo-main.png`],
   },
   other: {
     "geo.region": "CN-BJ",
@@ -262,7 +264,9 @@ export default function RootLayout({
         <OrganizationSchema />
         <WebSiteSchema />
         <NavigationProgress />
-        <RouteLayout>{children}</RouteLayout>
+        <ErrorBoundary>
+          <RouteLayout>{children}</RouteLayout>
+        </ErrorBoundary>
       </body>
     </html>
   );

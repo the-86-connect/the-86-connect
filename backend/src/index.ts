@@ -48,7 +48,24 @@ const app = express();
 app.set("trust proxy", 1);
 
 // Security & performance middleware
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://www.youtube.com"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://i.ytimg.com"],
+        connectSrc: ["'self'", "https://*.sentry.io"],
+        frameSrc: ["https://www.youtube.com"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+      },
+    },
+  }),
+);
 app.use(
   compression({
     // Don't compress SSE (Server-Sent Events) — they must stream unbuffered
@@ -84,6 +101,17 @@ app.use(cookieParser());
 
 // CSRF protection — double-submit cookie pattern (skip for GET/HEAD/OPTIONS)
 app.use(csrfMiddleware);
+
+// Request timeout — 30s for all routes (prevents hanging requests from blocking the event loop)
+app.use((_req: Request, res: Response, next: NextFunction) => {
+  const timer = setTimeout(() => {
+    if (!res.headersSent) {
+      res.status(504).json({ error: "Request timeout" });
+    }
+  }, 30_000);
+  res.on("finish", () => clearTimeout(timer));
+  next();
+});
 
 // Rate limiting — general API
 const apiLimiter = rateLimit({
@@ -165,9 +193,39 @@ function submissionRateLimit(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-// Health check
-app.get("/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+// Health check — verifies server + database connectivity
+app.get("/health", async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: "ok", db: "connected", timestamp: new Date().toISOString() });
+  } catch {
+    res.status(503).json({ status: "error", db: "disconnected", timestamp: new Date().toISOString() });
+  }
+});
+
+// Request logging — structured JSON logs for production debugging
+// Logs method, path, status, duration, and IP for every request
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    const log = {
+      method: req.method,
+      path: req.path,
+      status: res.statusCode,
+      duration: `${duration}ms`,
+      ip: req.ip,
+      timestamp: new Date().toISOString(),
+    };
+    if (res.statusCode >= 400) {
+      console.warn(JSON.stringify(log));
+    } else if (duration > 1000) {
+      console.warn(JSON.stringify({ ...log, slow: true }));
+    } else {
+      console.log(JSON.stringify(log));
+    }
+  });
+  next();
 });
 
 // Routes
@@ -333,15 +391,63 @@ function getLanIP(): string | null {
   return null;
 }
 
-app.listen(PORT, HOST, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  const lanIP = getLanIP();
-  if (lanIP) {
-    console.log(`LAN access:     http://${lanIP}:${PORT}`);
+async function startServer() {
+  // Retry database connection up to 3 times with 5s delay
+  // Prevents crash-loop on Render if DB is temporarily unavailable
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      console.log("Database connected");
+      break;
+    } catch (err) {
+      if (attempt === 3) {
+        console.error("FATAL: Database connection failed after 3 attempts");
+        process.exit(1);
+      }
+      console.warn(`DB connection attempt ${attempt} failed, retrying in 5s...`);
+      await new Promise((r) => setTimeout(r, 5000));
+    }
   }
-  console.log(`Health check:   http://localhost:${PORT}/health`);
-  startLoginTrackerCleanup();
-  startSubmissionTrackerCleanup();
-  startPastSlotCleanup();
-  startSoftDeletePurge();
-});
+
+  const server = app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    const lanIP = getLanIP();
+    if (lanIP) {
+      console.log(`LAN access:     http://${lanIP}:${PORT}`);
+    }
+    console.log(`Health check:   http://localhost:${PORT}/health`);
+    startLoginTrackerCleanup();
+    startSubmissionTrackerCleanup();
+    startPastSlotCleanup();
+    startSoftDeletePurge();
+  });
+
+  // Graceful shutdown — handles Render SIGTERM (10s grace period before SIGKILL)
+  let shuttingDown = false;
+  process.on("SIGTERM", async () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    console.log("SIGTERM received — shutting down gracefully...");
+
+    server.close(() => console.log("HTTP server closed"));
+
+    // Force exit after 9s (Render sends SIGKILL at 10s)
+    setTimeout(() => {
+      console.error("Forced shutdown after timeout");
+      process.exit(1);
+    }, 9_000).unref();
+
+    try {
+      await prisma.$disconnect();
+      console.log("Database disconnected");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error during shutdown:", (err as Error).message);
+      process.exit(1);
+    }
+  });
+
+  process.on("SIGINT", () => process.emit("SIGTERM"));
+}
+
+startServer();

@@ -26,17 +26,23 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://www.the86connect.com",
+    siteName: "86 Connect",
     title: "86 Connect — Study in China & Product Sourcing from China",
     description:
       "Your trusted gateway to China. End-to-end services for studying in China and sourcing products from China's top universities and manufacturers.",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "86 Connect — Your Gateway to China" }],
+    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "86 Connect — Your Gateway to China", type: "image/png" }],
   },
   twitter: {
     card: "summary_large_image",
+    site: "@86connect",
+    creator: "@86connect",
     title: "86 Connect — Study in China & Product Sourcing from China",
     description:
       "Your trusted gateway to China. Study in China and source products from China with end-to-end support.",
-    images: ["/og-image.jpg"],
+    images: ["https://www.the86connect.com/logo-main.png"],
   },
 };
 

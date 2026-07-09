@@ -10,6 +10,7 @@ import {
   TrendingUp,
   CheckCircle,
 } from "lucide-react";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 
 const HIGHLIGHTS = [
   "Supplier finding & vetting",
@@ -43,8 +44,8 @@ export function ProductSourcingSection() {
                         <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-xl bg-white/20 flex items-center justify-center mx-auto mb-2 sm:mb-2 md:mb-2.5 lg:mb-3">
                           <Icon className="h-4 w-4 sm:h-5 sm:w-5 md:h-5 md:w-5 lg:h-6 lg:w-6 text-white" />
                         </div>
-                        <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white leading-none mb-1">
-                          {stat.value}
+                        <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white leading-none mb-1 tabular-nums">
+                          <AnimatedCounter value={stat.value} />
                         </div>
                         <div className="text-[10px] sm:text-[10px] md:text-xs text-white/80 font-bold">
                           {stat.label}

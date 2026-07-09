@@ -25,6 +25,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.95,
     },
     {
+      url: `${SITE_URL}/about`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
       url: `${SITE_URL}/book-consultation`,
       lastModified,
       changeFrequency: "monthly",
@@ -34,7 +40,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${SITE_URL}/faq`,
       lastModified,
       changeFrequency: "monthly",
-      priority: 0.7,
+      priority: 0.65,
     },
     {
       url: `${SITE_URL}/resources`,

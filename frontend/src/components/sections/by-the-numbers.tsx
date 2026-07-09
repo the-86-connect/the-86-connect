@@ -1,6 +1,7 @@
 "use client";
 
 import { TrendingUp, Users, Shield, Globe } from "lucide-react";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 
 const stats = [
   { value: "10+", label: "Years experience", icon: TrendingUp },
@@ -37,8 +38,8 @@ export function ByTheNumbersSection() {
                 <stat.icon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.5} />
               </div>
 
-              <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-primary leading-none mb-1.5 sm:mb-2">
-                {stat.value}
+              <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-primary leading-none mb-1.5 sm:mb-2 tabular-nums">
+                <AnimatedCounter value={stat.value} />
               </div>
 
               <div className="text-xs sm:text-xs md:text-sm text-muted-foreground font-bold">

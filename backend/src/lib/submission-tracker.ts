@@ -8,6 +8,9 @@ const MAX_SUBMISSIONS = 3;
 const WINDOW_MS = 3 * 60 * 1000;
 const COOLDOWN_MS = 4 * 60 * 1000;
 
+// Prevent unbounded Map growth on long-running servers
+const MAX_SUBMISSION_TRACKER_SIZE = 10_000;
+
 const submissionTimestamps = new Map<string, number[]>();
 
 function getClientIp(req: any): string {
@@ -49,6 +52,11 @@ export function recordSubmission(req: any): void {
   const now = Date.now();
   const timestamps = submissionTimestamps.get(ip) || [];
   timestamps.push(now);
+  // Evict oldest entry if map exceeds size limit (prevents memory leak)
+  if (submissionTimestamps.size >= MAX_SUBMISSION_TRACKER_SIZE && !submissionTimestamps.has(ip)) {
+    const firstKey = submissionTimestamps.keys().next().value;
+    if (firstKey) submissionTimestamps.delete(firstKey);
+  }
   submissionTimestamps.set(ip, timestamps);
 }
 

@@ -16,6 +16,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 
 const VALUES = [
   {
@@ -244,8 +245,8 @@ function MetricCard({
       <div className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-2 sm:mb-3 md:mb-3 lg:mb-4">
         <Icon className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 lg:h-7 lg:w-7 text-primary" />
       </div>
-      <div className="text-2xl sm:text-3xl md:text-3xl lg:text-5xl font-black text-primary mb-1 sm:mb-1.5 lg:mb-2 leading-none">
-        {value}
+      <div className="text-2xl sm:text-3xl md:text-3xl lg:text-5xl font-black text-primary mb-1 sm:mb-1.5 lg:mb-2 leading-none tabular-nums">
+        <AnimatedCounter value={value} />
       </div>
       <div className="text-xs sm:text-xs md:text-sm text-muted-foreground font-bold">
         {label}

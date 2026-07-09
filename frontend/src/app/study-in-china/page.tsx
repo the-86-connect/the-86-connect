@@ -26,6 +26,7 @@ import { StudyApplicationForm } from "@/components/forms/study-application-form"
 import { VideoGallery } from "@/components/sections/video-gallery";
 import { Testimonials } from "@/components/sections/testimonials";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 import {
   UniversitiesGrid,
   type University,
@@ -79,17 +80,23 @@ export const metadata: Metadata = {
     "Cheap universities in China", "Best universities in China for international students",
   ],
   openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://www.the86connect.com/study-in-china",
+    siteName: "86 Connect",
     title: "Study in China — Scholarships, Admissions & Visa Guidance | 86 Connect",
     description:
       "Apply to study in China with expert guidance. 200+ partner universities, 98% success rate. Scholarships, admissions, visas, and accommodation — all covered.",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Study in China with 86 Connect" }],
+    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "Study in China with 86 Connect", type: "image/png" }],
   },
   twitter: {
     card: "summary_large_image",
+    site: "@86connect",
+    creator: "@86connect",
     title: "Study in China — Scholarships, Admissions & Visa Guidance",
     description:
       "Study in China with 86 Connect. 200+ partner universities, 98% success rate. Scholarships, admissions, visas covered.",
-    images: ["/og-image.jpg"],
+    images: ["https://www.the86connect.com/logo-main.png"],
   },
 };
 
@@ -1111,8 +1118,8 @@ function MetricCard({
       <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4">
         <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
       </div>
-      <div className="text-3xl sm:text-4xl md:text-5xl font-black text-primary mb-1 sm:mb-2 leading-none">
-        {value}
+      <div className="text-3xl sm:text-4xl md:text-5xl font-black text-primary mb-1 sm:mb-2 leading-none tabular-nums">
+        <AnimatedCounter value={value} />
       </div>
       <div className="text-xs sm:text-sm text-muted-foreground font-semibold">
         {label}

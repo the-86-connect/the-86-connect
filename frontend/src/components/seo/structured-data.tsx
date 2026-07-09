@@ -149,6 +149,53 @@ export function FAQPageSchema({ sections }: { sections: FAQSection[] }) {
   );
 }
 
+/** AboutPage schema — for the about page */
+export function AboutPageSchema() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    name: "About 86 Connect",
+    description:
+      "Learn about 86 Connect, your trusted gateway to China for Study in China and Product Sourcing services. Serving clients across 50+ countries worldwide.",
+    url: `${SITE_URL}/about`,
+    image: `${SITE_URL}/og-image.jpg`,
+    publisher: {
+      "@type": "Organization",
+      name: "86 Connect",
+      url: SITE_URL,
+    },
+    mainEntity: {
+      "@type": "Organization",
+      name: "86 Connect",
+      description:
+        "86 Connect provides end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics).",
+      foundingDate: "2023-11-23",
+      location: {
+        "@type": "Place",
+        name: "Beijing",
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Beijing",
+          addressCountry: "CN",
+        },
+      },
+      contactPoint: {
+        "@type": "ContactPoint",
+        email: "info@the86connect.com",
+        telephone: "+86-138-0000-0000",
+        contactType: "customer service",
+      },
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
 /** Service schema — for study-in-china and product-sourcing pages */
 export function ServiceSchema({
   name,

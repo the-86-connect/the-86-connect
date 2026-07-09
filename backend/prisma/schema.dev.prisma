@@ -188,9 +188,11 @@ model BlogPost {
   readTime  String   @map("read_time") // e.g. "12 min read"
   author    String
   tags      Json     // string[]
-  content   Json     // BlogSection[]
+  content   String   @default("") // HTML content from TipTap editor
+  imageUrl  String?  @map("image_url") // Featured image (Cloudinary URL)
   order     Int      @default(0)
   published Boolean  @default(true)
+  pinned    Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

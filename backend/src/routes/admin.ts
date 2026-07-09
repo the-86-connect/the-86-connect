@@ -646,6 +646,26 @@ adminRouter.get("/submissions/export", authenticateToken, async (req, res) => {
   }
 });
 
+function addWatermarkToCloudinaryUrl(url: string, mimeType: string): string {
+  if (!mimeType.startsWith("image/")) return url;
+  if (!url.includes("cloudinary.com")) return url;
+  if (!url.includes("/image/upload/")) return url;
+
+  try {
+    const logoUrl = "https://www.the86connect.com/logo-main.png";
+    const logoBase64 = Buffer.from(logoUrl).toString("base64url");
+    const uploadMarker = "/image/upload/";
+    const idx = url.indexOf(uploadMarker);
+    if (idx === -1) return url;
+    const before = url.slice(0, idx + uploadMarker.length);
+    const after = url.slice(idx + uploadMarker.length);
+    const transformations = `l_fetch:${logoBase64},o_10,a_45,w_0.7,fl_layer_apply,g_center/`;
+    return `${before}${transformations}${after}`;
+  } catch {
+    return url;
+  }
+}
+
 // Download a single attachment (protected, proxy with forced download)
 adminRouter.get(
   "/download/:submissionId/:attachmentId",
@@ -669,8 +689,10 @@ adminRouter.get(
         return res.status(404).json({ error: "Attachment not found" });
       }
 
-      // Fetch the file from Cloudinary/R2
-      const response = await fetch(attachment.url);
+      const downloadUrl = addWatermarkToCloudinaryUrl(attachment.url, attachment.mimeType);
+
+      // Fetch the file from Cloudinary/R2 (with watermark overlay for Cloudinary images)
+      const response = await fetch(downloadUrl);
       if (!response.ok) {
         return res.status(502).json({ error: "Failed to fetch file from storage" });
       }

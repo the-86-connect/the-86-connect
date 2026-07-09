@@ -34,6 +34,7 @@ import { SourcingInquiryForm } from "@/components/forms/sourcing-inquiry-form";
 import { VideoGallery } from "@/components/sections/video-gallery";
 import { Testimonials } from "@/components/sections/testimonials";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { fetchVideos } from "@/lib/api";
 import { SOURCING_TESTIMONIALS } from "@/data/testimonials";
 import { FAQ_SECTIONS } from "@/data/faq";
@@ -79,17 +80,23 @@ export const metadata: Metadata = {
     "China supply chain management", "China factory audit",
   ],
   openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://www.the86connect.com/product-sourcing",
+    siteName: "86 Connect",
     title: "Product Sourcing from China — Suppliers, Procurement & Logistics | 86 Connect",
     description:
       "Source quality products from China with 86 Connect. 50,000+ verified suppliers, shipping to 150+ countries. Supplier finding, procurement, quality control, and logistics — all covered.",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Product Sourcing from China with 86 Connect" }],
+    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "Product Sourcing from China with 86 Connect", type: "image/png" }],
   },
   twitter: {
     card: "summary_large_image",
+    site: "@86connect",
+    creator: "@86connect",
     title: "Product Sourcing from China — Suppliers, Procurement & Logistics",
     description:
       "Source quality products from China. 50,000+ verified suppliers, shipping to 150+ countries. End-to-end procurement support.",
-    images: ["/og-image.jpg"],
+    images: ["https://www.the86connect.com/logo-main.png"],
   },
 };
 
@@ -812,8 +819,8 @@ function MetricCard({
       <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4">
         <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
       </div>
-      <div className="text-3xl sm:text-4xl md:text-5xl font-black text-primary mb-1 sm:mb-2 leading-none">
-        {value}
+      <div className="text-3xl sm:text-4xl md:text-5xl font-black text-primary mb-1 sm:mb-2 leading-none tabular-nums">
+        <AnimatedCounter value={value} />
       </div>
       <div className="text-xs sm:text-sm text-muted-foreground font-semibold">
         {label}
