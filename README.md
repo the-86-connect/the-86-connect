@@ -1,6 +1,6 @@
 <div align="center">
   <br>
-  <h1>86 Connect</h1>
+  <h1>86Connect</h1>
   <p><em>Bridging the World to China</em></p>
   <br>
   <p>
