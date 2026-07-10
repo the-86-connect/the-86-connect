@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -385,9 +387,16 @@ export default function AdminPage() {
         {/* ========== Header ========== */}
         <header className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold tracking-tight">
-              86 Connects Admin
-            </h1>
+            <Link href="/" className="inline-flex shrink-0 items-center" aria-label="86 Connect home">
+              <Image
+                src="/logo-main.png"
+                alt="86 Connect"
+                width={180}
+                height={54}
+                className="h-9 sm:h-10 w-auto"
+                priority
+              />
+            </Link>
           </div>
 
           <div className="flex items-center gap-3">

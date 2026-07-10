@@ -1459,68 +1459,46 @@ export function AvailabilityTab() {
                         <div
                           key={slot.id}
                           className={cn(
-                            "flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50/50 transition-colors border-t border-slate-100 first:border-t-0",
+                            "flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-4 py-2.5 hover:bg-slate-50/50 transition-colors border-t border-slate-100 first:border-t-0",
                             isSelected && "bg-primary/5",
                             isBooked && "border-l-4 border-l-blue-400",
                           )}
                         >
-                          {/* Checkbox */}
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            disabled={
-                              isBooked &&
-                              !isTerminalConsultationStatus(
-                                slot.consultation?.status ?? "",
-                              )
-                            }
-                            onChange={() => toggleSelect(slot.id)}
-                            aria-label={`Select slot ${slot.id}`}
-                            className="cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
-                          />
+                          {/* Mobile + Desktop: top row = checkbox + time + status + actions */}
+                          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                            {/* Checkbox */}
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              disabled={
+                                isBooked &&
+                                !isTerminalConsultationStatus(
+                                  slot.consultation?.status ?? "",
+                                )
+                              }
+                              onChange={() => toggleSelect(slot.id)}
+                              aria-label={`Select slot ${slot.id}`}
+                              className="cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
+                            />
 
-                          {/* Time + Status */}
-                          <div className="flex items-center gap-2 flex-shrink-0 min-w-[130px]">
-                            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="text-xs font-semibold text-foreground whitespace-nowrap">
-                              {formatTime(slot.startTime)} –{" "}
-                              {formatTime(slot.endTime)}
-                            </span>
-                          </div>
-
-                          {/* Status badge */}
-                          <div className="flex-shrink-0 min-w-[80px]">
-                            <StatusBadge status={slot.status} />
-                          </div>
-
-                          {/* Booked by / info */}
-                          <div className="flex-1 min-w-0">
-                            {hasConsultation ? (
-                              <div className="flex flex-col gap-0.5">
-                                <span className="text-xs font-bold text-foreground truncate">
-                                  {slot.consultation!.name}
-                                </span>
-                                <span className="text-[10px] text-muted-foreground truncate">
-                                  {slot.consultation!.email}
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">
-                                —
+                            {/* Time + Status */}
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <Clock className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
+                              <span className="text-xs font-semibold text-foreground whitespace-nowrap">
+                                {formatTime(slot.startTime)} –{" "}
+                                {formatTime(slot.endTime)}
                               </span>
-                            )}
-                          </div>
+                            </div>
 
-                          {/* Consultation details expandable */}
-                          {hasConsultation &&
-                            slot.consultation!.phone && (
-                              <span className="text-[10px] text-muted-foreground hidden lg:block flex-shrink-0">
-                                {slot.consultation!.phone}
-                              </span>
-                            )}
+                            {/* Status badge */}
+                            <div className="flex-shrink-0">
+                              <StatusBadge status={slot.status} />
+                            </div>
 
-                          {/* Actions */}
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <div className="flex-1 sm:hidden" />
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
                             {hasConsultation ? (
                               <>
                                 <div
@@ -1675,6 +1653,32 @@ export function AvailabilityTab() {
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </button>
                               </>
+                            )}
+                          </div>
+                          </div>
+
+                          {/* Second row: Booked info (visible on mobile below time row, inline on desktop) */}
+                          <div className="flex items-center gap-2 sm:gap-3 pl-6 sm:pl-0 sm:flex-1 sm:min-w-0 w-full">
+                            {hasConsultation ? (
+                              <>
+                                <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                                  <span className="text-xs font-bold text-foreground truncate">
+                                    {slot.consultation!.name}
+                                  </span>
+                                  <span className="text-[10px] text-muted-foreground truncate">
+                                    {slot.consultation!.email}
+                                  </span>
+                                </div>
+                                {slot.consultation!.phone && (
+                                  <span className="text-[10px] text-muted-foreground flex-shrink-0 whitespace-nowrap">
+                                    {slot.consultation!.phone}
+                                  </span>
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-xs text-muted-foreground hidden sm:block">
+                                —
+                              </span>
                             )}
                           </div>
                         </div>
