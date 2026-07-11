@@ -196,11 +196,11 @@ export const metadata: Metadata = {
       "86Connect is your trusted gateway to China. We provide end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics).",
     images: [
       {
-        url: `${SITE_URL}/logo-main.png`,
-        width: 180,
-        height: 49,
+        url: `${SITE_URL}/og-image.jpg`,
+        width: 1200,
+        height: 630,
         alt: "86Connect — Your Gateway to China",
-        type: "image/png",
+        type: "image/jpeg",
       },
     ],
   },
@@ -211,7 +211,7 @@ export const metadata: Metadata = {
     title: "86Connect — Study in China & Product Sourcing from China",
     description:
       "86Connect is your trusted gateway to China. End-to-end services for studying in China and sourcing products from China.",
-    images: [`${SITE_URL}/logo-main.png`],
+    images: [`${SITE_URL}/og-image.jpg`],
   },
   other: {
     "geo.region": "CN-BJ",

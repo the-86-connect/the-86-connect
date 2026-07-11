@@ -50,15 +50,17 @@ export function OrganizationSchema() {
     description:
       "86Connect provides end-to-end services for Study in China and Product Sourcing from China. Serving clients in 50+ countries worldwide with 98% success rate.",
     email: "info@the86connect.com",
-    telephone: "+86-138-0000-0000",
+    telephone: "+86 176 1153 3296",
     address: {
       "@type": "PostalAddress",
       addressLocality: "Beijing",
       addressCountry: "CN",
     },
     sameAs: [
-      "https://linkedin.com/company/86connect",
-      "https://facebook.com/86connects",
+      "https://www.facebook.com/profile.php?id=61575211782325",
+      "https://www.tiktok.com/@86connect_",
+      "https://www.instagram.com/the86connect",
+      "https://www.youtube.com/@BeijingBridgePath86Connect",
     ],
     areaServed: COUNTRIES_SERVED.map((name) => ({
       "@type": "Country",
@@ -182,7 +184,7 @@ export function AboutPageSchema() {
       contactPoint: {
         "@type": "ContactPoint",
         email: "info@the86connect.com",
-        telephone: "+86-138-0000-0000",
+        telephone: "+86 176 1153 3296",
         contactType: "customer service",
       },
     },

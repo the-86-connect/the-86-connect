@@ -9,7 +9,6 @@ import { CookieConsent } from "@/components/layout/cookie-consent";
 import { WhatsAppButton } from "@/components/layout/whatsapp-button";
 import { ScrollArrow } from "@/components/layout/scroll-arrow";
 import { BookingPopup } from "@/components/layout/booking-popup";
-import { StructuredData } from "@/components/structured-data";
 
 export function RouteLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -27,7 +26,6 @@ export function RouteLayout({ children }: { children: React.ReactNode }) {
     <AuthProvider>
       <UserAuthProvider>
         <ContactProvider>
-          <StructuredData />
           {children}
           <Toaster />
           <CookieConsent />

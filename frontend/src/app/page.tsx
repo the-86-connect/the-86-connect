@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { ServiceSchema } from "@/components/seo/structured-data";
@@ -14,37 +13,6 @@ import { fetchVideos } from "@/lib/api";
 
 // Force dynamic rendering so videos are fetched fresh on every request
 export const dynamic = "force-dynamic";
-
-export const metadata: Metadata = {
-  title: {
-    default: "86Connect — Study in China & Product Sourcing from China",
-    template: "%s | 86Connect",
-  },
-  description:
-    "86Connect is your trusted gateway to China. End-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics). Serving 30+ countries.",
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://www.the86connect.com",
-    siteName: "86Connect",
-    title: "86Connect — Study in China & Product Sourcing from China",
-    description:
-      "Your trusted gateway to China. End-to-end services for studying in China and sourcing products from China's top universities and manufacturers.",
-    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "86Connect — Your Gateway to China", type: "image/png" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@86connect",
-    creator: "@86connect",
-    title: "86Connect — Study in China & Product Sourcing from China",
-    description:
-      "Your trusted gateway to China. Study in China and source products from China with end-to-end support.",
-    images: ["https://www.the86connect.com/logo-main.png"],
-  },
-};
 
 export default async function Home() {
   const videos = await fetchVideos();

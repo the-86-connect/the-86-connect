@@ -9,7 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: ["/", "/about", "/study-in-china", "/product-sourcing"],
         disallow: ["/admin/", "/api/", "/account/", "/login", "/signup", "/forgot-password", "/reset-password", "/set-password"],
-        crawlDelay: 2,
       },
       {
         userAgent: "Baiduspider",
