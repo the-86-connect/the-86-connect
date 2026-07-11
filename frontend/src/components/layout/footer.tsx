@@ -8,6 +8,7 @@ import {
   MapPin,
   ArrowUp,
   MessageCircle,
+  Star,
 } from "lucide-react";
 
 const FOOTER_LINKS = [
@@ -136,6 +137,42 @@ export function Footer() {
               >
                 <svg className="h-4 w-4 text-white/60 group-hover:text-white transition-colors" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
               </a>
+            </div>
+
+            {/* Review / Citation Surfaces */}
+            <div className="flex items-center justify-center sm:justify-start gap-2 mb-5">
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/30 flex items-center gap-1.5">
+                <Star className="h-3 w-3 text-red-500" />
+                Review us on
+              </span>
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://www.facebook.com/profile.php?id=61575211782325"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] font-bold text-white/50 hover:text-[#1877F2] transition-colors duration-300"
+                >
+                  Facebook
+                </a>
+                <span className="text-white/20 text-[10px]">&middot;</span>
+                <a
+                  href="https://www.instagram.com/the86connect"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] font-bold text-white/50 hover:text-[#E1306C] transition-colors duration-300"
+                >
+                  Instagram
+                </a>
+                <span className="text-white/20 text-[10px]">&middot;</span>
+                <a
+                  href="https://www.tiktok.com/@86connect_"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] font-bold text-white/50 hover:text-white transition-colors duration-300"
+                >
+                  TikTok
+                </a>
+              </div>
             </div>
 
             <div className="flex items-center justify-center sm:justify-start gap-3 mb-5">

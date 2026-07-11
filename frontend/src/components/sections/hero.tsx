@@ -48,9 +48,9 @@ export function HeroSection() {
               className="font-display font-black text-[1.65rem] sm:text-[1.85rem] md:text-[2.2rem] lg:text-[3.5rem] leading-[1.15] sm:leading-[1.12] tracking-[-0.045em] -mt-8 sm:mt-0 mb-3 sm:mb-5 md:mb-5 lg:mb-6 text-white animate-reveal-up"
               style={{ animationDelay: "0ms" }}
             >
-              <span className="block">Your Bridge to</span>
+              <span className="block">86Connect —</span>
               <span className="block mt-1 sm:mt-1.5 md:mt-1.5 lg:mt-2 text-red-400">
-                China.
+                Your Bridge to China
               </span>
             </h1>
 
@@ -58,10 +58,11 @@ export function HeroSection() {
               className="text-sm sm:text-lg md:text-base lg:text-[1.2rem] max-w-md sm:max-w-xl md:max-w-xl lg:max-w-2xl mb-4 sm:mb-8 md:mb-7 lg:mb-10 leading-relaxed tracking-[-0.01em] font-semibold mx-auto md:mx-0 text-white/85 animate-reveal-up px-1 sm:px-0"
               style={{ animationDelay: "100ms" }}
             >
-              Premium consulting for international education and business
-              procurement. We connect the world with China&apos;s top
-              universities and trusted manufacturers — end-to-end, fully
-              managed.
+              86Connect is a Beijing-based consultancy that helps
+              international students secure admission to China&apos;s top
+              universities and assists businesses in sourcing products from
+              verified Chinese manufacturers — all through a single,
+              end-to-end managed service.
             </p>
 
             <div

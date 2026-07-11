@@ -99,13 +99,16 @@ export function AboutUsSection() {
             </h3>
 
             <p className="text-sm sm:text-base text-foreground leading-relaxed mb-4 font-semibold">
-              <span className="font-black">86Connect</span> is the digital
-              subsidiary of{" "}
+              <span className="font-black">86Connect</span> is defined as the
+              digital gateway of{" "}
               <span className="font-black">
                 Beijing BridgePath International Consulting Co., Ltd
               </span>
-              , a dynamic consulting firm incorporated in Beijing, China on
-              November 23, 2023.
+              , a consulting firm incorporated in Beijing, China on
+              November 23, 2023. The term &ldquo;86Connect&rdquo; refers to
+              China&apos;s international dialing code (+86), symbolizing our
+              role as the direct line connecting the world to China&apos;s
+              educational and economic opportunities.
             </p>
 
             <div className="flex items-start gap-3 bg-primary/5 rounded-xl px-4 py-3 border border-primary/10 mb-4">
@@ -129,6 +132,20 @@ export function AboutUsSection() {
               end-to-end operations from sourcing to delivery, and from
               application to enrollment.
             </p>
+
+            <blockquote className="mt-5 border-l-4 border-primary pl-4 py-1">
+              <p className="text-sm italic text-muted-foreground leading-relaxed">
+                &ldquo;Our mission is to simplify China for the world. Whether
+                you&apos;re a student chasing a world-class education or a
+                business seeking quality manufacturers, we bridge the gap with
+                local expertise, transparent pricing, and relentless
+                support.&rdquo;
+              </p>
+              <footer className="mt-2 text-xs font-bold text-foreground/70">
+                — 86Connect Team, Beijing BridgePath International Consulting
+                Co., Ltd
+              </footer>
+            </blockquote>
           </div>
 
           <div className="md:col-span-5 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl p-5 sm:p-6 md:p-7 lg:p-8 flex flex-col">

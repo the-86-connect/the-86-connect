@@ -151,6 +151,71 @@ export function FAQPageSchema({ sections }: { sections: FAQSection[] }) {
   );
 }
 
+/** Homepage FAQPage schema — static Q&A for the homepage */
+export function HomepageFAQSchema() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "What is 86Connect?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "86Connect is a Beijing-based consultancy that helps international students secure admission to China's top universities and assists businesses in sourcing products from verified Chinese manufacturers — all through a single, end-to-end managed service. It is the digital subsidiary of Beijing BridgePath International Consulting Co., Ltd, incorporated in Beijing, China.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "What services does 86Connect offer?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "86Connect offers two core services: Study in China (scholarship applications, university admissions, visa processing, and accommodation) and Product Sourcing from China (supplier finding and vetting, procurement management, quality control inspections, and logistics coordination).",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How does 86Connect help with studying in China?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "86Connect provides end-to-end support for studying in China, including CSC, provincial, and university scholarship applications, admission to 200+ partner universities, X1/X2 student visa processing, accommodation arrangement, and 24/7 local support. We have placed 500+ students with a 98% success rate.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How does 86Connect help with product sourcing from China?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "86Connect manages the entire product sourcing process: finding and vetting suppliers from our network of 50,000+ verified manufacturers, managing procurement and negotiations, conducting quality control inspections, and coordinating freight forwarding and logistics to 150+ countries worldwide.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Where is 86Connect located?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "86Connect is headquartered in Beijing, China, with a strategic presence in West Africa. We serve clients across 50+ countries including Nigeria, Kenya, Ghana, South Africa, India, Pakistan, Bangladesh, UAE, UK, USA, Canada, and Australia.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How can I contact 86Connect?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "You can contact 86Connect by email at info@the86connect.com, by phone at +86 176 1153 3296, or via WhatsApp. You can also book a free 15-minute consultation through our website or fill out the contact form on our homepage.",
+        },
+      },
+    ],
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
 /** AboutPage schema — for the about page */
 export function AboutPageSchema() {
   const schema = {
