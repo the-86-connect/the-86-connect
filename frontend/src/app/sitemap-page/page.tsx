@@ -6,7 +6,7 @@ import { FileText, BookOpen, Shield, Scale, Lock, Mail } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Sitemap",
-  description: "Complete sitemap of 86 Connect — all pages and resources for studying in China and product sourcing from China.",
+  description: "Complete sitemap of 86Connect — all pages and resources for studying in China and product sourcing from China.",
   alternates: { canonical: "/sitemap-page" },
   robots: { index: true, follow: true },
 };
@@ -53,7 +53,7 @@ export default function SitemapPage() {
               Sitemap
             </h1>
             <p className="text-muted-foreground text-lg">
-              Complete list of all pages on 86 Connect
+              Complete list of all pages on 86Connect
             </p>
           </header>
 

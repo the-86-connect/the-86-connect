@@ -6,7 +6,7 @@ import { Footer } from "@/components/layout/footer";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "Privacy Policy for 86 Connect. Learn how we collect, use, and protect your personal information when you use our Study in China and Product Sourcing services.",
+    "Privacy Policy for 86Connect. Learn how we collect, use, and protect your personal information when you use our Study in China and Product Sourcing services.",
   alternates: {
     canonical: "/privacy-policy",
   },
@@ -54,7 +54,7 @@ export default function PrivacyPolicyPage() {
             <div className="relative space-y-7 sm:space-y-8 text-muted-foreground leading-relaxed text-sm sm:text-base">
               <Section title="1. Introduction">
                 <p>
-                  86 Connect (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or
+                  86Connect (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or
                   &ldquo;our&rdquo;) is committed to protecting your privacy. This
                   Privacy Policy explains how we collect, use, disclose, and
                   safeguard your information when you visit our website

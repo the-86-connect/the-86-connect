@@ -250,11 +250,11 @@ export function Navbar() {
             <Link
               href="/"
               className="group flex items-center press shrink-0"
-              aria-label="86 Connect home"
+              aria-label="86Connect home"
             >
               <Image
                 src={scrolled ? "/logo-main.png" : "/logo-white-nav.png"}
-                alt="86 Connect"
+                alt="86Connect"
                 width={180}
                 height={49}
                 className="h-7 sm:h-8 md:h-8 lg:h-9 w-auto group-hover:opacity-90 transition-opacity duration-300"

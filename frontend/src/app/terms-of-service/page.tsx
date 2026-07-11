@@ -7,7 +7,7 @@ import { Footer } from "@/components/layout/footer";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "Terms of Service for 86 Connect. Read the terms and conditions that govern your use of our Study in China and Product Sourcing services and website.",
+    "Terms of Service for 86Connect. Read the terms and conditions that govern your use of our Study in China and Product Sourcing services and website.",
   alternates: {
     canonical: "/terms-of-service",
   },
@@ -54,21 +54,21 @@ export default function TermsOfServicePage() {
             <div className="relative space-y-7 sm:space-y-8 text-muted-foreground leading-relaxed text-sm sm:text-base">
               <Section title="1. Acceptance of Terms">
                 <p>
-                  Welcome to 86 Connect. By accessing or using our website at
+                  Welcome to 86Connect. By accessing or using our website at
                   the86connects.com and our services, you agree to be bound by these
                   Terms of Service (&ldquo;Terms&rdquo;). If you do not agree to
                   these Terms, please do not use our website or services.
                 </p>
                 <p>
                   These Terms constitute a legally binding agreement between you
-                  and 86 Connect (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or
+                  and 86Connect (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or
                   &ldquo;our&rdquo;).
                 </p>
               </Section>
 
               <Section title="2. Description of Services">
                 <p>
-                  86 Connect provides consulting and facilitation services
+                  86Connect provides consulting and facilitation services
                   including:
                 </p>
                 <ul className="list-disc pl-6 space-y-1 mt-2">
@@ -191,7 +191,7 @@ export default function TermsOfServicePage() {
               <Section title="8. Intellectual Property" subTitle="8.1 Our Content">
                 <p>
                   All content on this website, including text, graphics, logos,
-                  images, and software, is the property of 86 Connect or its
+                  images, and software, is the property of 86Connect or its
                   licensors and is protected by copyright, trademark, and other
                   intellectual property laws.
                 </p>
@@ -251,7 +251,7 @@ export default function TermsOfServicePage() {
 
               <Section title="11. Limitation of Liability">
                 <p>
-                  To the maximum extent permitted by law, 86 Connect and its
+                  To the maximum extent permitted by law, 86Connect and its
                   affiliates, officers, employees, agents, and partners shall not
                   be liable for any:
                 </p>
@@ -271,7 +271,7 @@ export default function TermsOfServicePage() {
 
               <Section title="12. Indemnification">
                 <p>
-                  You agree to indemnify and hold harmless 86 Connect and its
+                  You agree to indemnify and hold harmless 86Connect and its
                   affiliates from any claims, damages, losses, liabilities, costs,
                   and expenses (including legal fees) arising from:
                 </p>
@@ -347,7 +347,7 @@ export default function TermsOfServicePage() {
               <Section title="18. Entire Agreement">
                 <p>
                   These Terms, together with our Privacy Policy, constitute the
-                  entire agreement between you and 86 Connect regarding your use
+                  entire agreement between you and 86Connect regarding your use
                   of our website and services, superseding any prior agreements.
                 </p>
               </Section>

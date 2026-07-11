@@ -44,7 +44,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Product Sourcing from China — Suppliers, Procurement & Logistics",
   description:
-    "Source quality products from China with 86 Connect. We handle supplier finding and vetting, procurement management, quality control inspections, and logistics. 50,000+ verified suppliers, shipping to 150+ countries. Free consultation available.",
+    "Source quality products from China with 86Connect. We handle supplier finding and vetting, procurement management, quality control inspections, and logistics. 50,000+ verified suppliers, shipping to 150+ countries. Free consultation available.",
   alternates: { canonical: "/product-sourcing" },
   keywords: [
     "Product Sourcing from China", "China product sourcing", "China supplier finding", "China procurement",
@@ -83,11 +83,11 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://www.the86connect.com/product-sourcing",
-    siteName: "86 Connect",
-    title: "Product Sourcing from China — Suppliers, Procurement & Logistics | 86 Connect",
+    siteName: "86Connect",
+    title: "Product Sourcing from China — Suppliers, Procurement & Logistics | 86Connect",
     description:
-      "Source quality products from China with 86 Connect. 50,000+ verified suppliers, shipping to 150+ countries. Supplier finding, procurement, quality control, and logistics — all covered.",
-    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "Product Sourcing from China with 86 Connect", type: "image/png" }],
+      "Source quality products from China with 86Connect. 50,000+ verified suppliers, shipping to 150+ countries. Supplier finding, procurement, quality control, and logistics — all covered.",
+    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "Product Sourcing from China with 86Connect", type: "image/png" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -303,7 +303,7 @@ export default async function ProductSourcingPage() {
         name="Product Sourcing from China"
         description="End-to-end product sourcing from China including supplier finding and vetting, procurement management, quality control inspections, freight forwarding, and logistics coordination. 50,000+ verified suppliers, shipping to 150+ countries."
         url="/product-sourcing"
-        providerName="86 Connect"
+        providerName="86Connect"
         areaServed={["Nigeria", "Kenya", "Ghana", "South Africa", "Ethiopia", "India", "Pakistan", "Bangladesh", "Indonesia", "Philippines", "Vietnam", "Thailand", "UAE", "Saudi Arabia", "Qatar", "Oman", "Kuwait", "USA", "UK", "Canada", "Australia", "Germany", "France", "Brazil", "Mexico", "Russia"]}
         serviceType="ProcurementService"
         offers={[
@@ -748,7 +748,7 @@ export default async function ProductSourcingPage() {
               Trusted by <span className="text-primary">Global Businesses</span>
             </>
           }
-          subtitle="See how companies around the world have transformed their sourcing with 86 Connect."
+          subtitle="See how companies around the world have transformed their sourcing with 86Connect."
         />
 
         {/* FAQ */}

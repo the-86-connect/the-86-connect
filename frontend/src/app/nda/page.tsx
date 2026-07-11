@@ -7,7 +7,7 @@ import { Footer } from "@/components/layout/footer";
 export const metadata: Metadata = {
   title: "Non-Disclosure Agreement",
   description:
-    "Non-Disclosure Agreement (NDA) for 86 Connect. Learn how we protect confidential information shared during our Study in China and Product Sourcing engagements.",
+    "Non-Disclosure Agreement (NDA) for 86Connect. Learn how we protect confidential information shared during our Study in China and Product Sourcing engagements.",
   alternates: {
     canonical: "/nda",
   },
@@ -56,7 +56,7 @@ export default function NonDisclosureAgreementPage() {
               <Section title="1. Parties and Purpose">
                 <p>
                   This Non-Disclosure Agreement (&ldquo;NDA&rdquo;) is entered into
-                  between 86 Connect (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or
+                  between 86Connect (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or
                   &ldquo;our&rdquo;) and you (the &ldquo;Client&rdquo; or
                   &ldquo;Disclosing Party&rdquo;/&ldquo;Receiving Party&rdquo; as
                   applicable). This is a mutual agreement intended to protect

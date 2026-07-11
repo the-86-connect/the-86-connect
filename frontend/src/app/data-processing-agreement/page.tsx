@@ -7,7 +7,7 @@ import { Footer } from "@/components/layout/footer";
 export const metadata: Metadata = {
   title: "Data Processing Agreement",
   description:
-    "Data Processing Agreement (DPA) for 86 Connect. Learn how we process, protect, and manage personal data as part of our Study in China and Product Sourcing services.",
+    "Data Processing Agreement (DPA) for 86Connect. Learn how we process, protect, and manage personal data as part of our Study in China and Product Sourcing services.",
   alternates: {
     canonical: "/data-processing-agreement",
   },
@@ -57,7 +57,7 @@ export default function DataProcessingAgreementPage() {
                 <p>
                   This Data Processing Agreement (&ldquo;DPA&rdquo;) forms part of
                   the Terms of Service between you (the &ldquo;Data Subject&rdquo;
-                  or &ldquo;Client&rdquo;) and 86 Connect (&ldquo;we&rdquo;,
+                  or &ldquo;Client&rdquo;) and 86Connect (&ldquo;we&rdquo;,
                   &ldquo;us&rdquo;, &ldquo;our&rdquo;, or the &ldquo;Data
                   Processor&rdquo;) and is incorporated by reference. It describes
                   how we collect, process, store, and protect personal data in the
@@ -65,7 +65,7 @@ export default function DataProcessingAgreementPage() {
                   services.
                 </p>
                 <p>
-                  This DPA applies to the extent that 86 Connect acts as a
+                  This DPA applies to the extent that 86Connect acts as a
                   processor or controller of personal data as defined under
                   applicable data protection laws, including the GDPR, CCPA, and
                   the Personal Information Protection Law (PIPL) of the
@@ -91,7 +91,7 @@ export default function DataProcessingAgreementPage() {
                   </li>
                   <li>
                     <strong className="text-foreground">Sub-processor:</strong> A
-                    third party engaged by 86 Connect to assist in processing
+                    third party engaged by 86Connect to assist in processing
                     Personal Data on our behalf.
                   </li>
                   <li>
@@ -104,7 +104,7 @@ export default function DataProcessingAgreementPage() {
 
               <Section title="3. Roles and Scope of Processing">
                 <p>
-                  86 Connect acts as a data controller for personal data collected
+                  86Connect acts as a data controller for personal data collected
                   directly through our website (e.g., inquiry forms, account
                   registration). We act as a data processor when handling personal
                   data shared by a Client for the purpose of delivering a specific

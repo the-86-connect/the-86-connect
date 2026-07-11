@@ -198,7 +198,7 @@ export default function SignupPage() {
             <div className="flex items-center justify-center mb-4">
               <Image
                 src="/logo-main.png"
-                alt="86 Connect"
+                alt="86Connect"
                 width={180}
                 height={49}
                 className="h-10 w-auto"

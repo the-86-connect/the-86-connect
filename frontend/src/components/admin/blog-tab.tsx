@@ -642,7 +642,7 @@ export function BlogTab() {
                     value={formAuthor}
                     onChange={(e) => setFormAuthor(e.target.value)}
                     className="h-11"
-                    placeholder="e.g. 86 Connect Education Team"
+                    placeholder="e.g. 86Connect Education Team"
                     required
                     disabled={actionLoading}
                   />

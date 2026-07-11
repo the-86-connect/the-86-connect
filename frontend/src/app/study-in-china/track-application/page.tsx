@@ -34,7 +34,7 @@ export default function TrackApplicationPage() {
               <ArrowLeft className="h-4 w-4" />
               <span>Back to Study in China</span>
             </Link>
-            <Link href="/" className="group flex items-center gap-2 press" aria-label="86 Connect home">
+            <Link href="/" className="group flex items-center gap-2 press" aria-label="86Connect home">
               <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center group-hover:scale-105 transition-transform">
                 <span className="text-white font-black text-base">86</span>
               </div>

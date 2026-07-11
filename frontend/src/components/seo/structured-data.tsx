@@ -44,11 +44,11 @@ export function OrganizationSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "86 Connect",
+    name: "86Connect",
     url: SITE_URL,
     logo: `${SITE_URL}/icon-512.png`,
     description:
-      "86 Connect provides end-to-end services for Study in China and Product Sourcing from China. Serving clients in 50+ countries worldwide with 98% success rate.",
+      "86Connect provides end-to-end services for Study in China and Product Sourcing from China. Serving clients in 50+ countries worldwide with 98% success rate.",
     email: "info@the86connect.com",
     telephone: "+86-138-0000-0000",
     address: {
@@ -79,7 +79,7 @@ export function WebSiteSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "86 Connect",
+    name: "86Connect",
     url: SITE_URL,
     description:
       "Study in China and Product Sourcing from China. Expert guidance for international students and businesses worldwide.",
@@ -154,21 +154,21 @@ export function AboutPageSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "AboutPage",
-    name: "About 86 Connect",
+    name: "About 86Connect",
     description:
-      "Learn about 86 Connect, your trusted gateway to China for Study in China and Product Sourcing services. Serving clients across 50+ countries worldwide.",
+      "Learn about 86Connect, your trusted gateway to China for Study in China and Product Sourcing services. Serving clients across 50+ countries worldwide.",
     url: `${SITE_URL}/about`,
     image: `${SITE_URL}/og-image.jpg`,
     publisher: {
       "@type": "Organization",
-      name: "86 Connect",
+      name: "86Connect",
       url: SITE_URL,
     },
     mainEntity: {
       "@type": "Organization",
-      name: "86 Connect",
+      name: "86Connect",
       description:
-        "86 Connect provides end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics).",
+        "86Connect provides end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics).",
       foundingDate: "2023-11-23",
       location: {
         "@type": "Place",

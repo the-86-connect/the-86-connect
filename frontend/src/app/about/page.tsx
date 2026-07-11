@@ -65,11 +65,11 @@ const DIFFERENTIATORS = [
 const SITE_URL = "https://www.the86connect.com";
 
 export const metadata: Metadata = {
-  title: "About 86 Connect — Your Trusted Gateway to China",
+  title: "About 86Connect — Your Trusted Gateway to China",
   description:
-    "86 Connect is your trusted gateway to China. We provide end-to-end services for Study in China and Product Sourcing from China. Learn about our story, mission, and values.",
+    "86Connect is your trusted gateway to China. We provide end-to-end services for Study in China and Product Sourcing from China. Learn about our story, mission, and values.",
   keywords: [
-    "86 Connect",
+    "86Connect",
     "86connect",
     "the 86 connect",
     "86 connect china",
@@ -90,19 +90,19 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: `${SITE_URL}/about`,
-    siteName: "86 Connect",
-    title: "About 86 Connect — Your Trusted Gateway to China",
+    siteName: "86Connect",
+    title: "About 86Connect — Your Trusted Gateway to China",
     description:
-      "86 Connect is your trusted gateway to China. Learn about our story, mission, and how we help international students study in China and businesses source products from China.",
-    images: [{ url: `${SITE_URL}/logo-main.png`, width: 180, height: 49, alt: "About 86 Connect — Your Trusted Gateway to China", type: "image/png" }],
+      "86Connect is your trusted gateway to China. Learn about our story, mission, and how we help international students study in China and businesses source products from China.",
+    images: [{ url: `${SITE_URL}/logo-main.png`, width: 180, height: 49, alt: "About 86Connect — Your Trusted Gateway to China", type: "image/png" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@86connect",
     creator: "@86connect",
-    title: "About 86 Connect — Your Trusted Gateway to China",
+    title: "About 86Connect — Your Trusted Gateway to China",
     description:
-      "Learn about 86 Connect, your trusted gateway to China for studying and sourcing products.",
+      "Learn about 86Connect, your trusted gateway to China for studying and sourcing products.",
     images: [`${SITE_URL}/logo-main.png`],
   },
   robots: {
@@ -133,7 +133,7 @@ export default function AboutPage() {
                   </span>
                 </div>
                 <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-[-0.04em] mb-6 leading-[1.05]">
-                  About <span className="text-primary">86 Connect</span>
+                  About <span className="text-primary">86Connect</span>
                 </h1>
                 <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed font-medium mb-8 max-w-xl mx-auto lg:mx-0">
                   Your trusted partner for unlocking China&apos;s educational and economic opportunities. Serving clients across 50+ countries worldwide.
@@ -162,14 +162,14 @@ export default function AboutPage() {
                 <div className="relative bg-white rounded-3xl border border-border/60 shadow-3d-xl p-8">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center p-3">
-                      <Image src="/favicon-86-connect-official.png" alt="86 Connect" fill className="object-contain brightness-0 invert" sizes="64px" />
+                      <Image src="/favicon-86-connect-official.png" alt="86Connect" fill className="object-contain brightness-0 invert" sizes="64px" />
                     </div>
                     <div>
                       <div className="text-xs font-black uppercase tracking-wider text-primary">
                         Since 2023
                       </div>
                       <div className="text-lg font-black text-foreground">
-                        86 Connect
+                        86Connect
                       </div>
                     </div>
                   </div>
@@ -197,7 +197,7 @@ export default function AboutPage() {
               <div className="bg-white rounded-2xl border border-border/80 shadow-soft-sm p-6 sm:p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center p-2 relative">
-                    <Image src="/favicon-86-connect-official.png" alt="86 Connect" fill className="object-contain brightness-0 invert" sizes="48px" />
+                    <Image src="/favicon-86-connect-official.png" alt="86Connect" fill className="object-contain brightness-0 invert" sizes="48px" />
                   </div>
                   <div>
                     <div className="text-xs font-black uppercase tracking-wider text-primary">
@@ -214,7 +214,7 @@ export default function AboutPage() {
                 </h2>
 
                 <p className="text-base text-foreground leading-relaxed mb-4 font-semibold">
-                  <span className="font-black">86 Connect</span> is the digital
+                  <span className="font-black">86Connect</span> is the digital
                   subsidiary of{" "}
                   <span className="font-black">
                     Beijing BridgePath International Consulting Co., Ltd

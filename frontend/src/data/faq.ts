@@ -1,4 +1,4 @@
-﻿import type { FAQSection } from "@/components/sections/faq-accordion";
+import type { FAQSection } from "@/components/sections/faq-accordion";
 
 export const FAQ_SECTIONS: FAQSection[] = [
   {
@@ -12,7 +12,7 @@ export const FAQ_SECTIONS: FAQSection[] = [
       {
         question: "How much does it cost to study in China?",
         answer:
-          "Tuition ranges from $2,000-$10,000 per year depending on the university and program. Living costs average $300-$600 per month including accommodation. Many scholarships cover full or partial tuition plus a living stipend. Through 86 Connect, 70% of our students receive some form of scholarship.",
+          "Tuition ranges from $2,000-$10,000 per year depending on the university and program. Living costs average $300-$600 per month including accommodation. Many scholarships cover full or partial tuition plus a living stipend. Through 86Connect, 70% of our students receive some form of scholarship.",
       },
       {
         question: "Do I need to know Chinese to study in China?",
@@ -105,7 +105,7 @@ export const FAQ_SECTIONS: FAQSection[] = [
     category: "About Our Services",
     items: [
       {
-        question: "What makes 86 Connect different from other agencies?",
+        question: "What makes 86Connect different from other agencies?",
         answer:
           "We are a China-based team with bilingual staff (English, Chinese, and more) who have direct access to factories and universities. Unlike foreign agencies that outsource, we are on the ground. We offer transparent pricing — no hidden commissions — and we assign you a dedicated account manager who responds within 24 hours.",
       },

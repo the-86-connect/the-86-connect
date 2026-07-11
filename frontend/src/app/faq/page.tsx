@@ -18,17 +18,17 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://www.the86connect.com/faq",
-    siteName: "86 Connect",
-    title: "Frequently Asked Questions | 86 Connect",
+    siteName: "86Connect",
+    title: "Frequently Asked Questions | 86Connect",
     description:
       "Get answers about studying in China and sourcing products from China. Scholarships, admissions, suppliers, quality control, shipping, costs, and more.",
-    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "86 Connect FAQ", type: "image/png" }],
+    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "86Connect FAQ", type: "image/png" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@86connect",
     creator: "@86connect",
-    title: "Frequently Asked Questions | 86 Connect",
+    title: "Frequently Asked Questions | 86Connect",
     description:
       "Get answers about studying in China and sourcing products from China. Everything you need to know.",
     images: ["https://www.the86connect.com/logo-main.png"],

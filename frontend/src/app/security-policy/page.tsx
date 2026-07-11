@@ -7,7 +7,7 @@ import { Footer } from "@/components/layout/footer";
 export const metadata: Metadata = {
   title: "Security Policy",
   description:
-    "Security Policy for 86 Connect. Learn about the technical and organizational measures we use to protect your data across our Study in China and Product Sourcing services.",
+    "Security Policy for 86Connect. Learn about the technical and organizational measures we use to protect your data across our Study in China and Product Sourcing services.",
   alternates: {
     canonical: "/security-policy",
   },
@@ -54,7 +54,7 @@ export default function SecurityPolicyPage() {
             <div className="relative space-y-7 sm:space-y-8 text-muted-foreground leading-relaxed text-sm sm:text-base">
               <Section title="1. Overview">
                 <p>
-                  At 86 Connect, the security of your data is a top priority. This
+                  At 86Connect, the security of your data is a top priority. This
                   Security Policy outlines the technical and organizational measures
                   we implement to protect personal and business information across
                   our Study in China and Product Sourcing services, our website
@@ -83,7 +83,7 @@ export default function SecurityPolicyPage() {
                 <p>
                   This policy applies to all systems, applications, networks, and
                   personnel involved in storing, processing, or transmitting data on
-                  behalf of 86 Connect and our clients, including:
+                  behalf of 86Connect and our clients, including:
                 </p>
                 <ul className="list-disc pl-6 space-y-1 mt-2">
                   <li>Our public website and client-facing applications</li>
@@ -95,7 +95,7 @@ export default function SecurityPolicyPage() {
 
               <Section title="3. Security Governance">
                 <p>
-                  86 Connect maintains a security governance framework that
+                  86Connect maintains a security governance framework that
                   defines roles, responsibilities, and accountability for
                   information security. Security ownership is assigned to designated
                   personnel responsible for:

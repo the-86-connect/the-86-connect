@@ -71,7 +71,7 @@ export function AboutUsSection() {
             </span>
           </div>
           <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-[-0.035em] mb-4 leading-[1.05]">
-            About <span className="text-primary">86 Connect</span>
+            About <span className="text-primary">86Connect</span>
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-medium">
             Your trusted partner for unlocking China&apos;s opportunities
@@ -82,7 +82,7 @@ export function AboutUsSection() {
           <div className="md:col-span-7 bg-white rounded-2xl border border-border/80 shadow-soft-sm p-5 sm:p-6 md:p-7 lg:p-8">
             <div className="flex items-center gap-3 mb-4 sm:mb-5">
               <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-2xl bg-primary flex items-center justify-center p-2 relative">
-                <Image src="/favicon-86-connect-official.png" alt="86 Connect" fill className="object-contain brightness-0 invert" sizes="56px" />
+                <Image src="/favicon-86-connect-official.png" alt="86Connect" fill className="object-contain brightness-0 invert" sizes="56px" />
               </div>
               <div>
                 <div className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-primary">
@@ -99,7 +99,7 @@ export function AboutUsSection() {
             </h3>
 
             <p className="text-sm sm:text-base text-foreground leading-relaxed mb-4 font-semibold">
-              <span className="font-black">86 Connect</span> is the digital
+              <span className="font-black">86Connect</span> is the digital
               subsidiary of{" "}
               <span className="font-black">
                 Beijing BridgePath International Consulting Co., Ltd

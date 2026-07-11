@@ -40,7 +40,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Study in China — Scholarships, Admissions & Visa Guidance",
   description:
-    "Study in China with 86 Connect. We help international students with scholarship applications (CSC, provincial, university), university admissions, visa processing, and accommodation. 200+ partner universities, 98% success rate. Free consultation available.",
+    "Study in China with 86Connect. We help international students with scholarship applications (CSC, provincial, university), university admissions, visa processing, and accommodation. 200+ partner universities, 98% success rate. Free consultation available.",
   alternates: { canonical: "/study-in-china" },
   keywords: [
     "Study in China", "Study abroad China", "Chinese university application", "CSC scholarship",
@@ -83,11 +83,11 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://www.the86connect.com/study-in-china",
-    siteName: "86 Connect",
-    title: "Study in China — Scholarships, Admissions & Visa Guidance | 86 Connect",
+    siteName: "86Connect",
+    title: "Study in China — Scholarships, Admissions & Visa Guidance | 86Connect",
     description:
       "Apply to study in China with expert guidance. 200+ partner universities, 98% success rate. Scholarships, admissions, visas, and accommodation — all covered.",
-    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "Study in China with 86 Connect", type: "image/png" }],
+    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "Study in China with 86Connect", type: "image/png" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -95,7 +95,7 @@ export const metadata: Metadata = {
     creator: "@86connect",
     title: "Study in China — Scholarships, Admissions & Visa Guidance",
     description:
-      "Study in China with 86 Connect. 200+ partner universities, 98% success rate. Scholarships, admissions, visas covered.",
+      "Study in China with 86Connect. 200+ partner universities, 98% success rate. Scholarships, admissions, visas covered.",
     images: ["https://www.the86connect.com/logo-main.png"],
   },
 };
@@ -531,7 +531,7 @@ export default async function StudyInChinaPage() {
         name="Study in China Services"
         description="End-to-end study in China services including scholarship applications (CSC, provincial, university), university admissions, visa processing, accommodation, and pre-departure guidance. 200+ partner universities, 98% success rate."
         url="/study-in-china"
-        providerName="86 Connect"
+        providerName="86Connect"
         areaServed={["Nigeria", "Kenya", "Ghana", "South Africa", "Ethiopia", "Tanzania", "Uganda", "Egypt", "Morocco", "Rwanda", "Cameroon", "Zambia", "Zimbabwe", "Senegal", "India", "Pakistan", "Bangladesh", "Indonesia", "Philippines", "Vietnam", "Thailand", "Malaysia", "Nepal", "Sri Lanka", "UAE", "Saudi Arabia", "Qatar", "Oman", "Kuwait", "Jordan", "UK", "USA", "Canada", "Australia", "Germany", "France", "Russia", "Kazakhstan", "Uzbekistan"]}
         serviceType="EducationConsultancy"
         offers={[
@@ -942,7 +942,7 @@ export default async function StudyInChinaPage() {
               Stories
             </>
           }
-          subtitle="See real experiences from international students studying in China through 86 Connect."
+          subtitle="See real experiences from international students studying in China through 86Connect."
         />
 
         {/* Testimonials */}

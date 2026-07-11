@@ -1,4 +1,4 @@
-﻿import type { Testimonial } from "@/components/sections/testimonials";
+import type { Testimonial } from "@/components/sections/testimonials";
 
 export const STUDY_TESTIMONIALS: Testimonial[] = [
   {
@@ -7,7 +7,7 @@ export const STUDY_TESTIMONIALS: Testimonial[] = [
     country: "Brazil",
     rating: 5,
     quote:
-      "86 Connect made my dream of studying in China a reality. They handled my visa, university application, and even arranged my airport pickup. I'm now in my second year at Tsinghua!",
+      "86Connect made my dream of studying in China a reality. They handled my visa, university application, and even arranged my airport pickup. I'm now in my second year at Tsinghua!",
     initials: "MS",
   },
   {
@@ -52,7 +52,7 @@ export const STUDY_TESTIMONIALS: Testimonial[] = [
     country: "Mexico",
     rating: 5,
     quote:
-      "Came to China for a language program and ended up staying for my Master's. 86 Connect supported me through both applications. They treat you like family.",
+      "Came to China for a language program and ended up staying for my Master's. 86Connect supported me through both applications. They treat you like family.",
     initials: "RT",
   },
 ];
@@ -64,7 +64,7 @@ export const SOURCING_TESTIMONIALS: Testimonial[] = [
     country: "United States",
     rating: 5,
     quote:
-      "We source electronics through 86 Connect and the quality control is outstanding. They've saved us thousands by catching defects before shipment. Our go-to sourcing partner.",
+      "We source electronics through 86Connect and the quality control is outstanding. They've saved us thousands by catching defects before shipment. Our go-to sourcing partner.",
     initials: "MC",
   },
   {
@@ -73,7 +73,7 @@ export const SOURCING_TESTIMONIALS: Testimonial[] = [
     country: "United Kingdom",
     rating: 5,
     quote:
-      "Finding reliable clothing manufacturers in China used to be a nightmare. 86 Connect connected us with verified suppliers and negotiated MOQs that worked for our startup.",
+      "Finding reliable clothing manufacturers in China used to be a nightmare. 86Connect connected us with verified suppliers and negotiated MOQs that worked for our startup.",
     initials: "SW",
   },
   {

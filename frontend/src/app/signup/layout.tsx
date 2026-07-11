@@ -1,8 +1,8 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Create Account",
-  description: "Create your 86 Connect account to track study applications and product sourcing inquiries.",
+  description: "Create your 86Connect account to track study applications and product sourcing inquiries.",
   robots: { index: false, follow: false },
 };
 

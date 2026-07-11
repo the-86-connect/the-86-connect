@@ -17,11 +17,11 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: {
-    default: "86 Connect — Study in China & Product Sourcing from China",
-    template: "%s | 86 Connect",
+    default: "86Connect — Study in China & Product Sourcing from China",
+    template: "%s | 86Connect",
   },
   description:
-    "86 Connect is your trusted gateway to China. End-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics). Serving 30+ countries.",
+    "86Connect is your trusted gateway to China. End-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics). Serving 30+ countries.",
   alternates: {
     canonical: "/",
   },
@@ -29,17 +29,17 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://www.the86connect.com",
-    siteName: "86 Connect",
-    title: "86 Connect — Study in China & Product Sourcing from China",
+    siteName: "86Connect",
+    title: "86Connect — Study in China & Product Sourcing from China",
     description:
       "Your trusted gateway to China. End-to-end services for studying in China and sourcing products from China's top universities and manufacturers.",
-    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "86 Connect — Your Gateway to China", type: "image/png" }],
+    images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "86Connect — Your Gateway to China", type: "image/png" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@86connect",
     creator: "@86connect",
-    title: "86 Connect — Study in China & Product Sourcing from China",
+    title: "86Connect — Study in China & Product Sourcing from China",
     description:
       "Your trusted gateway to China. Study in China and source products from China with end-to-end support.",
     images: ["https://www.the86connect.com/logo-main.png"],
@@ -55,7 +55,7 @@ export default async function Home() {
         name="Study in China Services"
         description="End-to-end study in China services including scholarship applications (CSC, provincial, university), university admissions, visa processing, accommodation, and pre-departure guidance. 200+ partner universities, 98% success rate."
         url="/study-in-china"
-        providerName="86 Connect"
+        providerName="86Connect"
         areaServed={["Nigeria", "Kenya", "Ghana", "South Africa", "Ethiopia", "India", "Pakistan", "Bangladesh", "Indonesia", "Philippines", "Vietnam", "UAE", "Saudi Arabia", "UK", "USA", "Canada", "Australia"]}
         serviceType="EducationConsultancy"
         offers={[
@@ -68,7 +68,7 @@ export default async function Home() {
         name="Product Sourcing from China"
         description="End-to-end product sourcing from China including supplier finding and vetting, procurement management, quality control inspections, freight forwarding, and logistics coordination. 50,000+ verified suppliers, shipping to 150+ countries."
         url="/product-sourcing"
-        providerName="86 Connect"
+        providerName="86Connect"
         areaServed={["Nigeria", "Kenya", "Ghana", "South Africa", "India", "Pakistan", "Bangladesh", "UAE", "Saudi Arabia", "USA", "UK", "Canada", "Australia", "Germany"]}
         serviceType="ProcurementService"
         offers={[
@@ -88,7 +88,7 @@ export default async function Home() {
             videos={videos}
             title={
               <>
-                See <span className="text-primary">86 Connect</span> in Action
+                See <span className="text-primary">86Connect</span> in Action
               </>
             }
             subtitle="Watch our latest videos showcasing study abroad experiences in China and product sourcing success stories."

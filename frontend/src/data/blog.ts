@@ -27,7 +27,7 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Study in China",
     date: "June 20, 2026",
     readTime: "12 min read",
-    author: "86 Connect Education Team",
+    author: "86Connect Education Team",
     tags: ["study abroad", "scholarships", "student visa", "universities"],
     content: [
       {
@@ -85,7 +85,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         type: "tip",
-        text: "Apply for scholarships 6-8 months before the intake. Deadlines for CSC scholarships are typically January-April for September intake. Working with an experienced agency like 86 Connect significantly increases your chances of scholarship success.",
+        text: "Apply for scholarships 6-8 months before the intake. Deadlines for CSC scholarships are typically January-April for September intake. Working with an experienced agency like 86Connect significantly increases your chances of scholarship success.",
       },
       {
         type: "heading",
@@ -122,7 +122,7 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Product Sourcing",
     date: "June 15, 2026",
     readTime: "10 min read",
-    author: "86 Connect Sourcing Team",
+    author: "86Connect Sourcing Team",
     tags: ["sourcing", "suppliers", "quality control", "shipping", "import"],
     content: [
       {
@@ -209,7 +209,7 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Study in China",
     date: "June 10, 2026",
     readTime: "8 min read",
-    author: "86 Connect Education Team",
+    author: "86Connect Education Team",
     tags: ["CSC scholarship", "full scholarship", "study in China", "application tips"],
     content: [
       {
@@ -285,7 +285,7 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Product Sourcing",
     date: "June 5, 2026",
     readTime: "6 min read",
-    author: "86 Connect Sourcing Team",
+    author: "86Connect Sourcing Team",
     tags: ["Alibaba", "1688", "supplier platforms", "B2B", "pricing"],
     content: [
       {

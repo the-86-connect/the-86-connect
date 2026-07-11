@@ -118,7 +118,7 @@ export function WhatsAppButton() {
 
           <div className="px-4 py-3 bg-[#E5DDD5]/30 max-h-60 overflow-y-auto">
             <div className="bg-white rounded-2xl rounded-tl-none px-3.5 py-2.5 shadow-sm max-w-[85%] mb-3">
-              <p className="text-xs text-foreground/70 mb-1 font-medium">86 Connect Team</p>
+              <p className="text-xs text-foreground/70 mb-1 font-medium">86Connect Team</p>
               <p className="text-sm text-foreground leading-relaxed">
                 Hi there! 👋 Have questions about studying in China or product sourcing? We&apos;re here to help!
               </p>

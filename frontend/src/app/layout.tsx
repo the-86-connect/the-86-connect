@@ -47,11 +47,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "86 Connect — Study in China & Product Sourcing from China",
-    template: "%s | 86 Connect",
+    default: "86Connect — Study in China & Product Sourcing from China",
+    template: "%s | 86Connect",
   },
   description:
-    "86 Connect is your trusted gateway to China. We provide end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics). Serving clients in 30+ countries worldwide.",
+    "86Connect is your trusted gateway to China. We provide end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics). Serving clients in 30+ countries worldwide.",
   keywords: [
     // Core
     "Study in China",
@@ -167,9 +167,9 @@ export const metadata: Metadata = {
     "China scholarship for international students",
     "Best universities in China for international students",
   ],
-  authors: [{ name: "86 Connect", url: SITE_URL }],
-  creator: "86 Connect",
-  publisher: "86 Connect",
+  authors: [{ name: "86Connect", url: SITE_URL }],
+  creator: "86Connect",
+  publisher: "86Connect",
   category: "Business",
   alternates: {
     canonical: "/",
@@ -190,16 +190,16 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: SITE_URL,
-    siteName: "86 Connect",
-    title: "86 Connect — Study in China & Product Sourcing from China",
+    siteName: "86Connect",
+    title: "86Connect — Study in China & Product Sourcing from China",
     description:
-      "86 Connect is your trusted gateway to China. We provide end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics).",
+      "86Connect is your trusted gateway to China. We provide end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics).",
     images: [
       {
         url: `${SITE_URL}/logo-main.png`,
         width: 180,
         height: 49,
-        alt: "86 Connect — Your Gateway to China",
+        alt: "86Connect — Your Gateway to China",
         type: "image/png",
       },
     ],
@@ -208,9 +208,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@86connect",
     creator: "@86connect",
-    title: "86 Connect — Study in China & Product Sourcing from China",
+    title: "86Connect — Study in China & Product Sourcing from China",
     description:
-      "86 Connect is your trusted gateway to China. End-to-end services for studying in China and sourcing products from China.",
+      "86Connect is your trusted gateway to China. End-to-end services for studying in China and sourcing products from China.",
     images: [`${SITE_URL}/logo-main.png`],
   },
   other: {

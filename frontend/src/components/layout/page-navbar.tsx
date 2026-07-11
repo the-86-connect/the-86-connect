@@ -137,11 +137,11 @@ export function PageNavbar({
               <Link
                 href="/"
                 className="group flex items-center press"
-                aria-label="86 Connect home"
+                aria-label="86Connect home"
               >
                 <Image
                   src="/logo-main.png"
-                  alt="86 Connect"
+                  alt="86Connect"
                   width={160}
                   height={44}
                   className="h-8 w-auto group-hover:opacity-90 transition-opacity duration-200"
@@ -205,11 +205,11 @@ export function PageNavbar({
             <Link
               href="/"
               className="flex items-center press shrink-0"
-              aria-label="86 Connect home"
+              aria-label="86Connect home"
             >
               <Image
                 src="/logo-main.png"
-                alt="86 Connect"
+                alt="86Connect"
                 width={140}
                 height={38}
                 className="h-7 md:h-8 w-auto"
@@ -270,7 +270,7 @@ export function PageNavbar({
             >
               <Image
                 src="/logo-main.png"
-                alt="86 Connect"
+                alt="86Connect"
                 width={140}
                 height={38}
                 className="h-7 w-auto"

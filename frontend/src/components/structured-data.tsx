@@ -4,8 +4,8 @@ const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "@id": `${SITE_URL}/#organization`,
-  name: "86 Connect",
-  alternateName: "86 Connect China Consultancy",
+  name: "86Connect",
+  alternateName: "86Connect China Consultancy",
   url: SITE_URL,
   logo: {
     "@type": "ImageObject",
@@ -65,9 +65,9 @@ const webSiteSchema = {
   "@type": "WebSite",
   "@id": `${SITE_URL}/#website`,
   url: SITE_URL,
-  name: "86 Connect",
+  name: "86Connect",
   description:
-    "86 Connect is your trusted gateway to China. End-to-end services for studying in China and sourcing products from China.",
+    "86Connect is your trusted gateway to China. End-to-end services for studying in China and sourcing products from China.",
   publisher: {
     "@id": `${SITE_URL}/#organization`,
   },
@@ -86,7 +86,7 @@ const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
   "@id": `${SITE_URL}/#localbusiness`,
-  name: "86 Connect",
+  name: "86Connect",
   image: `${SITE_URL}/og-image.jpg`,
   url: SITE_URL,
   telephone: "+86 176 1153 3296",
@@ -121,7 +121,7 @@ const localBusinessSchema = {
 const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "ItemList",
-  name: "86 Connect Services",
+  name: "86Connect Services",
   itemListElement: [
     {
       "@type": "Service",
@@ -169,7 +169,7 @@ const faqSchema = {
       name: "How can I study in China as an international student?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "86 Connect helps international students apply to Chinese universities, secure scholarships (including CSC), handle visa applications, and find accommodation. We provide end-to-end guidance through the entire process.",
+        text: "86Connect helps international students apply to Chinese universities, secure scholarships (including CSC), handle visa applications, and find accommodation. We provide end-to-end guidance through the entire process.",
       },
     },
     {
@@ -177,7 +177,7 @@ const faqSchema = {
       name: "What scholarships are available for studying in China?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Available scholarships include the Chinese Government Scholarship (CSC), provincial scholarships, university-specific scholarships, and Confucius Institute scholarships. 86 Connect helps you identify and apply for the best options.",
+        text: "Available scholarships include the Chinese Government Scholarship (CSC), provincial scholarships, university-specific scholarships, and Confucius Institute scholarships. 86Connect helps you identify and apply for the best options.",
       },
     },
     {
@@ -185,12 +185,12 @@ const faqSchema = {
       name: "How do I source products from China?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "86 Connect helps you find verified Chinese suppliers, manage procurement, arrange quality control inspections, and handle logistics and shipping. We work with 50,000+ verified suppliers across all industries.",
+        text: "86Connect helps you find verified Chinese suppliers, manage procurement, arrange quality control inspections, and handle logistics and shipping. We work with 50,000+ verified suppliers across all industries.",
       },
     },
     {
       "@type": "Question",
-      name: "How much does it cost to use 86 Connect's services?",
+      name: "How much does it cost to use 86Connect's services?",
       acceptedAnswer: {
         "@type": "Answer",
         text: "We offer free initial consultations. Our pricing is transparent and flat-rate for full-service arrangements. We also offer partial-service options to fit your budget. Contact us for a personalized quote.",
@@ -198,10 +198,10 @@ const faqSchema = {
     },
     {
       "@type": "Question",
-      name: "Is 86 Connect a registered company in China?",
+      name: "Is 86Connect a registered company in China?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Yes, 86 Connect is the digital subsidiary of Beijing BridgePath International Consulting Co., Ltd, a registered consulting firm incorporated in Beijing, China on November 23, 2023. All payments are handled through our registered corporate account.",
+        text: "Yes, 86Connect is the digital subsidiary of Beijing BridgePath International Consulting Co., Ltd, a registered consulting firm incorporated in Beijing, China on November 23, 2023. All payments are handled through our registered corporate account.",
       },
     },
   ],

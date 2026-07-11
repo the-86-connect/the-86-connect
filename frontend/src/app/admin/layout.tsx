@@ -1,9 +1,9 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { AdminLayoutClient } from "@/components/layout/admin-layout-client";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",
-  description: "86 Connect admin dashboard for managing submissions and users.",
+  description: "86Connect admin dashboard for managing submissions and users.",
   robots: { index: false, follow: false },
 };
 

@@ -73,11 +73,11 @@ export function Footer() {
               <Link
                 href="/"
                 className="group inline-flex shrink-0 items-center"
-                aria-label="86 Connect home"
+                aria-label="86Connect home"
               >
                 <Image
                   src="/logo-white.png"
-                  alt="86 Connect"
+                  alt="86Connect"
                   width={180}
                   height={54}
                   className="h-9 sm:h-10 md:h-11 lg:h-12 w-auto rounded-lg shadow-[0_0_12px_rgba(255,255,255,0.5)]"
