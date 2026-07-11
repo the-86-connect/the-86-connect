@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { blogPosts } from "@/data/blog";
 
 const SITE_URL = "https://www.the86connect.com";
 
@@ -98,33 +99,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // Blog post pages (from resources)
-  const blogPosts: MetadataRoute.Sitemap = [
-    {
-      url: `${SITE_URL}/resources/complete-guide-studying-in-china-2026`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.65,
-    },
-    {
-      url: `${SITE_URL}/resources/how-to-source-products-from-china`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.65,
-    },
-    {
-      url: `${SITE_URL}/resources/chinese-government-scholarship-csc`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.65,
-    },
-    {
-      url: `${SITE_URL}/resources/alibaba-vs-1688-supplier-sourcing`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.65,
-    },
-  ];
+  // Dynamic blog post pages from blog data
+  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${SITE_URL}/resources/${post.slug}`,
+    lastModified,
+    changeFrequency: "monthly" as const,
+    priority: 0.65,
+  }));
 
-  return [...staticPages, ...blogPosts];
+  return [...staticPages, ...blogPages];
 }
