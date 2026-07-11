@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
-import { blogPosts } from "@/data/blog";
 
 const SITE_URL = "https://www.the86connect.com";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const { blogPosts } = await import("@/data/blog");
   const lastModified = new Date();
 
   const staticPages: MetadataRoute.Sitemap = [
