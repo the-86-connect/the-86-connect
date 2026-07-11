@@ -6,8 +6,13 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
+        userAgent: "Googlebot",
+        allow: "/",
+        disallow: ["/admin/", "/api/", "/account/", "/login", "/signup", "/forgot-password", "/reset-password", "/set-password"],
+      },
+      {
         userAgent: "*",
-        allow: ["/", "/about", "/study-in-china", "/product-sourcing"],
+        allow: "/",
         disallow: ["/admin/", "/api/", "/account/", "/login", "/signup", "/forgot-password", "/reset-password", "/set-password"],
       },
       {
@@ -30,11 +35,6 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: "Bingbot",
-        allow: "/",
-        disallow: ["/admin/", "/api/", "/account/", "/login", "/signup", "/forgot-password", "/reset-password", "/set-password"],
-      },
-      {
-        userAgent: "Googlebot",
         allow: "/",
         disallow: ["/admin/", "/api/", "/account/", "/login", "/signup", "/forgot-password", "/reset-password", "/set-password"],
       },
