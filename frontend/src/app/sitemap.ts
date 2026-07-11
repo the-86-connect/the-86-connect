@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 const SITE_URL = "https://www.the86connect.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { blogPosts } = await import("@/data/blog");
+  const { BLOG_POSTS } = await import("@/data/blog");
   const lastModified = new Date();
 
   const staticPages: MetadataRoute.Sitemap = [
@@ -100,7 +100,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // Dynamic blog post pages from blog data
-  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+  const blogPages: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({
     url: `${SITE_URL}/resources/${post.slug}`,
     lastModified,
     changeFrequency: "monthly" as const,
