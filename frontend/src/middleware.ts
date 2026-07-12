@@ -9,6 +9,12 @@ export function middleware(request: NextRequest) {
   const host = request.headers.get("host") || "";
   const hostname = host.split(":")[0].toLowerCase();
 
+  if (hostname === "the86connect.com" && !hostname.includes("www")) {
+    const newUrl = request.nextUrl.clone();
+    newUrl.hostname = "www.the86connect.com";
+    return NextResponse.redirect(newUrl, 301);
+  }
+
   if (pathname.startsWith("/api/") || pathname === "/health") {
     const target = `${BACKEND_URL}${pathname}${search}`;
     return NextResponse.rewrite(target);
