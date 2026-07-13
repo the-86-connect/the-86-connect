@@ -47,6 +47,12 @@ const app = express();
 // Trust proxy (Render terminates TLS)
 app.set("trust proxy", 1);
 
+// X-Robots-Tag — prevent search engines from indexing API endpoints
+app.use((_req: Request, res: Response, next: NextFunction) => {
+  res.set("X-Robots-Tag", "noindex, nofollow");
+  next();
+});
+
 // Security & performance middleware
 app.use(
   helmet({
@@ -192,6 +198,12 @@ function submissionRateLimit(req: Request, res: Response, next: NextFunction) {
   };
   next();
 }
+
+// Robots.txt — block all search engines from API domain
+app.get("/robots.txt", (_req, res) => {
+  res.type("text/plain");
+  res.send(`User-Agent: *\nDisallow: /\n`);
+});
 
 // Health check — verifies server + database connectivity
 app.get("/health", async (_req, res) => {
