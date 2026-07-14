@@ -14,6 +14,7 @@ import {
   Film,
   CalendarCheck,
   FileText,
+  Truck,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard, hash: "#overview" },
   { id: "submissions", label: "Submissions", icon: Inbox, hash: "#submissions" },
+  { id: "car-shipments", label: "Car Shipments", icon: Truck, hash: "#car-shipments" },
   { id: "consultations", label: "Consultations", icon: CalendarCheck, hash: "#consultations" },
   { id: "users", label: "Users", icon: Users, hash: "#users" },
   { id: "videos", label: "Videos", icon: Film, hash: "#videos" },
