@@ -16,6 +16,8 @@ import {
   CalendarCheck,
   Search,
   BookOpen,
+  ChevronDown,
+  Ship,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -27,6 +29,12 @@ type NavLink = {
   icon: typeof Home;
   target?: string;
   href?: string;
+  children?: Array<{
+    label: string;
+    href: string;
+    icon: typeof Home;
+    description?: string;
+  }>;
 };
 
 const NAV_LINKS: NavLink[] = [
@@ -55,6 +63,26 @@ const NAV_LINKS: NavLink[] = [
     shortLabel: "Track",
     href: "/study-in-china/track-application",
     icon: Search,
+    children: [
+      {
+        label: "Study in China",
+        href: "/study-in-china/track-application",
+        icon: GraduationCap,
+        description: "Track your application status",
+      },
+      {
+        label: "Product Sourcing",
+        href: "/product-sourcing/track-quote",
+        icon: ShoppingCart,
+        description: "Track your sourcing inquiry",
+      },
+      {
+        label: "Car Shipping",
+        href: "/car-shipping/track",
+        icon: Ship,
+        description: "Track your vehicle shipment",
+      },
+    ],
   },
 ];
 
@@ -114,6 +142,9 @@ export function Navbar() {
   }, []);
 
   const isActive = (link: NavLink): boolean => {
+    if (link.children && link.children.length > 0) {
+      return link.children.some((c) => pathname === c.href);
+    }
     if (link.href) return pathname === link.href;
     if (link.target && isHome) return activeSection === link.target;
     return false;
@@ -122,6 +153,53 @@ export function Navbar() {
   const renderMobileNavLink = (link: NavLink) => {
     const active = isActive(link);
     const Icon = link.icon;
+
+    // Dropdown: render group header + children
+    if (link.children && link.children.length > 0) {
+      return (
+        <div key={link.label} className="space-y-0.5">
+          <div
+            className={cn(
+              "w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-[11px] font-black uppercase tracking-wider",
+              "text-muted-foreground",
+            )}
+          >
+            <Icon className="h-4 w-4" />
+            {link.label}
+          </div>
+          <div className="pl-2 space-y-0.5">
+            {link.children.map((child) => {
+              const ChildIcon = child.icon;
+              const childActive = pathname === child.href;
+              return (
+                <Link
+                  key={child.href}
+                  href={child.href}
+                  onClick={() => setIsOpen(false)}
+                  aria-current={childActive ? "page" : undefined}
+                  className={cn(
+                    "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-bold text-[13px] transition-all duration-200 cursor-pointer press min-h-[46px]",
+                    childActive
+                      ? "bg-gradient-to-r from-primary to-red-700 text-white shadow-red-sm"
+                      : "text-foreground hover:bg-muted/70",
+                  )}
+                >
+                  <ChildIcon className="h-[18px] w-[18px]" />
+                  <div className="flex-1">
+                    <span>{child.label}</span>
+                    {child.description && (
+                      <p className="text-[11px] font-medium text-muted-foreground/70 mt-0.5 leading-tight">
+                        {child.description}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
 
     if (link.href) {
       return (
@@ -174,7 +252,7 @@ export function Navbar() {
     const active = isActive(link);
     const Icon = link.icon;
     const baseClasses = cn(
-      "relative py-2 font-bold tracking-wide transition-colors duration-200 cursor-pointer press flex items-center",
+      "relative py-2 font-bold tracking-wide transition-colors duration-200 cursor-pointer press flex items-center group",
       compact ? "px-1 gap-1 text-xs" : "px-1 py-2 gap-1.5 text-sm",
     );
 
@@ -184,6 +262,79 @@ export function Navbar() {
     const activeColor = scrolled ? "text-primary" : "text-white";
 
     const displayLabel = compact && link.shortLabel ? link.shortLabel : link.label;
+
+    // Dropdown variant
+    if (link.children && link.children.length > 0) {
+      const dropdownBg = scrolled ? "bg-white" : "bg-white/95 backdrop-blur-md";
+      const triggerContent = (
+        <>
+          <Icon className={cn("shrink-0", compact ? "h-3.5 w-3.5" : "h-4 w-4")} />
+          <span className="whitespace-nowrap">{displayLabel}</span>
+          <ChevronDown
+            className={cn(
+              "shrink-0 transition-transform duration-200 group-hover:rotate-180",
+              compact ? "h-3 w-3" : "h-3.5 w-3.5",
+            )}
+          />
+          <span
+            className={cn(
+              "absolute bottom-0 left-0 h-0.5 bg-primary rounded-full transition-all duration-300",
+              active ? "w-full" : "w-0 group-hover:w-full",
+            )}
+          />
+        </>
+      );
+
+      return (
+        <div key={link.label} className="relative">
+          <div
+            aria-current={active ? "page" : undefined}
+            className={cn(baseClasses, active ? activeColor : idleColor)}
+          >
+            {triggerContent}
+          </div>
+          {/* Dropdown menu */}
+          <div
+            className={cn(
+              "absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 min-w-[240px]",
+            )}
+          >
+            <div
+              className={cn(
+                "rounded-2xl shadow-soft-lg border border-border p-1.5",
+                dropdownBg,
+              )}
+            >
+              {link.children.map((child) => {
+                const ChildIcon = child.icon;
+                return (
+                  <Link
+                    key={child.href}
+                    href={child.href}
+                    className={cn(
+                      "flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer press",
+                      "text-foreground/80 hover:text-foreground hover:bg-muted/70",
+                    )}
+                  >
+                    <div className="shrink-0 w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <ChildIcon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm leading-tight">{child.label}</p>
+                      {child.description && (
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                          {child.description}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     if (link.href) {
       return (
@@ -456,13 +607,19 @@ export function Navbar() {
                 );
 
                 const handleTabClick = () => {
-                  if (link.href) return;
+                  if (link.href || (link.children && link.children.length > 0)) return;
                   if (isHome) handleScrollClick(link.target!);
                   else window.location.href = `/#${link.target}`;
                 };
 
-                return link.href ? (
-                  <Link key={link.label} href={link.href} className={className}>
+                const tabHref = link.href
+                  ? link.href
+                  : link.children && link.children.length > 0
+                    ? link.children[0].href
+                    : undefined;
+
+                return tabHref ? (
+                  <Link key={link.label} href={tabHref} className={className}>
                     {content}
                   </Link>
                 ) : (
