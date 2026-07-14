@@ -45,6 +45,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(newUrl, 301);
   }
 
+  if (pathname.startsWith("/api/") || pathname === "/health") {
+    const target = `${BACKEND_URL}${pathname}${search}`;
+    return NextResponse.rewrite(target);
+  }
+
   if (isAdminSubdomain) {
     if (pathname === "/robots.txt" || pathname === "/robots") {
       return new NextResponse(ADMIN_ROBOTS_TXT, {
@@ -69,8 +74,7 @@ export function middleware(request: NextRequest) {
       pathname.startsWith("/admin") ||
       pathname.startsWith("/favicon") ||
       pathname.startsWith("/og-image") ||
-      pathname.startsWith("/fonts") ||
-      pathname === "/health"
+      pathname.startsWith("/fonts")
     ) {
       const response = NextResponse.next();
       response.headers.set("X-Robots-Tag", "noindex, nofollow");
@@ -82,11 +86,6 @@ export function middleware(request: NextRequest) {
     const response = NextResponse.rewrite(newUrl);
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
     return response;
-  }
-
-  if (pathname.startsWith("/api/") || pathname === "/health") {
-    const target = `${BACKEND_URL}${pathname}${search}`;
-    return NextResponse.rewrite(target);
   }
 
   if (pathname.startsWith("/admin/") || pathname === "/admin") {
