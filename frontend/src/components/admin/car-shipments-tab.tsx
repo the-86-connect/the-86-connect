@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { getCsrfToken } from "@/lib/api";
 import { CAR_SHIPPING_STAGES, getStatusLabel } from "@/lib/submission-status";
 
 interface CarShipment {
@@ -110,7 +111,10 @@ export function CarShipmentsTab({ apiUrl }: CarShipmentsTabProps) {
       try {
         const res = await fetch(`${apiUrl}/api/admin/car-shipments`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": getCsrfToken(),
+          },
           credentials: "include",
           body: JSON.stringify(formData),
         });
@@ -137,7 +141,10 @@ export function CarShipmentsTab({ apiUrl }: CarShipmentsTabProps) {
           `${apiUrl}/api/admin/car-shipments/${shipmentId}/status`,
           {
             method: "PATCH",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              "x-csrf-token": getCsrfToken(),
+            },
             credentials: "include",
             body: JSON.stringify({ status }),
           },
@@ -166,6 +173,7 @@ export function CarShipmentsTab({ apiUrl }: CarShipmentsTabProps) {
         const res = await fetch(`${apiUrl}/api/admin/car-shipments/${shipmentId}`, {
           method: "DELETE",
           credentials: "include",
+          headers: { "x-csrf-token": getCsrfToken() },
         });
         if (!res.ok) throw new Error("Failed to delete shipment");
         toast.success("Shipment deleted");
@@ -185,7 +193,10 @@ export function CarShipmentsTab({ apiUrl }: CarShipmentsTabProps) {
     try {
       const res = await fetch(`${apiUrl}/api/admin/car-shipments/bulk`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": getCsrfToken(),
+        },
         credentials: "include",
         body: JSON.stringify({ action: "delete", ids: selectedIds }),
       });

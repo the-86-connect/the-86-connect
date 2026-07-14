@@ -214,6 +214,65 @@ carShippingRouter.post("/", async (req: AdminRequest, res) => {
   }
 });
 
+carShippingRouter.patch("/:id/status", async (req: AdminRequest, res) => {
+  try {
+    const id = String(req.params.id);
+    const { status } = req.body;
+
+    if (!status || !isValidStatus(status)) {
+      return res.status(400).json({ error: "Invalid status" });
+    }
+
+    const existing = await prisma.carShipment.findUnique({
+      where: { id },
+      select: { submissionId: true },
+    });
+
+    if (!existing) {
+      return res.status(404).json({ error: "Shipment not found" });
+    }
+
+    const submission = await prisma.submission.findUnique({
+      where: { id: existing.submissionId },
+      select: { status: true, statusHistory: true, email: true, name: true, referenceCode: true },
+    });
+
+    if (!submission) {
+      return res.status(404).json({ error: "Submission not found" });
+    }
+
+    const history = (submission.statusHistory as Array<{ status: string; updatedAt: string }>) || [];
+    history.push({ status, updatedAt: new Date().toISOString() });
+
+    const updated = await prisma.submission.update({
+      where: { id: existing.submissionId },
+      data: {
+        status,
+        statusHistory: history as any,
+      },
+    });
+
+    setImmediate(() => {
+      try {
+        broadcastToAdmins("submission:updated", { submission: updated });
+        notifyUserStatusChange({
+          to: updated.email,
+          name: updated.name,
+          service: "Car Shipping",
+          newStatus: status,
+          referenceCode: submission.referenceCode,
+          submissionId: existing.submissionId,
+        }).catch(() => {});
+      } catch (_) { /* noop */ }
+    });
+
+    res.json({ success: true, status });
+  } catch (error) {
+    console.error("Update car shipment status error:", (error as Error).message);
+    res.status(500).json({ error: "Failed to update status" });
+  }
+});
+
 carShippingRouter.patch("/:id", async (req: AdminRequest, res) => {
   try {
     const id = String(req.params.id);
@@ -288,65 +347,6 @@ carShippingRouter.patch("/:id", async (req: AdminRequest, res) => {
   } catch (error) {
     console.error("Update car shipment error:", (error as Error).message);
     res.status(500).json({ error: "Failed to update shipment" });
-  }
-});
-
-carShippingRouter.patch("/:id/status", async (req: AdminRequest, res) => {
-  try {
-    const id = String(req.params.id);
-    const { status } = req.body;
-
-    if (!status || !isValidStatus(status)) {
-      return res.status(400).json({ error: "Invalid status" });
-    }
-
-    const existing = await prisma.carShipment.findUnique({
-      where: { id },
-      select: { submissionId: true },
-    });
-
-    if (!existing) {
-      return res.status(404).json({ error: "Shipment not found" });
-    }
-
-    const submission = await prisma.submission.findUnique({
-      where: { id: existing.submissionId },
-      select: { status: true, statusHistory: true, email: true, name: true, referenceCode: true },
-    });
-
-    if (!submission) {
-      return res.status(404).json({ error: "Submission not found" });
-    }
-
-    const history = (submission.statusHistory as Array<{ status: string; updatedAt: string }>) || [];
-    history.push({ status, updatedAt: new Date().toISOString() });
-
-    const updated = await prisma.submission.update({
-      where: { id: existing.submissionId },
-      data: {
-        status,
-        statusHistory: history as any,
-      },
-    });
-
-    setImmediate(() => {
-      try {
-        broadcastToAdmins("submission:updated", { submission: updated });
-        notifyUserStatusChange({
-          to: updated.email,
-          name: updated.name,
-          service: "Car Shipping",
-          newStatus: status,
-          referenceCode: submission.referenceCode,
-          submissionId: existing.submissionId,
-        }).catch(() => {});
-      } catch (_) { /* noop */ }
-    });
-
-    res.json({ success: true, status });
-  } catch (error) {
-    console.error("Update car shipment status error:", (error as Error).message);
-    res.status(500).json({ error: "Failed to update status" });
   }
 });
 
