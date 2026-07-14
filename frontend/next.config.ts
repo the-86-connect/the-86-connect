@@ -68,4 +68,4 @@ export default withSentryConfig(nextConfig, {
     disable: !process.env.SENTRY_AUTH_TOKEN,
     deleteSourcemapsAfterUpload: true,
   },
-});
+});// Deploy trigger 20260714213918
