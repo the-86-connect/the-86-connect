@@ -88,7 +88,8 @@ export function CarShipmentsTab({ apiUrl }: CarShipmentsTabProps) {
       const data = await res.json();
       setShipments(data.shipments);
       setTotal(data.total);
-    } catch (error) {
+    } catch (err) {
+      console.error("Failed to load shipments:", err);
       toast.error("Failed to load shipments");
     } finally {
       setIsLoading(false);
@@ -97,6 +98,8 @@ export function CarShipmentsTab({ apiUrl }: CarShipmentsTabProps) {
 
   // Load on mount and when deps change
   useEffect(() => {
+    // Data fetch; setState happens asynchronously after await.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadShipments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, search, statusFilter]);
@@ -148,7 +151,8 @@ export function CarShipmentsTab({ apiUrl }: CarShipmentsTabProps) {
             submission: { ...selectedShipment.submission, status },
           });
         }
-      } catch (error) {
+      } catch (err) {
+        console.error("Failed to update status:", err);
         toast.error("Failed to update status");
       }
     },
@@ -167,7 +171,8 @@ export function CarShipmentsTab({ apiUrl }: CarShipmentsTabProps) {
         toast.success("Shipment deleted");
         setSelectedIds((prev) => prev.filter((id) => id !== shipmentId));
         loadShipments();
-      } catch (error) {
+      } catch (err) {
+        console.error("Failed to delete shipment:", err);
         toast.error("Failed to delete shipment");
       }
     },
@@ -188,7 +193,8 @@ export function CarShipmentsTab({ apiUrl }: CarShipmentsTabProps) {
       toast.success(`Deleted ${selectedIds.length} shipment(s)`);
       setSelectedIds([]);
       loadShipments();
-    } catch (error) {
+    } catch (err) {
+      console.error("Failed to delete shipments:", err);
       toast.error("Failed to delete shipments");
     }
   }, [apiUrl, selectedIds, loadShipments]);
@@ -313,7 +319,7 @@ export function CarShipmentsTab({ apiUrl }: CarShipmentsTabProps) {
             <Ship className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
             <p className="text-muted-foreground font-medium">No shipments found</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Click "New Shipment" to add your first vehicle shipment.
+              Click &quot;New Shipment&quot; to add your first vehicle shipment.
             </p>
           </div>
         )}
@@ -375,8 +381,9 @@ export function CarShipmentsTab({ apiUrl }: CarShipmentsTabProps) {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              shipment.submission.referenceCode &&
+                              if (shipment.submission.referenceCode) {
                                 handleCopyRef(shipment.submission.referenceCode);
+                              }
                             }}
                             className="flex items-center gap-1.5 font-mono text-xs font-bold text-primary hover:underline"
                           >
