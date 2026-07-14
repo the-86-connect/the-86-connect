@@ -33,7 +33,7 @@ const shippingMethods = [
     icon: Truck,
     title: "Express Delivery",
     description: "Fastest option for urgent small packages. Door-to-door delivery with premium tracking.",
-    duration: "2-3 days",
+    duration: "5-7 days",
     regions: ["Africa", "America", "Europe"],
     bgColor: "bg-green-500/10",
     iconColor: "text-green-500",
