@@ -5,6 +5,7 @@ import { HeroSection } from "@/components/sections/hero";
 import { ByTheNumbersSection } from "@/components/sections/by-the-numbers";
 import { StudyInChinaSection } from "@/components/sections/study-in-china";
 import { ProductSourcingSection } from "@/components/sections/product-sourcing";
+import { ShippingMethodsSection } from "@/components/sections/shipping-methods";
 import { VideoGallery } from "@/components/sections/video-gallery";
 import { AboutUsSection } from "@/components/sections/about-us";
 import { ContactSection } from "@/components/sections/contact";
@@ -100,6 +101,7 @@ export default async function Home() {
         <ByTheNumbersSection />
         <StudyInChinaSection />
         <ProductSourcingSection />
+        <ShippingMethodsSection />
         {videos.length > 0 && (
           <VideoGallery
             videos={videos}
