@@ -110,18 +110,6 @@ export function TrackingForm({ config }: TrackingFormProps) {
     defaultValues: { referenceId: "", email: "" },
   });
 
-  // Prefill reference ID and email from URL query (?ref=xxx&email=yyy)
-  useEffect(() => {
-    const ref = searchParams.get("ref");
-    const email = searchParams.get("email");
-    if (ref) {
-      setValue("referenceId", ref);
-    }
-    if (email) {
-      setValue("email", decodeURIComponent(email));
-    }
-  }, [searchParams, setValue]);
-
   const onSubmit = useCallback(async (data: TrackingData) => {
     setNotFound(false);
     setResult(null);
@@ -190,23 +178,30 @@ export function TrackingForm({ config }: TrackingFormProps) {
     }
   }, []);
 
-  // Auto-submit when both ref and email are pre-filled from URL
+  // Prefill form and auto-submit when ref and email are in URL query params
   useEffect(() => {
     const ref = searchParams.get("ref");
     const email = searchParams.get("email");
-    if (ref && email && !autoSubmittedRef.current) {
-      autoSubmittedRef.current = true;
-      // Small delay to let the form register the values
-      const timer = setTimeout(() => {
-        const values = getValues();
-        if (values.referenceId && values.email) {
-          onSubmit(values);
-        }
-      }, 300);
-      return () => clearTimeout(timer);
+
+    if (ref) {
+      setValue("referenceId", ref);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+    if (email) {
+      setValue("email", decodeURIComponent(email));
+    }
+
+    if (ref && email && !autoSubmittedRef.current) {
+      const decodedEmail = decodeURIComponent(email);
+      const parsed = TRACKING_SCHEMA.safeParse({
+        referenceId: ref,
+        email: decodedEmail,
+      });
+      if (parsed.success) {
+        autoSubmittedRef.current = true;
+        onSubmit(parsed.data);
+      }
+    }
+  }, [searchParams, setValue, onSubmit]);
 
   // Fetch user submissions when authenticated and no URL params
   useEffect(() => {
