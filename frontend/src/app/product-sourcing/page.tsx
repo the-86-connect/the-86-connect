@@ -33,6 +33,7 @@ import { Footer } from "@/components/layout/footer";
 import { SourcingInquiryForm } from "@/components/forms/sourcing-inquiry-form";
 import { VideoGallery } from "@/components/sections/video-gallery";
 import { Testimonials } from "@/components/sections/testimonials";
+import { ShippingMethodsSection } from "@/components/sections/shipping-methods";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { fetchVideos } from "@/lib/api";
@@ -645,6 +646,8 @@ export default async function ProductSourcingPage() {
             </div>
           </div>
         </section>
+
+        <ShippingMethodsSection />
 
         {/* How Costs Work */}
         <section
