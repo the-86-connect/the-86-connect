@@ -45,6 +45,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(newUrl, 301);
   }
 
+  if (pathname === "/api/health") {
+    return NextResponse.next();
+  }
+
   if (pathname.startsWith("/api/") || pathname === "/health") {
     const target = `${BACKEND_URL}${pathname}${search}`;
     return NextResponse.rewrite(target);
