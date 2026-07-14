@@ -79,7 +79,7 @@ export default function TrackQuotePage() {
                     referenceHint: "SOU-123456",
                     noun: "quote",
                     submissionType: "sourcing",
-                    supportEmail: "sourcing@the86connects.com",
+                    supportEmail: "sourcing@the86connect.com",
                     stages: [
                       {
                         label: "Inquiry Received",
@@ -123,7 +123,7 @@ export default function TrackQuotePage() {
                 icon={Mail}
                 title="Lost your reference?"
                 description="Check your confirmation email or contact us."
-                href="mailto:sourcing@the86connects.com"
+                href="mailto:sourcing@the86connect.com"
                 linkLabel="Email us"
               />
               <HelpCard

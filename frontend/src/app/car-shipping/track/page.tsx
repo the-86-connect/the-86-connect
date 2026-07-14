@@ -74,7 +74,7 @@ export default function TrackCarShipmentPage() {
                     referenceHint: "CAR-123456",
                     noun: "shipment",
                     submissionType: "car_shipping",
-                    supportEmail: "shipping@the86connects.com",
+                    supportEmail: "shipping@the86connect.com",
                     stages: [
                       {
                         label: "Shipment Pending",
@@ -122,7 +122,7 @@ export default function TrackCarShipmentPage() {
                 icon={Mail}
                 title="Lost your reference?"
                 description="Check your confirmation email or contact us."
-                href="mailto:shipping@the86connects.com"
+                href="mailto:shipping@the86connect.com"
                 linkLabel="Email us"
               />
               <HelpCard

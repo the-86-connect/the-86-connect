@@ -75,7 +75,7 @@ export default function TrackApplicationPage() {
                     referenceHint: "STU-123456",
                     noun: "application",
                     submissionType: "study",
-                    supportEmail: "applications@the86connects.com",
+                    supportEmail: "applications@the86connect.com",
                     stages: [
                       {
                         label: "Application Submitted",
@@ -119,7 +119,7 @@ export default function TrackApplicationPage() {
                 icon={Mail}
                 title="Lost your reference?"
                 description="Check your confirmation email or contact us."
-                href="mailto:applications@the86connects.com"
+                href="mailto:applications@the86connect.com"
                 linkLabel="Email us"
               />
               <HelpCard

@@ -8,6 +8,7 @@
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || ""; // Admin notification target
 const FROM_EMAIL = process.env.FROM_EMAIL || "info@the86connect.com";
+const SITE_URL = process.env.SITE_URL || "https://www.the86connect.com";
 
 interface EmailPayload {
   to: string | string[];
@@ -85,7 +86,7 @@ export async function notifyAdminNewSubmission(data: {
           <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Service</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${data.service}</td></tr>
         </table>
         <p style="margin-top:20px;font-size:13px;color:#64748b;">
-          <a href="https://the86connects.com/admin#submissions" style="color:#dc2626;">View in admin panel</a>
+          <a href="${SITE_URL}/admin#submissions" style="color:#dc2626;">View in admin panel</a>
         </p>
       </div>
     `,
@@ -110,10 +111,10 @@ export async function notifyUserStatusChange(data: {
   const isCarShipping = data.service.toLowerCase().includes("car");
   const noun = isCarShipping ? "shipment" : "application";
   const trackUrl = isCarShipping
-    ? "https://the86connects.com/car-shipping/track"
+    ? `${SITE_URL}/car-shipping/track`
     : data.service.toLowerCase().includes("sourcing")
-      ? "https://the86connects.com/product-sourcing/track-quote"
-      : "https://the86connects.com/study-in-china/track-application";
+      ? `${SITE_URL}/product-sourcing/track-quote`
+      : `${SITE_URL}/study-in-china/track-application`;
 
   return send({
     to: data.to,
@@ -175,7 +176,7 @@ export async function notifyAdminNewConsultation(data: {
           <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Preferred Time</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${data.preferredTime}</td></tr>
         </table>
         <p style="margin-top:20px;font-size:13px;color:#64748b;">
-          <a href="https://the86connects.com/admin#consultations" style="color:#dc2626;">View in admin panel</a>
+          <a href="${SITE_URL}/admin#consultations" style="color:#dc2626;">View in admin panel</a>
         </p>
       </div>
     `,
@@ -364,7 +365,7 @@ export async function notifyUserCancellation(data: {
           <tr><td style="padding:8px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Original Time</td><td style="padding:8px 12px;border:1px solid #e2e8f0;">${timeStr}</td></tr>
         </table>
         <p style="margin-top:24px;text-align:center;">
-          <a href="https://the86connects.com/book-consultation" style="display:inline-block;padding:12px 32px;background:#dc2626;color:#fff;text-decoration:none;font-weight:700;border-radius:12px;font-size:15px;">Book a New Consultation</a>
+          <a href="${SITE_URL}/book-consultation" style="display:inline-block;padding:12px 32px;background:#dc2626;color:#fff;text-decoration:none;font-weight:700;border-radius:12px;font-size:15px;">Book a New Consultation</a>
         </p>
         <p style="font-size:13px;color:#94a3b8;margin-top:24px;">— 86 Connect Team</p>
       </div>
@@ -412,7 +413,7 @@ export async function notifyAdminCancellation(data: {
           <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Time</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${data.preferredTime}</td></tr>
         </table>
         <p style="margin-top:20px;font-size:13px;color:#64748b;">
-          <a href="https://the86connects.com/admin#consultations" style="color:#dc2626;">View in admin panel</a>
+          <a href="${SITE_URL}/admin#consultations" style="color:#dc2626;">View in admin panel</a>
         </p>
       </div>
     `,

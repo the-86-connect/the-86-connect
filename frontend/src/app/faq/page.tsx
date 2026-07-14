@@ -92,7 +92,7 @@ export default function FAQPage() {
                 Contact Us
               </Link>
               <a
-                href="mailto:info@the86connects.com"
+                href="mailto:info@the86connect.com"
                 className="inline-flex items-center justify-center gap-2 h-12 px-6 bg-white text-foreground rounded-2xl font-black text-sm border border-border hover:border-primary/30 transition-all cursor-pointer press"
               >
                 Email Support
