@@ -107,20 +107,28 @@ export async function notifyUserStatusChange(data: {
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 
+  const isCarShipping = data.service.toLowerCase().includes("car");
+  const noun = isCarShipping ? "shipment" : "application";
+  const trackUrl = isCarShipping
+    ? "https://the86connects.com/car-shipping/track"
+    : data.service.toLowerCase().includes("sourcing")
+      ? "https://the86connects.com/product-sourcing/track-quote"
+      : "https://the86connects.com/study-in-china/track-application";
+
   return send({
     to: data.to,
-    subject: `Update on your ${data.service} application — ${ref}`,
+    subject: `Update on your ${data.service} ${noun} — ${ref}`,
     html: `
       <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;">
-        <h2 style="color:#dc2626;margin:0 0 16px;">Application Status Update</h2>
+        <h2 style="color:#dc2626;margin:0 0 16px;">Status Update</h2>
         <p style="font-size:15px;">Hi ${data.name},</p>
-        <p style="font-size:15px;">Your <strong>${data.service}</strong> application has been updated:</p>
+        <p style="font-size:15px;">Your <strong>${data.service}</strong> ${noun} has been updated:</p>
         <table style="width:100%;border-collapse:collapse;font-size:14px;">
           <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;width:140px;">Reference</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${ref}</td></tr>
           <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">New Status</td><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;color:#dc2626;">${statusLabel}</td></tr>
         </table>
         <p style="margin-top:20px;font-size:13px;color:#64748b;">
-          <a href="https://the86connects.com/study-in-china/track-application" style="color:#dc2626;">Track your application</a>
+          <a href="${trackUrl}" style="color:#dc2626;">Track your ${noun}</a>
         </p>
         <p style="font-size:13px;color:#94a3b8;margin-top:24px;">— 86 Connect Team</p>
       </div>

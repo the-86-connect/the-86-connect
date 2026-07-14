@@ -17,6 +17,11 @@ import {
   ShoppingCart,
   ChevronRight,
   Inbox,
+  Ship,
+  Car,
+  MapPin,
+  Calendar,
+  Hash,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +32,7 @@ import {
   getUserProfile,
   type TrackingStage,
   type UserSubmission,
+  type CarShipmentDetails,
 } from "@/lib/api";
 import { useUserAuth } from "@/context/user-auth-context";
 
@@ -73,6 +79,8 @@ type TrackingResult = {
   lastUpdated: string;
   statusLabel: string;
   timeline: TrackingStage[];
+  customerName: string;
+  carShipment: CarShipmentDetails | null;
 };
 
 interface TrackingFormProps {
@@ -164,6 +172,8 @@ export function TrackingForm({ config }: TrackingFormProps) {
             ? "Completed"
             : currentLabel,
         timeline: json.timeline,
+        customerName: json.submission.name,
+        carShipment: json.submission.carShipment || null,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Lookup failed";
@@ -280,6 +290,86 @@ export function TrackingForm({ config }: TrackingFormProps) {
             </>
           )}
         </div>
+
+        {/* Car shipment details */}
+        {result.carShipment && (
+          <div className="bg-white rounded-2xl border border-border shadow-soft-sm p-5 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Car className="h-4 w-4 text-primary" />
+              </div>
+              <h3 className="font-black text-base text-foreground">
+                Shipment Details
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <DetailRow
+                icon={Car}
+                label="Vehicle"
+                value={`${result.carShipment.carModel}${result.carShipment.carYear ? ` (${result.carShipment.carYear})` : ""}`}
+              />
+              {result.carShipment.vinNumber && (
+                <DetailRow
+                  icon={Hash}
+                  label="VIN Number"
+                  value={result.carShipment.vinNumber}
+                />
+              )}
+              {result.carShipment.originPort && (
+                <DetailRow
+                  icon={MapPin}
+                  label="Port of Loading"
+                  value={result.carShipment.originPort}
+                />
+              )}
+              {result.carShipment.destinationPort && (
+                <DetailRow
+                  icon={MapPin}
+                  label="Port of Discharge"
+                  value={result.carShipment.destinationPort}
+                />
+              )}
+              {result.carShipment.vesselName && (
+                <DetailRow
+                  icon={Ship}
+                  label="Vessel Name"
+                  value={result.carShipment.vesselName}
+                />
+              )}
+              {result.carShipment.containerNumber && (
+                <DetailRow
+                  icon={Hash}
+                  label="Container No."
+                  value={result.carShipment.containerNumber}
+                />
+              )}
+              {result.carShipment.estimatedDeparture && (
+                <DetailRow
+                  icon={Calendar}
+                  label="Est. Departure"
+                  value={new Date(result.carShipment.estimatedDeparture).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                />
+              )}
+              {result.carShipment.estimatedArrival && (
+                <DetailRow
+                  icon={Calendar}
+                  label="Est. Arrival"
+                  value={new Date(result.carShipment.estimatedArrival).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                />
+              )}
+            </div>
+            {result.carShipment.notes && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-xs font-bold text-muted-foreground mb-1">
+                  Notes
+                </p>
+                <p className="text-sm text-foreground leading-relaxed">
+                  {result.carShipment.notes}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Timeline — uses backend-provided stages */}
         <div className="relative pl-2">
@@ -595,5 +685,29 @@ export function TrackingForm({ config }: TrackingFormProps) {
         status.
       </p>
     </form>
+  );
+}
+
+function DetailRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
+        <Icon className="h-4 w-4 text-muted-foreground" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">
+          {label}
+        </p>
+        <p className="text-sm font-black text-foreground truncate">{value}</p>
+      </div>
+    </div>
   );
 }

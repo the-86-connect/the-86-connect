@@ -124,6 +124,23 @@ export interface TrackingStage {
   updatedAt: string | null;
 }
 
+export interface CarShipmentDetails {
+  id: string;
+  carModel: string;
+  carYear: string | null;
+  vinNumber: string | null;
+  originPort: string | null;
+  destinationPort: string | null;
+  containerNumber: string | null;
+  vesselName: string | null;
+  estimatedDeparture: string | null;
+  estimatedArrival: string | null;
+  actualDeparture: string | null;
+  actualArrival: string | null;
+  trackingUrl: string | null;
+  notes: string | null;
+}
+
 export interface TrackingResult {
   submission: {
     id: string;
@@ -133,6 +150,7 @@ export interface TrackingResult {
     serviceInterest: string;
     name: string;
     createdAt: string;
+    carShipment: CarShipmentDetails | null;
   };
   timeline: TrackingStage[];
 }

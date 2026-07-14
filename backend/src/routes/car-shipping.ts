@@ -3,7 +3,7 @@ import { prisma } from "../lib/prisma";
 import { authenticateToken, AdminRequest } from "../middleware/auth";
 import { generateUniqueReferenceCode } from "../lib/reference-code";
 import { broadcastToAdmins } from "../lib/admin-events";
-import { notifyAdminNewSubmission, notifyUserStatusChange } from "../lib/email";
+import { notifyUserStatusChange } from "../lib/email";
 
 export const carShippingRouter = Router();
 
@@ -197,10 +197,11 @@ carShippingRouter.post("/", async (req: AdminRequest, res) => {
     setImmediate(() => {
       try {
         broadcastToAdmins("submission:new", { submission: shipment.submission });
-        notifyAdminNewSubmission({
+        notifyUserStatusChange({
+          to: shipment.submission.email,
           name: shipment.submission.name,
-          email: shipment.submission.email,
           service: "Car Shipping",
+          newStatus: initialStatus,
           referenceCode: shipment.submission.referenceCode,
           submissionId: shipment.submission.id,
         }).catch(() => {});

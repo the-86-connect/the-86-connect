@@ -252,7 +252,7 @@ export function Navbar() {
     const active = isActive(link);
     const Icon = link.icon;
     const baseClasses = cn(
-      "relative py-2 font-bold tracking-wide transition-colors duration-200 cursor-pointer press flex items-center group",
+      "relative py-2 font-bold tracking-wide transition-colors duration-200 cursor-pointer press flex items-center",
       compact ? "px-1 gap-1 text-xs" : "px-1 py-2 gap-1.5 text-sm",
     );
 
@@ -285,14 +285,17 @@ export function Navbar() {
         </>
       );
 
+      const firstHref = link.children[0]?.href || "#";
+
       return (
-        <div key={link.label} className="relative">
-          <div
+        <div key={link.label} className="relative group">
+          <Link
+            href={firstHref}
             aria-current={active ? "page" : undefined}
             className={cn(baseClasses, active ? activeColor : idleColor)}
           >
             {triggerContent}
-          </div>
+          </Link>
           {/* Dropdown menu */}
           <div
             className={cn(
@@ -342,7 +345,7 @@ export function Navbar() {
           key={link.label}
           href={link.href}
           aria-current={active ? "page" : undefined}
-          className={cn(baseClasses, active ? activeColor : idleColor)}
+          className={cn(baseClasses, "group", active ? activeColor : idleColor)}
         >
           <Icon className={cn("shrink-0", compact ? "h-3.5 w-3.5" : "h-4 w-4")} />
           <span className="whitespace-nowrap">{displayLabel}</span>
@@ -370,7 +373,7 @@ export function Navbar() {
         type="button"
         onClick={handleClick}
         aria-current={active ? "page" : undefined}
-        className={cn(baseClasses, active ? activeColor : idleColor)}
+        className={cn(baseClasses, "group", active ? activeColor : idleColor)}
       >
         <Icon className={cn("shrink-0", compact ? "h-3.5 w-3.5" : "h-4 w-4")} />
         <span className="whitespace-nowrap">{displayLabel}</span>
