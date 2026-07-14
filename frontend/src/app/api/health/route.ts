@@ -13,7 +13,7 @@ interface HealthStatus {
   };
 }
 
-async function checkBackend(): Promise<"ok" | "error"> {
+async function checkBackend(): Promise<"ok" | "error" | "unknown"> {
   if (!BACKEND_URL) return "unknown";
   try {
     const controller = new AbortController();
