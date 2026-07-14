@@ -50,13 +50,13 @@ export function ShippingMethodsSection() {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-10 sm:mb-12 md:mb-14">
           <span className="inline-block text-xs sm:text-sm font-black text-primary tracking-[0.2em] uppercase mb-3">
-            Shipping Options
+            Delivery Options
           </span>
           <h2 className="font-display font-black text-3xl sm:text-3xl md:text-4xl lg:text-5xl text-foreground tracking-[-0.035em]">
-            Reliable <span className="text-primary">International Shipping</span>
+            Global <span className="text-primary">Logistics</span>
           </h2>
           <p className="mt-4 text-sm sm:text-base md:text-lg text-muted-foreground font-medium max-w-2xl mx-auto">
-            From China to your doorstep. We offer multiple shipping options to fit your timeline and budget, with full tracking and customs support.
+            Multiple delivery methods to fit your timeline and budget, with full tracking and customs support worldwide.
           </p>
         </div>
 
@@ -89,7 +89,7 @@ export function ShippingMethodsSection() {
 
                 <div className="mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-border/60">
                   <p className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-2.5">
-                    Ships to
+                    Delivery Regions
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {method.regions.map((region) => (
