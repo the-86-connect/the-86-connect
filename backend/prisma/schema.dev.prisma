@@ -43,6 +43,7 @@ model Submission {
   deletedAt       DateTime?
   attachments     Attachment[]
   notes           SubmissionNote[]
+  carShipment     CarShipment?
 
   @@index([deletedAt])
 }
@@ -200,4 +201,28 @@ model BlogPost {
   @@index([published])
   @@index([order])
   @@map("blog_posts")
+}
+
+model CarShipment {
+  id               String     @id @default(uuid())
+  submissionId     String     @unique
+  submission       Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  carModel         String
+  carYear          String?
+  vinNumber        String?
+  originPort       String?
+  destinationPort  String?
+  containerNumber  String?
+  vesselName       String?
+  estimatedDeparture DateTime?
+  estimatedArrival  DateTime?
+  actualDeparture   DateTime?
+  actualArrival     DateTime?
+  trackingUrl      String?
+  notes            String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([submissionId])
+  @@map("car_shipments")
 }

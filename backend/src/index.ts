@@ -22,6 +22,7 @@ import {
   availabilityAdminRouter,
 } from "./routes/availability";
 import { trackingRouter } from "./routes/tracking";
+import { carShippingRouter } from "./routes/car-shipping";
 import { uploadRouter } from "./routes/upload";
 import { prisma } from "./lib/prisma";
 import { deleteFileFromStorage } from "./lib/storage";
@@ -244,6 +245,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use("/api/contact", formLimiter, submissionRateLimit, contactRouter);
 app.use("/api/admin/login", adminLoginLimiter);
 app.use("/api/admin", adminRouter);
+app.use("/api/admin/car-shipments", carShippingRouter);
 
 // User auth routes
 app.use("/api/auth/login", loginLimiter);

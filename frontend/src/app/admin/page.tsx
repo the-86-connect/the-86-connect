@@ -17,6 +17,7 @@ import {
   FileText,
   Loader2,
   RefreshCw,
+  Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OverviewTab } from "@/components/admin/overview-tab";
@@ -26,6 +27,7 @@ import { VideosTab } from "@/components/admin/videos-tab";
 import { AvailabilityTab } from "@/components/admin/availability-tab";
 import SessionsTab from "@/components/admin/sessions-tab";
 import { BlogTab } from "@/components/admin/blog-tab";
+import { CarShipmentsTab } from "@/components/admin/car-shipments-tab";
 import { API_URL, getCsrfToken } from "@/lib/api";
 
 /* ------------------------------------------------------------------ */
@@ -63,6 +65,7 @@ interface Submission {
 const TABS = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
   { key: "submissions", label: "Submissions", icon: Inbox },
+  { key: "car-shipments", label: "Car Shipments", icon: Truck },
   { key: "consultations", label: "Consultations", icon: Calendar },
   { key: "users", label: "Users", icon: Users },
   { key: "videos", label: "Videos", icon: Video },
@@ -482,6 +485,10 @@ export default function AdminPage() {
               initialSearch={searchFromUser}
               initialReadFilter={bellFilter}
             />
+          )}
+
+          {activeTab === "car-shipments" && (
+            <CarShipmentsTab key="car-shipments" apiUrl={API_URL} />
           )}
 
           {activeTab === "consultations" && (

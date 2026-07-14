@@ -62,8 +62,8 @@ export type TrackingConfig = {
   supportEmail: string;
   /** Label for what is being tracked, e.g. "application" or "quote" */
   noun: string;
-  /** Filter submissions list by type: "study" | "sourcing" */
-  submissionType: "study" | "sourcing";
+  /** Filter submissions list by type: "study" | "sourcing" | "car_shipping" */
+  submissionType: "study" | "sourcing" | "car_shipping";
 };
 
 type TrackingResult = {
@@ -205,6 +205,8 @@ export function TrackingForm({ config }: TrackingFormProps) {
     const email = searchParams.get("email");
     // Skip fetching if URL params are present (auto-track will handle it)
     if (ref && email) return;
+    // Skip for car shipping (admin-created, not user-submitted)
+    if (config.submissionType === "car_shipping") return;
 
     const fetchSubmissions = async () => {
       setIsLoadingSubmissions(true);
@@ -406,7 +408,7 @@ export function TrackingForm({ config }: TrackingFormProps) {
   // --- Submissions list for logged-in users ---
   const hasUrlParams = !!(searchParams.get("ref") && searchParams.get("email"));
 
-  if (!authLoading && isAuthenticated && !showManualForm && !hasUrlParams) {
+  if (!authLoading && isAuthenticated && !showManualForm && !hasUrlParams && config.submissionType !== "car_shipping") {
     const isStudy = config.submissionType === "study";
     const serviceLabel = isStudy ? "applications" : "inquiries";
 

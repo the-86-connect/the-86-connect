@@ -4,6 +4,7 @@ const SERVICE_PREFIXES: Record<string, string> = {
   "Study in China": "STU",
   "Product Sourcing": "SOU",
   "General": "GEN",
+  "Car Shipping": "CAR",
 };
 
 const CONTACT_PREFIX = "GEN";

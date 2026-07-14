@@ -21,10 +21,21 @@ export const SOURCING_STAGES: Stage[] = [
   { key: "shipping", label: "Shipping Arranged" },
 ];
 
+export const CAR_SHIPPING_STAGES: Stage[] = [
+  { key: "pending", label: "Shipment Pending" },
+  { key: "booked", label: "Booking Confirmed" },
+  { key: "loading", label: "Loading" },
+  { key: "in_transit", label: "In Transit" },
+  { key: "at_port", label: "At Destination Port" },
+  { key: "customs", label: "Customs Clearance" },
+  { key: "delivered", label: "Delivered" },
+];
+
 const ALL_STATUSES: (Stage | { key: null; label: string })[] = [
   { key: null, label: "Submitted" },
   ...STUDY_STAGES,
   ...SOURCING_STAGES,
+  ...CAR_SHIPPING_STAGES,
 ];
 
 const STATUS_LABEL_MAP = new Map<string | null, string>();

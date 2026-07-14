@@ -65,6 +65,44 @@ const SOURCING_STAGES = [
   },
 ];
 
+const CAR_SHIPPING_STAGES = [
+  {
+    key: "pending",
+    label: "Shipment Pending",
+    description: "Awaiting shipment arrangement",
+  },
+  {
+    key: "booked",
+    label: "Booking Confirmed",
+    description: "Shipping space reserved",
+  },
+  {
+    key: "loading",
+    label: "Loading",
+    description: "Vehicle being loaded onto vessel",
+  },
+  {
+    key: "in_transit",
+    label: "In Transit",
+    description: "Shipment is on the way",
+  },
+  {
+    key: "at_port",
+    label: "At Destination Port",
+    description: "Arrived at destination port",
+  },
+  {
+    key: "customs",
+    label: "Customs Clearance",
+    description: "Going through customs",
+  },
+  {
+    key: "delivered",
+    label: "Delivered",
+    description: "Vehicle delivered to customer",
+  },
+];
+
 trackingRouter.get("/:referenceId", async (req, res) => {
   const referenceId = String(req.params.referenceId).trim();
   const email = String(req.query.email || "")
@@ -85,15 +123,8 @@ trackingRouter.get("/:referenceId", async (req, res) => {
 
     const submissions = await prisma.submission.findMany({
       where,
-      select: {
-        id: true,
-        submissionType: true,
-        status: true,
-        serviceInterest: true,
-        name: true,
-        referenceCode: true,
-        createdAt: true,
-        statusHistory: true,
+      include: {
+        carShipment: true,
       },
       take: 1,
     });
@@ -103,8 +134,14 @@ trackingRouter.get("/:referenceId", async (req, res) => {
     }
 
     const submission = submissions[0];
-    const stages =
-      submission.submissionType === "sourcing" ? SOURCING_STAGES : STUDY_STAGES;
+    let stages;
+    if (submission.submissionType === "car_shipping") {
+      stages = CAR_SHIPPING_STAGES;
+    } else if (submission.submissionType === "sourcing") {
+      stages = SOURCING_STAGES;
+    } else {
+      stages = STUDY_STAGES;
+    }
     const currentStageIndex = Math.max(
       0,
       stages.findIndex((s) => s.key === submission.status),
@@ -142,6 +179,7 @@ trackingRouter.get("/:referenceId", async (req, res) => {
         serviceInterest: submission.serviceInterest,
         name: submission.name,
         createdAt: submission.createdAt,
+        carShipment: submission.carShipment || null,
       },
       timeline,
     });
