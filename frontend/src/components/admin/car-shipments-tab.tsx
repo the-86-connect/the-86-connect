@@ -24,6 +24,8 @@ import { cn } from "@/lib/utils";
 import { getCsrfToken } from "@/lib/api";
 import { CAR_SHIPPING_STAGES, getStatusLabel } from "@/lib/submission-status";
 
+const SITE_URL = "https://www.the86connect.com";
+
 interface CarShipment {
   id: string;
   carModel: string;
@@ -937,7 +939,7 @@ function ShipmentDetailModal({
               variant="outline"
               size="sm"
               onClick={() => {
-                const url = `${window.location.origin}/car-shipping/track?ref=${shipment.submission.referenceCode}&email=${encodeURIComponent(shipment.submission.email)}`;
+                const url = `${SITE_URL}/car-shipping/track?ref=${shipment.submission.referenceCode}&email=${encodeURIComponent(shipment.submission.email)}`;
                 navigator.clipboard.writeText(url);
                 toast.success("Tracking link copied");
               }}
