@@ -103,7 +103,6 @@ export function TrackingForm({ config }: TrackingFormProps) {
     register,
     handleSubmit,
     setValue,
-    getValues,
     formState: { errors, isSubmitting },
   } = useForm<TrackingData>({
     resolver: zodResolver(TRACKING_SCHEMA),
@@ -198,7 +197,8 @@ export function TrackingForm({ config }: TrackingFormProps) {
       });
       if (parsed.success) {
         autoSubmittedRef.current = true;
-        onSubmit(parsed.data);
+        const timer = setTimeout(() => onSubmit(parsed.data), 0);
+        return () => clearTimeout(timer);
       }
     }
   }, [searchParams, setValue, onSubmit]);

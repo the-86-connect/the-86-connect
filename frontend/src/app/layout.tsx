@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { RouteLayout } from "@/components/layout/route-layout";
 import { NavigationProgress } from "@/components/layout/navigation-progress";
