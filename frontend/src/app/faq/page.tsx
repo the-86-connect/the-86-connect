@@ -10,7 +10,7 @@ import { FAQPageSchema } from "@/components/seo/structured-data";
 export const metadata: Metadata = {
   title: "Frequently Asked Questions",
   description:
-    "Find answers to common questions about studying in China (admissions, scholarships, CSC, visas) and product sourcing from China (suppliers, quality control, shipping, costs).",
+    "Find answers about studying in China (scholarships, visas, admissions) and product sourcing (suppliers, quality control, shipping, costs).",
   alternates: {
     canonical: "/faq",
   },

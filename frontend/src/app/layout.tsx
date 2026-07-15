@@ -44,7 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s | 86Connect",
     },
     description:
-      "86Connect is your trusted gateway to China. We provide end-to-end services for Study in China (scholarships, university admissions, visas) and Product Sourcing from China (supplier finding, procurement, quality control, logistics). Serving clients in 30+ countries worldwide.",
+      "86Connect helps international students study in China and businesses source products from verified Chinese suppliers. Scholarships, admissions, procurement, and logistics.",
     keywords: [
       "Study in China",
       "Product Sourcing from China",

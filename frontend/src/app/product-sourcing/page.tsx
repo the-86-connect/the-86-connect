@@ -45,7 +45,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Product Sourcing from China — Suppliers, Procurement & Logistics",
   description:
-    "Source quality products from China with 86Connect. We handle supplier finding and vetting, procurement management, quality control inspections, and logistics. 50,000+ verified suppliers, shipping to 150+ countries. Free consultation available.",
+    "Source quality products from China with 86Connect. Supplier vetting, procurement, quality control, and logistics. 50,000+ verified suppliers, 150+ countries.",
   alternates: { canonical: "/product-sourcing" },
   keywords: [
     "Product Sourcing from China", "China product sourcing", "China supplier finding", "China procurement",
@@ -87,7 +87,7 @@ export const metadata: Metadata = {
     siteName: "86Connect",
     title: "Product Sourcing from China — Suppliers, Procurement & Logistics | 86Connect",
     description:
-      "Source quality products from China with 86Connect. 50,000+ verified suppliers, shipping to 150+ countries. Supplier finding, procurement, quality control, and logistics — all covered.",
+      "Source quality products from China with 86Connect. 50,000+ verified suppliers, shipping to 150+ countries.",
     images: [{ url: "https://www.the86connect.com/logo-main.png", width: 180, height: 49, alt: "Product Sourcing from China with 86Connect", type: "image/png" }],
   },
   twitter: {

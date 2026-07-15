@@ -6,7 +6,7 @@ import { BookingPageClient } from "./booking-page-client";
 export const metadata: Metadata = {
   title: "Book a Free Consultation",
   description:
-    "Schedule a free 30-minute consultation with 86Connect. Get personalized guidance on studying in China or sourcing products from China. No commitment required — book now.",
+    "Book a free 30-minute consultation with 86Connect. Get expert guidance on studying in China or sourcing products. No commitment required.",
   alternates: { canonical: "/book-consultation" },
   openGraph: {
     title: "Book a Free Consultation | 86Connect",

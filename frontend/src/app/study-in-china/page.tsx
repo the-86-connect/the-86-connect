@@ -40,7 +40,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Study in China — Scholarships, Admissions & Visa Guidance",
   description:
-    "Study in China with 86Connect. We help international students with scholarship applications (CSC, provincial, university), university admissions, visa processing, and accommodation. 200+ partner universities, 98% success rate. Free consultation available.",
+    "Study in China with 86Connect. Scholarships, university admissions, visa processing, and accommodation. 200+ partner universities, 98% success rate.",
   alternates: { canonical: "/study-in-china" },
   keywords: [
     "Study in China", "Study abroad China", "Chinese university application", "CSC scholarship",

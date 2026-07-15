@@ -7,7 +7,7 @@ import { Footer } from "@/components/layout/footer";
 export const metadata: Metadata = {
   title: "Data Processing Agreement",
   description:
-    "Data Processing Agreement (DPA) for 86Connect. Learn how we process, protect, and manage personal data as part of our Study in China and Product Sourcing services.",
+    "Data Processing Agreement (DPA) for 86Connect. Learn how we process, protect, and manage your personal data.",
   alternates: {
     canonical: "/data-processing-agreement",
   },

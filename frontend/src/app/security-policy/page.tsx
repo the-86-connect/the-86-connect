@@ -7,7 +7,7 @@ import { Footer } from "@/components/layout/footer";
 export const metadata: Metadata = {
   title: "Security Policy",
   description:
-    "Security Policy for 86Connect. Learn about the technical and organizational measures we use to protect your data across our Study in China and Product Sourcing services.",
+    "Security Policy for 86Connect. Learn about the technical and organizational measures we use to protect your data.",
   alternates: {
     canonical: "/security-policy",
   },

@@ -67,7 +67,7 @@ const SITE_URL = "https://www.the86connect.com";
 export const metadata: Metadata = {
   title: "About 86Connect — Your Trusted Gateway to China",
   description:
-    "86Connect is your trusted gateway to China. We provide end-to-end services for Study in China and Product Sourcing from China. Learn about our story, mission, and values.",
+    "Learn about 86Connect — your trusted gateway to China for study abroad programs and product sourcing. Our story, mission, and values since 2023.",
   keywords: [
     "86Connect",
     "86connect",
@@ -93,7 +93,7 @@ export const metadata: Metadata = {
     siteName: "86Connect",
     title: "About 86Connect — Your Trusted Gateway to China",
     description:
-      "86Connect is your trusted gateway to China. Learn about our story, mission, and how we help international students study in China and businesses source products from China.",
+      "Learn about 86Connect — your trusted gateway to China for studying and product sourcing since 2023.",
     images: [{ url: `${SITE_URL}/logo-main.png`, width: 180, height: 49, alt: "About 86Connect — Your Trusted Gateway to China", type: "image/png" }],
   },
   twitter: {
