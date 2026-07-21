@@ -29,6 +29,7 @@ import {
   Car,
   Package,
   Truck,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -975,24 +976,41 @@ export default function SubmissionsTab({
                           className="px-5 py-4 hidden sm:table-cell"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <button
-                            type="button"
-                            onClick={() => setSelectedSubmission(s)}
-                            className="group inline-flex items-center gap-1.5 pl-2.5 pr-2 py-1 rounded-full text-xs font-medium cursor-pointer border border-slate-200 bg-white/60 hover:bg-white hover:border-accent/40 hover:shadow-sm transition-all"
-                            aria-label={`Status: ${getStatusLabel(s.status)}. Click to update.`}
-                            title="Click to update status"
-                          >
+                          {(s.submissionType === "car-quote" || s.submissionType === "car_shipping") ? (
                             <span
-                              className={cn(
-                                "inline-flex items-center gap-1",
-                                statusBadgeClass(s.status),
-                              )}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white/60"
+                              title="Status managed in Car Shipments tab"
                             >
-                              <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                              {getStatusLabel(s.status)}
+                              <span
+                                className={cn(
+                                  "inline-flex items-center gap-1",
+                                  statusBadgeClass(s.status),
+                                )}
+                              >
+                                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                                {getStatusLabel(s.status)}
+                              </span>
                             </span>
-                            <Pencil className="h-3 w-3 text-muted-foreground group-hover:text-accent transition-colors" />
-                          </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedSubmission(s)}
+                              className="group inline-flex items-center gap-1.5 pl-2.5 pr-2 py-1 rounded-full text-xs font-medium cursor-pointer border border-slate-200 bg-white/60 hover:bg-white hover:border-accent/40 hover:shadow-sm transition-all"
+                              aria-label={`Status: ${getStatusLabel(s.status)}. Click to update.`}
+                              title="Click to update status"
+                            >
+                              <span
+                                className={cn(
+                                  "inline-flex items-center gap-1",
+                                  statusBadgeClass(s.status),
+                                )}
+                              >
+                                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                                {getStatusLabel(s.status)}
+                              </span>
+                              <Pencil className="h-3 w-3 text-muted-foreground group-hover:text-accent transition-colors" />
+                            </button>
+                          )}
                         </td>
                         <td className="px-5 py-4 hidden md:table-cell whitespace-nowrap text-muted-foreground">
                           <span className="inline-flex items-center gap-1 text-xs">
@@ -1287,118 +1305,183 @@ export default function SubmissionsTab({
                 })()}
               </div>
 
-              {/* Status update section */}
-              <div className="p-4 rounded-2xl bg-white/40 border border-white/60">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Status
+              {/* Status section — car submissions: read-only banner; others: full update controls */}
+              {(selectedSubmission.submissionType === "car-quote" || selectedSubmission.submissionType === "car_shipping") ? (
+                <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-200/60">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Status
+                    </p>
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium",
+                        statusBadgeClass(selectedSubmission.status),
+                      )}
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                      {getStatusLabel(selectedSubmission.status)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-blue-700 flex items-center gap-1.5">
+                    <Info className="h-3.5 w-3.5 shrink-0" />
+                    Tracking status for car submissions is managed in the <strong>Car Shipments</strong> tab.
                   </p>
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium",
-                      statusBadgeClass(selectedSubmission.status),
-                    )}
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                    Current: {getStatusLabel(selectedSubmission.status)}
-                  </span>
+                  {/* Mini timeline (read-only) */}
+                  <div className="mt-3 pt-3 border-t border-blue-200/40">
+                    <ol className="flex flex-wrap gap-1.5">
+                      {getStages(selectedSubmission.submissionType).map(
+                        (stage, idx) => {
+                          const currentIdx = getStages(
+                            selectedSubmission.submissionType,
+                          ).findIndex(
+                            (st) => st.key === selectedSubmission.status,
+                          );
+                          const state =
+                            idx < currentIdx
+                              ? "done"
+                              : idx === currentIdx
+                                ? "current"
+                                : "pending";
+                          return (
+                            <li
+                              key={stage.key}
+                              className={cn(
+                                "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs",
+                                state === "done" &&
+                                  "bg-emerald-100 text-emerald-700",
+                                state === "current" &&
+                                  "bg-accent/15 text-accent font-medium",
+                                state === "pending" &&
+                                  "bg-slate-100/60 text-muted-foreground",
+                              )}
+                            >
+                              {state === "done" && (
+                                <CheckCircle2 className="h-3 w-3" />
+                              )}
+                              {state === "current" && (
+                                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                              )}
+                              {stage.label}
+                            </li>
+                          );
+                        },
+                      )}
+                    </ol>
+                  </div>
                 </div>
+              ) : (
+                <div className="p-4 rounded-2xl bg-white/40 border border-white/60">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Status
+                    </p>
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium",
+                        statusBadgeClass(selectedSubmission.status),
+                      )}
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                      Current: {getStatusLabel(selectedSubmission.status)}
+                    </span>
+                  </div>
 
-                <label
-                  htmlFor="status-select"
-                  className="block text-xs text-muted-foreground mb-1.5"
-                >
-                  Update to
-                </label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <select
-                    id="status-select"
-                    value={pendingStatus}
-                    onChange={(e) => setPendingStatus(e.target.value)}
-                    disabled={statusUpdateLoading}
-                    className="flex-1 h-11 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent/40 disabled:opacity-50 cursor-pointer"
+                  <label
+                    htmlFor="status-select"
+                    className="block text-xs text-muted-foreground mb-1.5"
                   >
-                    {getStages(selectedSubmission.submissionType).map(
-                      (stage) => (
-                        <option key={stage.key} value={stage.key}>
-                          {stage.label}
-                        </option>
-                      ),
-                    )}
-                  </select>
-                  <Button
-                    type="button"
-                    onClick={() =>
-                      handleStatusUpdateLocal(
-                        selectedSubmission.id,
-                        pendingStatus,
-                      )
-                    }
-                    disabled={
-                      statusUpdateLoading ||
-                      pendingStatus === selectedSubmission.status
-                    }
-                    className="cursor-pointer rounded-xl shrink-0 h-11 px-5 bg-accent text-white hover:bg-red-700 border-0"
-                  >
-                    {statusUpdateLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <CheckCircle2 className="h-4 w-4" />
-                    )}
-                    Save
-                  </Button>
-                </div>
-
-                {statusUpdateError && (
-                  <p className="mt-2 text-xs text-destructive flex items-center gap-1">
-                    <AlertCircle className="h-3 w-3" />
-                    {statusUpdateError}
-                  </p>
-                )}
-
-                {/* Mini timeline */}
-                <div className="mt-4 pt-3 border-t border-slate-200/50">
-                  <ol className="flex flex-wrap gap-1.5">
-                    {getStages(selectedSubmission.submissionType).map(
-                      (stage, idx) => {
-                        const currentIdx = getStages(
-                          selectedSubmission.submissionType,
-                        ).findIndex(
-                          (st) => st.key === selectedSubmission.status,
-                        );
-                        const state =
-                          idx < currentIdx
-                            ? "done"
-                            : idx === currentIdx
-                              ? "current"
-                              : "pending";
-                        return (
-                          <li
-                            key={stage.key}
-                            className={cn(
-                              "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs",
-                              state === "done" &&
-                                "bg-emerald-100 text-emerald-700",
-                              state === "current" &&
-                                "bg-accent/15 text-accent font-medium",
-                              state === "pending" &&
-                                "bg-slate-100/60 text-muted-foreground",
-                            )}
-                          >
-                            {state === "done" && (
-                              <CheckCircle2 className="h-3 w-3" />
-                            )}
-                            {state === "current" && (
-                              <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                            )}
+                    Update to
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <select
+                      id="status-select"
+                      value={pendingStatus}
+                      onChange={(e) => setPendingStatus(e.target.value)}
+                      disabled={statusUpdateLoading}
+                      className="flex-1 h-11 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent/40 disabled:opacity-50 cursor-pointer"
+                    >
+                      {getStages(selectedSubmission.submissionType).map(
+                        (stage) => (
+                          <option key={stage.key} value={stage.key}>
                             {stage.label}
-                          </li>
-                        );
-                      },
-                    )}
-                  </ol>
+                          </option>
+                        ),
+                      )}
+                    </select>
+                    <Button
+                      type="button"
+                      onClick={() =>
+                        handleStatusUpdateLocal(
+                          selectedSubmission.id,
+                          pendingStatus,
+                        )
+                      }
+                      disabled={
+                        statusUpdateLoading ||
+                        pendingStatus === selectedSubmission.status
+                      }
+                      className="cursor-pointer rounded-xl shrink-0 h-11 px-5 bg-accent text-white hover:bg-red-700 border-0"
+                    >
+                      {statusUpdateLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="h-4 w-4" />
+                      )}
+                      Save
+                    </Button>
+                  </div>
+
+                  {statusUpdateError && (
+                    <p className="mt-2 text-xs text-destructive flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {statusUpdateError}
+                    </p>
+                  )}
+
+                  {/* Mini timeline */}
+                  <div className="mt-4 pt-3 border-t border-slate-200/50">
+                    <ol className="flex flex-wrap gap-1.5">
+                      {getStages(selectedSubmission.submissionType).map(
+                        (stage, idx) => {
+                          const currentIdx = getStages(
+                            selectedSubmission.submissionType,
+                          ).findIndex(
+                            (st) => st.key === selectedSubmission.status,
+                          );
+                          const state =
+                            idx < currentIdx
+                              ? "done"
+                              : idx === currentIdx
+                                ? "current"
+                                : "pending";
+                          return (
+                            <li
+                              key={stage.key}
+                              className={cn(
+                                "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs",
+                                state === "done" &&
+                                  "bg-emerald-100 text-emerald-700",
+                                state === "current" &&
+                                  "bg-accent/15 text-accent font-medium",
+                                state === "pending" &&
+                                  "bg-slate-100/60 text-muted-foreground",
+                              )}
+                            >
+                              {state === "done" && (
+                                <CheckCircle2 className="h-3 w-3" />
+                              )}
+                              {state === "current" && (
+                                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                              )}
+                              {stage.label}
+                            </li>
+                          );
+                        },
+                      )}
+                    </ol>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {selectedSubmission.attachments.length > 0 && (
                 <div>

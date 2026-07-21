@@ -268,7 +268,7 @@ carShippingRouter.patch("/:id/status", async (req: AdminRequest, res) => {
         }).catch(() => {});
 
         // Notify cars app if this submission came from there
-        if (submission.submissionType === "car-quote" && submission.externalId) {
+        if ((submission.submissionType === "car-quote" || submission.submissionType === "car_shipping") && submission.externalId) {
           notifyCarsAppStatusUpdate({
             externalId: submission.externalId,
             deliveryStatus: status,
