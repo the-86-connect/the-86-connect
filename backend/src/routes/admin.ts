@@ -16,6 +16,7 @@ import {
   notifyUserStatusChange,
   notifyUserConsultationUpdate,
 } from "../lib/email";
+import { notifyCarsAppStatusUpdate, notifyCarsAppDelete } from "../lib/cars-app-webhook";
 import { extractYoutubeId } from "./videos";
 import {
   checkLoginLockout,
@@ -444,6 +445,11 @@ function buildSubmissionWhere(req: Request): Prisma.SubmissionWhereInput {
     where.serviceInterest = service;
   }
 
+  // Car Quote filter uses submissionType instead of serviceInterest
+  if (service === "Car Quote") {
+    where.submissionType = { in: ["car-quote", "car_shipping"] };
+  }
+
   if (statusParam && statusParam !== "all") {
     const statuses = statusParam.split(",").filter(Boolean);
     if (statuses.length === 1) {
@@ -721,35 +727,34 @@ adminRouter.delete("/submissions/:id", authenticateToken, async (req, res) => {
   try {
     const submission = await prisma.submission.findUnique({
       where: { id },
-      include: { attachments: true },
+      select: { id: true, name: true, email: true, externalId: true, submissionType: true, deletedAt: true },
     });
 
     if (!submission) {
       return res.status(404).json({ error: "Submission not found" });
     }
 
-    // Best-effort deletion from object storage
-    await Promise.all(
-      submission.attachments.map(async (att) => {
-        try {
-          await deleteFileFromStorage(
-            att.fileName,
-            att.storageProvider as "cloudinary" | "r2",
-          );
-        } catch (err) {
-          console.warn(
-            `Failed to delete attachment ${att.id} from storage:`,
-            (err as Error).message,
-          );
-        }
-      }),
-    );
+    // Save externalId before deletion for cars app sync
+    const { externalId, submissionType } = submission;
 
-    await prisma.submission.delete({ where: { id } });
+    // Soft delete — set deletedAt, keep record + files
+    // Auto-purge will hard-delete after 7 days, or admin can bulk-purge
+    await prisma.submission.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true });
 
     // Real-time notification to admin clients
     broadcastToAdmins("submission:deleted", { id });
+
+    // Notify cars app to soft-delete the corresponding quote (fire-and-forget)
+    if (
+      externalId &&
+      (submissionType === "car-quote" || submissionType === "car_shipping")
+    ) {
+      notifyCarsAppDelete(externalId, false).catch(() => {});
+    }
   } catch (error) {
     console.error("Delete submission error:", (error as Error).message);
     res.status(500).json({ error: "Failed to delete submission" });
@@ -773,6 +778,15 @@ const SOURCING_STAGES = [
   "confirmed",
   "shipping",
 ];
+const CAR_SHIPPING_STAGES = [
+  "pending",
+  "booked",
+  "loading",
+  "in_transit",
+  "at_port",
+  "customs",
+  "delivered",
+];
 
 // Update submission status (protected)
 adminRouter.patch(
@@ -795,7 +809,9 @@ adminRouter.patch(
       const validStages =
         submission.submissionType === "sourcing"
           ? SOURCING_STAGES
-          : STUDY_STAGES;
+          : submission.submissionType === "car-quote" || submission.submissionType === "car_shipping"
+            ? CAR_SHIPPING_STAGES
+            : STUDY_STAGES;
 
       if (!validStages.includes(status)) {
         return res.status(400).json({
@@ -835,6 +851,17 @@ adminRouter.patch(
         console.error("Status change email error:", (err as Error).message),
       );
 
+      // Notify cars app if this is a car-quote with an externalId
+      if (
+        (submission.submissionType === "car-quote" || submission.submissionType === "car_shipping") &&
+        submission.externalId
+      ) {
+        notifyCarsAppStatusUpdate({
+          externalId: submission.externalId,
+          deliveryStatus: status,
+        }).catch(() => {});
+      }
+
       // Create in-app notification if submission has a linked user
       if (submission.userId) {
         const statusLabels: Record<string, string> = {
@@ -850,6 +877,13 @@ adminRouter.patch(
           sample: "Sample Evaluation",
           confirmed: "Order Confirmed",
           shipping: "Shipping Arranged",
+          pending: "Shipment Pending",
+          booked: "Booking Confirmed",
+          loading: "Loading",
+          in_transit: "In Transit",
+          at_port: "At Destination Port",
+          customs: "Customs Clearance",
+          delivered: "Delivered",
         };
         const label = statusLabels[status] || status;
         prisma.notification.create({
@@ -1172,32 +1206,57 @@ adminRouter.delete("/users/:id", authenticateToken, async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Find all user's submissions with attachments to delete files from storage
+    // Find all user's active (non-deleted) submissions for cars app sync
     const submissions = await prisma.submission.findMany({
-      where: { userId: id },
-      include: { attachments: true },
+      where: { userId: id, deletedAt: null },
+      select: {
+        id: true,
+        externalId: true,
+        submissionType: true,
+      },
     });
 
-    // Delete all Cloudinary/R2 files from user's submissions
-    for (const sub of submissions) {
-      await Promise.allSettled(
-        sub.attachments.map((att) =>
-          deleteFileFromStorage(att.fileName, att.storageProvider as "cloudinary" | "r2"),
-        ),
-      );
-    }
+    // Collect car-quote/car_shipping externalIds for cars app sync
+    const carsAppExternalIds = submissions
+      .filter(
+        (s) =>
+          s.externalId &&
+          (s.submissionType === "car-quote" ||
+            s.submissionType === "car_shipping"),
+      )
+      .map((s) => s.externalId!);
 
-    // Hard delete submissions (cascades to attachments + notes)
-    await prisma.submission.deleteMany({ where: { userId: id } });
+    const now = new Date();
 
-    // Hard delete consultations
-    await prisma.consultation.deleteMany({ where: { userId: id } });
+    // Soft delete submissions (keep records + files, auto-purge after 7 days)
+    await prisma.submission.updateMany({
+      where: { userId: id, deletedAt: null },
+      data: { deletedAt: now },
+    });
 
-    // Hard delete the user (cascades to notifications)
-    await prisma.user.delete({ where: { id } });
+    // Soft delete consultations
+    await prisma.consultation.updateMany({
+      where: { userId: id, deletedAt: null },
+      data: { deletedAt: now },
+    });
+
+    // Soft delete the user (cascades to notifications via auto-purge)
+    await prisma.user.update({
+      where: { id },
+      data: { deletedAt: now },
+    });
 
     broadcastToAdmins("user:deleted", { userId: id });
     res.json({ success: true });
+
+    // Notify cars app to soft-delete all quotes belonging to this user (fire-and-forget)
+    if (carsAppExternalIds.length > 0) {
+      setImmediate(() => {
+        for (const externalId of carsAppExternalIds) {
+          notifyCarsAppDelete(externalId, false).catch(() => {});
+        }
+      });
+    }
   } catch (error) {
     console.error("Delete user error:", (error as Error).message);
     res.status(500).json({ error: "Failed to delete user" });
@@ -1317,30 +1376,38 @@ adminRouter.post("/submissions/bulk", authenticateToken, async (req, res) => {
     if (operation === "delete") {
       const subs = await prisma.submission.findMany({
         where: { id: { in: ids } },
-        include: { attachments: true },
+        select: {
+          id: true,
+          externalId: true,
+          submissionType: true,
+        },
       });
 
-      await Promise.all(
-        subs.flatMap((sub) =>
-          sub.attachments.map(async (att) => {
-            try {
-              await deleteFileFromStorage(
-                att.fileName,
-                att.storageProvider as "cloudinary" | "r2",
-              );
-            } catch (err) {
-              console.warn(
-                `Failed to delete attachment ${att.id} from storage:`,
-                (err as Error).message,
-              );
-            }
-          }),
-        ),
-      );
+      // Collect car-quote/car_shipping externalIds for cars app sync
+      const carsAppExternalIds = subs
+        .filter(
+          (s) =>
+            s.externalId &&
+            (s.submissionType === "car-quote" ||
+              s.submissionType === "car_shipping"),
+        )
+        .map((s) => s.externalId!);
 
-      const result = await prisma.submission.deleteMany({
-        where: { id: { in: ids } },
+      // Soft delete — keep records + files, auto-purge after 7 days
+      const result = await prisma.submission.updateMany({
+        where: { id: { in: ids }, deletedAt: null },
+        data: { deletedAt: new Date() },
       });
+
+      // Notify cars app to soft-delete all corresponding quotes (fire-and-forget)
+      if (carsAppExternalIds.length > 0) {
+        setImmediate(() => {
+          for (const externalId of carsAppExternalIds) {
+            notifyCarsAppDelete(externalId, false).catch(() => {});
+          }
+        });
+      }
+
       return res.json({ success: true, deleted: result.count });
     }
 
@@ -2490,8 +2557,23 @@ adminRouter.post("/users/bulk-purge", authenticateToken, async (req, res) => {
     // 1. Find soft-deleted submissions with attachments
     const expiredSubs = await prisma.submission.findMany({
       where: subWhere,
-      include: { attachments: true },
+      select: {
+        id: true,
+        externalId: true,
+        submissionType: true,
+        attachments: true,
+      },
     });
+
+    // Collect car-quote/car_shipping externalIds for cars app sync
+    const carsAppExternalIds = expiredSubs
+      .filter(
+        (s) =>
+          s.externalId &&
+          (s.submissionType === "car-quote" ||
+            s.submissionType === "car_shipping"),
+      )
+      .map((s) => s.externalId!);
 
     // 2. Delete their files from Cloudinary/R2
     let filesDeleted = 0;
@@ -2506,6 +2588,15 @@ adminRouter.post("/users/bulk-purge", authenticateToken, async (req, res) => {
 
     // 3. Hard delete soft-deleted submissions (cascades to attachments + notes)
     const deletedSubs = await prisma.submission.deleteMany({ where: subWhere });
+
+    // Notify cars app to hard-delete corresponding quotes (fire-and-forget)
+    if (carsAppExternalIds.length > 0) {
+      setImmediate(() => {
+        for (const externalId of carsAppExternalIds) {
+          notifyCarsAppDelete(externalId, true).catch(() => {});
+        }
+      });
+    }
 
     // 4. Hard delete soft-deleted consultations
     const deletedConsults = await prisma.consultation.deleteMany({ where: consultWhere });

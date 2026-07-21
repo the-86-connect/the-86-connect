@@ -43,6 +43,7 @@ model Submission {
   deletedAt       DateTime?        @map("deleted_at")
   attachments     Attachment[]
   notes           SubmissionNote[]
+  externalId      String?          @unique @map("external_id")
   carShipment     CarShipment?
 
   @@index([deletedAt])

@@ -137,6 +137,40 @@ export async function notifyUserStatusChange(data: {
   });
 }
 
+/** Notify the user that their car quote has been converted to a shipment order */
+export async function notifyUserCarQuoteConverted(data: {
+  to: string;
+  name: string;
+  carModel: string;
+  referenceCode: string | null;
+  submissionId: string;
+}) {
+  const ref = data.referenceCode ?? data.submissionId.slice(-8).toUpperCase();
+  const trackUrl = `${SITE_URL}/car-shipping/track`;
+
+  return send({
+    to: data.to,
+    subject: `Your car order is confirmed — ${ref}`,
+    html: `
+      <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;">
+        <h2 style="color:#dc2626;margin:0 0 16px;">Order Confirmed</h2>
+        <p style="font-size:15px;">Hi ${data.name},</p>
+        <p style="font-size:15px;">Great news! Your quote for the <strong>${data.carModel}</strong> has been converted into a shipment order. Our team has begun processing your vehicle shipment.</p>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+          <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;width:140px;">Reference</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${ref}</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Vehicle</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${data.carModel}</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">Status</td><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;color:#dc2626;">Shipment Pending</td></tr>
+        </table>
+        <p style="margin-top:20px;font-size:13px;color:#64748b;">
+          You can track your shipment status anytime:<br>
+          <a href="${trackUrl}" style="color:#dc2626;">Track your shipment</a>
+        </p>
+        <p style="font-size:13px;color:#94a3b8;margin-top:24px;">— 86 Connect Team</p>
+      </div>
+    `,
+  });
+}
+
 /** Notify the admin when a new consultation booking arrives */
 export async function notifyAdminNewConsultation(data: {
   name: string;

@@ -23,9 +23,11 @@ import {
 } from "./routes/availability";
 import { trackingRouter } from "./routes/tracking";
 import { carShippingRouter } from "./routes/car-shipping";
+import { carQuoteWebhookRouter } from "./routes/car-quote-webhook";
 import { uploadRouter } from "./routes/upload";
 import { prisma } from "./lib/prisma";
 import { deleteFileFromStorage } from "./lib/storage";
+import { notifyCarsAppDelete } from "./lib/cars-app-webhook";
 import { videosRouter } from "./routes/videos";
 import { botCheck } from "./middleware/bot-check";
 import csrfMiddleware from "./middleware/csrf";
@@ -170,6 +172,10 @@ const formLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "Too many submissions. Please wait a few minutes and try again." },
 });
+
+// Car quote webhook — receives forwarded quotes from cars.the86connect.com
+// Mounted AFTER rate limiter but BEFORE CSRF (server-to-server calls have no cookies)
+app.use("/api/car-quote-webhook", formLimiter, carQuoteWebhookRouter);
 
 // Rate limiting — registration (counts all attempts, including successes)
 // Prevents mass account creation. Separate from loginLimiter which skips
@@ -344,8 +350,23 @@ function startSoftDeletePurge() {
       // 1. Find soft-deleted submissions older than 7 days
       const expiredSubs = await prisma.submission.findMany({
         where: { deletedAt: { lt: cutoff } },
-        include: { attachments: true },
+        select: {
+          id: true,
+          externalId: true,
+          submissionType: true,
+          attachments: true,
+        },
       });
+
+      // Collect car-quote/car_shipping externalIds for cars app sync
+      const carsAppExternalIds = expiredSubs
+        .filter(
+          (s) =>
+            s.externalId &&
+            (s.submissionType === "car-quote" ||
+              s.submissionType === "car_shipping"),
+        )
+        .map((s) => s.externalId!);
 
       // 2. Delete their files from Cloudinary/R2
       for (const sub of expiredSubs) {
@@ -381,6 +402,13 @@ function startSoftDeletePurge() {
           `Auto-purged ${total} soft-deleted record(s) older than 7 days ` +
             `(users: ${deletedUsers.count}, submissions: ${deletedSubs.count}, consultations: ${deletedConsults.count})`,
         );
+      }
+
+      // 6. Notify cars app to hard-delete corresponding quotes (fire-and-forget)
+      if (carsAppExternalIds.length > 0) {
+        for (const externalId of carsAppExternalIds) {
+          notifyCarsAppDelete(externalId, true).catch(() => {});
+        }
       }
     } catch (error) {
       console.error("Soft delete purge error:", (error as Error).message);

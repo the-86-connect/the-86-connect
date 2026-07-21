@@ -43,6 +43,7 @@ model Submission {
   deletedAt       DateTime?
   attachments     Attachment[]
   notes           SubmissionNote[]
+  externalId      String?          @unique
   carShipment     CarShipment?
 
   @@index([deletedAt])

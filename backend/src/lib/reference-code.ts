@@ -5,6 +5,7 @@ const SERVICE_PREFIXES: Record<string, string> = {
   "Product Sourcing": "SOU",
   "General": "GEN",
   "Car Shipping": "CAR",
+  "Car Quote": "CQT",
 };
 
 const CONTACT_PREFIX = "GEN";

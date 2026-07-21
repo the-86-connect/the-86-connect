@@ -280,6 +280,26 @@ export const availabilityUpdateSchema = z.object({
   status: z.enum(["available", "blocked"]).optional(),
 });
 
+/* ============== Car Quote Webhook (from cars.the86connect.com) ============== */
+export const carQuoteForwardSchema = z.object({
+  name: z.string().trim().min(2, "Name is required").max(100),
+  email: z.string().trim().min(1, "Email is required").email().toLowerCase(),
+  phone: z
+    .string()
+    .trim()
+    .max(30, "Phone number too long")
+    .optional()
+    .or(z.literal("")),
+  serviceInterest: z.string().trim().min(1, "Service interest is required"),
+  message: z.string().trim().min(1, "Message is required"),
+  submissionType: z.literal("car-quote"),
+  source: z.string().optional(),
+  externalId: z.string().trim().max(255).optional(),
+  vehicleLink: z.string().url().max(2048).optional().or(z.literal("")),
+});
+
+export type CarQuoteForwardData = z.infer<typeof carQuoteForwardSchema>;
+
 export const availabilityBulkDeleteSchema = z.object({
   ids: z.array(z.string()).optional(),
   dateFrom: z.string().regex(DATE_REGEX).optional(),

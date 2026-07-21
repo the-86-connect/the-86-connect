@@ -26,12 +26,16 @@ import {
   ChevronDown,
   Download,
   MessageCircle,
+  Car,
+  Package,
+  Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   STUDY_STAGES,
   SOURCING_STAGES,
+  CAR_SHIPPING_STAGES,
   getStatusLabel,
   ALL_STATUS_KEYS,
 } from "@/lib/submission-status";
@@ -39,6 +43,7 @@ import { TableSkeleton } from "@/components/ui/skeleton";
 import { BulkActions } from "@/components/admin/bulk-actions";
 import { FiltersPanel } from "@/components/admin/filters-panel";
 import { SubmissionNotes } from "@/components/admin/submission-notes";
+import { convertCarQuoteToShipment } from "@/lib/api";
 import { API_URL } from "@/lib/api";
 
 interface AdminAttachment {
@@ -65,7 +70,7 @@ interface Submission {
   attachments: AdminAttachment[];
 }
 
-type FilterType = "all" | "Study in China" | "Product Sourcing" | "General";
+type FilterType = "all" | "Study in China" | "Product Sourcing" | "Car Quote" | "General";
 type ReadFilter = "all" | "read" | "unread";
 
 interface SubmissionsTabProps {
@@ -107,7 +112,9 @@ function escapeHtml(str: string): string {
 }
 
 function getStages(submissionType: string) {
-  return submissionType === "sourcing" ? SOURCING_STAGES : STUDY_STAGES;
+  if (submissionType === "sourcing") return SOURCING_STAGES;
+  if (submissionType === "car-quote" || submissionType === "car_shipping") return CAR_SHIPPING_STAGES;
+  return STUDY_STAGES;
 }
 
 type ParsedField = { label: string; value: string };
@@ -395,6 +402,75 @@ export default function SubmissionsTab({
   const [batchDownloadLoading, setBatchDownloadLoading] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
+  // Car-quote → shipment conversion state
+  const [convertTarget, setConvertTarget] = useState<Submission | null>(null);
+  const [convertLoading, setConvertLoading] = useState(false);
+  const [convertError, setConvertError] = useState("");
+  const [convertSuccess, setConvertSuccess] = useState(false);
+  const [convertForm, setConvertForm] = useState({
+    carModel: "",
+    carYear: "",
+    vinNumber: "",
+    originPort: "",
+    destinationPort: "",
+    containerNumber: "",
+    vesselName: "",
+    estimatedDeparture: "",
+    estimatedArrival: "",
+    notes: "",
+  });
+
+  // Open convert modal with pre-filled fields from the submission
+  const openConvertModal = useCallback((submission: Submission) => {
+    setConvertTarget(submission);
+    setConvertError("");
+    setConvertSuccess(false);
+    setConvertForm({
+      carModel: submission.serviceInterest || "",
+      carYear: "",
+      vinNumber: "",
+      originPort: "",
+      destinationPort: "",
+      containerNumber: "",
+      vesselName: "",
+      estimatedDeparture: "",
+      estimatedArrival: "",
+      notes: "",
+    });
+  }, []);
+
+  // Handle conversion submit
+  const handleConvertSubmit = useCallback(async () => {
+    if (!convertTarget) return;
+    if (!convertForm.carModel.trim()) {
+      setConvertError("Car model is required");
+      return;
+    }
+    setConvertLoading(true);
+    setConvertError("");
+    try {
+      await convertCarQuoteToShipment(convertTarget.id, {
+        carModel: convertForm.carModel.trim(),
+        carYear: convertForm.carYear.trim() || undefined,
+        vinNumber: convertForm.vinNumber.trim() || undefined,
+        originPort: convertForm.originPort.trim() || undefined,
+        destinationPort: convertForm.destinationPort.trim() || undefined,
+        containerNumber: convertForm.containerNumber.trim() || undefined,
+        vesselName: convertForm.vesselName.trim() || undefined,
+        estimatedDeparture: convertForm.estimatedDeparture || undefined,
+        estimatedArrival: convertForm.estimatedArrival || undefined,
+        notes: convertForm.notes.trim() || undefined,
+      });
+      setConvertSuccess(true);
+      // Refresh submissions list to reflect the type change
+      await fetchSubmissions();
+    } catch (err) {
+      setConvertError((err as Error).message || "Failed to convert quote");
+    } finally {
+      setConvertLoading(false);
+    }
+  }, [convertTarget, convertForm, fetchSubmissions]);
+
   // Sync pendingStatus when selectedSubmission changes
   useEffect(() => {
     if (selectedSubmission) {
@@ -475,7 +551,9 @@ export default function SubmissionsTab({
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
     return submissions.filter((s) => {
-      const matchesFilter = filter === "all" || s.serviceInterest === filter;
+      const matchesFilter = filter === "all"
+        || s.serviceInterest === filter
+        || (filter === "Car Quote" && (s.submissionType === "car-quote" || s.submissionType === "car_shipping"));
       const matchesSearch =
         !search ||
         s.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -866,25 +944,31 @@ export default function SubmissionsTab({
                           <span
                             className={cn(
                               "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold",
-                              s.serviceInterest === "Study in China"
-                                ? "bg-red-50 text-red-600"
-                                : s.serviceInterest === "Product Sourcing"
-                                  ? "bg-blue-50 text-blue-600"
-                                  : "bg-slate-100 text-slate-700",
+                              s.submissionType === "car-quote" || s.submissionType === "car_shipping"
+                                ? "bg-emerald-50 text-emerald-600"
+                                : s.serviceInterest === "Study in China"
+                                  ? "bg-red-50 text-red-600"
+                                  : s.serviceInterest === "Product Sourcing"
+                                    ? "bg-blue-50 text-blue-600"
+                                    : "bg-slate-100 text-slate-700",
                             )}
                           >
-                            {s.serviceInterest === "Study in China" ? (
+                            {s.submissionType === "car-quote" || s.submissionType === "car_shipping" ? (
+                              <Car className="h-3.5 w-3.5" />
+                            ) : s.serviceInterest === "Study in China" ? (
                               <GraduationCap className="h-3.5 w-3.5" />
                             ) : s.serviceInterest === "Product Sourcing" ? (
                               <ShoppingCart className="h-3.5 w-3.5" />
                             ) : (
                               <MessageCircle className="h-3.5 w-3.5" />
                             )}
-                            {s.serviceInterest === "Study in China"
-                              ? "Study"
-                              : s.serviceInterest === "Product Sourcing"
-                                ? "Sourcing"
-                                : "General"}
+                            {s.submissionType === "car-quote" || s.submissionType === "car_shipping"
+                              ? "Car Quote"
+                              : s.serviceInterest === "Study in China"
+                                ? "Study"
+                                : s.serviceInterest === "Product Sourcing"
+                                  ? "Sourcing"
+                                  : "General"}
                           </span>
                         </td>
                         <td
@@ -1390,6 +1474,35 @@ export default function SubmissionsTab({
                 </div>
               )}
 
+              {/* Convert car-quote to shipment button */}
+              {selectedSubmission.submissionType === "car-quote" && (
+                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
+                      <Truck className="h-5 w-5 text-emerald-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-emerald-900">
+                        Ready to ship this vehicle?
+                      </p>
+                      <p className="text-xs text-emerald-700 mt-0.5">
+                        Convert this quote into a shipment order. The customer
+                        will receive a tracking email and see updates in their
+                        account dashboard.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => openConvertModal(selectedSubmission)}
+                      className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-all cursor-pointer shadow-sm"
+                    >
+                      <Package className="h-4 w-4" />
+                      Create Shipment
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <SubmissionNotes submissionId={selectedSubmission.id} />
 
               <p className="text-xs text-muted-foreground">
@@ -1471,6 +1584,317 @@ export default function SubmissionsTab({
               className="object-contain"
               unoptimized
             />
+          </div>
+        </div>
+      )}
+
+      {/* Convert car-quote to shipment modal */}
+      {convertTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => !convertLoading && !convertSuccess && setConvertTarget(null)}
+        >
+          <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-md" />
+          <div
+            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl glass-strong p-7 animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {convertSuccess ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                </div>
+                <h2 className="text-lg font-semibold mb-2">
+                  Shipment Created Successfully
+                </h2>
+                <p className="text-sm text-muted-foreground mb-1">
+                  The quote from{" "}
+                  <span className="font-medium text-foreground">
+                    {convertTarget.name}
+                  </span>{" "}
+                  has been converted to a shipment order.
+                </p>
+                <p className="text-xs text-muted-foreground mb-6">
+                  A tracking email has been sent to {convertTarget.email}.
+                  Status synced to the cars app.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setConvertTarget(null);
+                    setSelectedSubmission(null);
+                  }}
+                  className="cursor-pointer btn-glass rounded-xl border-0"
+                >
+                  Done
+                </Button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h2 className="text-lg font-semibold flex items-center gap-2">
+                      <Package className="h-5 w-5 text-emerald-600" />
+                      Create Shipment
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Converting quote from{" "}
+                      <span className="font-medium text-foreground">
+                        {convertTarget.name}
+                      </span>{" "}
+                      ({convertTarget.email})
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setConvertTarget(null)}
+                    disabled={convertLoading}
+                    className="p-2 rounded-lg hover:bg-muted transition-colors cursor-pointer disabled:opacity-50"
+                    aria-label="Close"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {convertError && (
+                  <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2">
+                    <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-700">{convertError}</p>
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  {/* Customer info (read-only) */}
+                  <div className="p-3 rounded-xl bg-muted/50 border border-border">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                      Customer
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Name:</span>{" "}
+                        <span className="font-medium">{convertTarget.name}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Email:</span>{" "}
+                        <span className="font-medium">{convertTarget.email}</span>
+                      </div>
+                      {convertTarget.phone && (
+                        <div>
+                          <span className="text-muted-foreground">Phone:</span>{" "}
+                          <span className="font-medium">{convertTarget.phone}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Shipment details form */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="col-span-2">
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                        Car Model <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={convertForm.carModel}
+                        onChange={(e) =>
+                          setConvertForm((f) => ({
+                            ...f,
+                            carModel: e.target.value,
+                          }))
+                        }
+                        disabled={convertLoading}
+                        placeholder="e.g. BYD Seal"
+                        className="w-full px-3 py-2 rounded-xl bg-white/60 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                        Car Year
+                      </label>
+                      <input
+                        type="text"
+                        value={convertForm.carYear}
+                        onChange={(e) =>
+                          setConvertForm((f) => ({
+                            ...f,
+                            carYear: e.target.value,
+                          }))
+                        }
+                        disabled={convertLoading}
+                        placeholder="2024"
+                        className="w-full px-3 py-2 rounded-xl bg-white/60 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                        VIN Number
+                      </label>
+                      <input
+                        type="text"
+                        value={convertForm.vinNumber}
+                        onChange={(e) =>
+                          setConvertForm((f) => ({
+                            ...f,
+                            vinNumber: e.target.value,
+                          }))
+                        }
+                        disabled={convertLoading}
+                        placeholder="VIN"
+                        className="w-full px-3 py-2 rounded-xl bg-white/60 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                        Origin Port
+                      </label>
+                      <input
+                        type="text"
+                        value={convertForm.originPort}
+                        onChange={(e) =>
+                          setConvertForm((f) => ({
+                            ...f,
+                            originPort: e.target.value,
+                          }))
+                        }
+                        disabled={convertLoading}
+                        placeholder="Shanghai"
+                        className="w-full px-3 py-2 rounded-xl bg-white/60 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                        Destination Port
+                      </label>
+                      <input
+                        type="text"
+                        value={convertForm.destinationPort}
+                        onChange={(e) =>
+                          setConvertForm((f) => ({
+                            ...f,
+                            destinationPort: e.target.value,
+                          }))
+                        }
+                        disabled={convertLoading}
+                        placeholder="Dubai"
+                        className="w-full px-3 py-2 rounded-xl bg-white/60 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                        Container Number
+                      </label>
+                      <input
+                        type="text"
+                        value={convertForm.containerNumber}
+                        onChange={(e) =>
+                          setConvertForm((f) => ({
+                            ...f,
+                            containerNumber: e.target.value,
+                          }))
+                        }
+                        disabled={convertLoading}
+                        placeholder="CONT-12345"
+                        className="w-full px-3 py-2 rounded-xl bg-white/60 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                        Vessel Name
+                      </label>
+                      <input
+                        type="text"
+                        value={convertForm.vesselName}
+                        onChange={(e) =>
+                          setConvertForm((f) => ({
+                            ...f,
+                            vesselName: e.target.value,
+                          }))
+                        }
+                        disabled={convertLoading}
+                        placeholder="MV Ocean Star"
+                        className="w-full px-3 py-2 rounded-xl bg-white/60 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                        Estimated Departure
+                      </label>
+                      <input
+                        type="date"
+                        value={convertForm.estimatedDeparture}
+                        onChange={(e) =>
+                          setConvertForm((f) => ({
+                            ...f,
+                            estimatedDeparture: e.target.value,
+                          }))
+                        }
+                        disabled={convertLoading}
+                        className="w-full px-3 py-2 rounded-xl bg-white/60 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                        Estimated Arrival
+                      </label>
+                      <input
+                        type="date"
+                        value={convertForm.estimatedArrival}
+                        onChange={(e) =>
+                          setConvertForm((f) => ({
+                            ...f,
+                            estimatedArrival: e.target.value,
+                          }))
+                        }
+                        disabled={convertLoading}
+                        className="w-full px-3 py-2 rounded-xl bg-white/60 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                        Notes
+                      </label>
+                      <textarea
+                        value={convertForm.notes}
+                        onChange={(e) =>
+                          setConvertForm((f) => ({
+                            ...f,
+                            notes: e.target.value,
+                          }))
+                        }
+                        disabled={convertLoading}
+                        rows={2}
+                        placeholder="Internal notes about this shipment..."
+                        className="w-full px-3 py-2 rounded-xl bg-white/60 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 resize-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 justify-end mt-6">
+                  <Button
+                    variant="outline"
+                    onClick={() => setConvertTarget(null)}
+                    disabled={convertLoading}
+                    className="cursor-pointer btn-glass rounded-xl border-0"
+                  >
+                    Cancel
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={handleConvertSubmit}
+                    disabled={convertLoading}
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-all cursor-pointer shadow-sm disabled:opacity-50"
+                  >
+                    {convertLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Package className="h-4 w-4" />
+                    )}
+                    {convertLoading ? "Creating..." : "Create Shipment"}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -179,6 +179,49 @@ async function postJSON<T>(
   return response.json();
 }
 
+/**
+ * Convert a car-quote submission into a car shipment order (admin).
+ * Creates a CarShipment record, flips submissionType to car_shipping,
+ * sends tracking email to user, and syncs status to cars app.
+ */
+export async function convertCarQuoteToShipment(
+  submissionId: string,
+  data: {
+    carModel: string;
+    carYear?: string;
+    vinNumber?: string;
+    originPort?: string;
+    destinationPort?: string;
+    containerNumber?: string;
+    vesselName?: string;
+    estimatedDeparture?: string;
+    estimatedArrival?: string;
+    notes?: string;
+  },
+): Promise<{
+  success: boolean;
+  shipmentId: string;
+  submissionId: string;
+  referenceCode: string | null;
+}> {
+  const response = await fetch(
+    `${API_URL}/api/admin/car-shipments/convert-from-submission/${submissionId}`,
+    {
+      method: "POST",
+      headers: jsonHeaders(),
+      body: JSON.stringify(data),
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to convert quote to shipment");
+  }
+
+  return response.json();
+}
+
 export async function uploadFile(file: File): Promise<UploadedAttachment> {
   const formData = new FormData();
   formData.append("file", file);
