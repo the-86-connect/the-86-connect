@@ -245,7 +245,8 @@ carShippingRouter.patch("/:id/status", async (req: AdminRequest, res) => {
     }
 
     const history = (submission.statusHistory as Array<{ status: string; updatedAt: string }>) || [];
-    history.push({ status, updatedAt: new Date().toISOString() });
+    const statusUpdatedAt = new Date().toISOString();
+    history.push({ status, updatedAt: statusUpdatedAt });
 
     const updated = await prisma.submission.update({
       where: { id: existing.submissionId },
@@ -272,6 +273,7 @@ carShippingRouter.patch("/:id/status", async (req: AdminRequest, res) => {
           notifyCarsAppStatusUpdate({
             externalId: submission.externalId,
             deliveryStatus: status,
+            updatedAt: statusUpdatedAt,
           }).catch(() => {});
         }
       } catch (_) { /* noop */ }
@@ -545,6 +547,7 @@ carShippingRouter.post(
           notifyCarsAppStatusUpdate({
             externalId: submission.externalId,
             deliveryStatus: "pending",
+            updatedAt: now,
           }).catch(() => {});
         }
       });

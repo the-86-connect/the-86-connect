@@ -26,8 +26,10 @@ export const CARS_APP_STATUS_MAP: Record<string, string> = {
 export async function notifyCarsAppStatusUpdate(params: {
   externalId: string;
   deliveryStatus: string;
+  updatedAt?: string;
 }): Promise<void> {
   const { externalId, deliveryStatus } = params;
+  const updatedAt = params.updatedAt || new Date().toISOString();
 
   const webhookUrl = process.env.CARS_APP_WEBHOOK_URL;
   const webhookSecret = process.env.CARS_APP_WEBHOOK_SECRET;
@@ -49,6 +51,7 @@ export async function notifyCarsAppStatusUpdate(params: {
       body: JSON.stringify({
         id: externalId,
         deliveryStatus: carsAppStatus,
+        updatedAt,
       }),
       signal: AbortSignal.timeout(10_000), // 10s timeout
     });

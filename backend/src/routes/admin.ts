@@ -819,6 +819,8 @@ adminRouter.patch(
         });
       }
 
+      const statusUpdatedAt = new Date().toISOString();
+
       const updated = await prisma.submission.update({
         where: { id },
         data: {
@@ -828,7 +830,7 @@ adminRouter.patch(
               status: string;
               updatedAt: string;
             }>) || []),
-            { status, updatedAt: new Date().toISOString() },
+            { status, updatedAt: statusUpdatedAt },
           ],
         },
         select: {
@@ -859,6 +861,7 @@ adminRouter.patch(
         notifyCarsAppStatusUpdate({
           externalId: submission.externalId,
           deliveryStatus: status,
+          updatedAt: statusUpdatedAt,
         }).catch(() => {});
       }
 
