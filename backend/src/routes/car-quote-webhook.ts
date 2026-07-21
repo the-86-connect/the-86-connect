@@ -24,6 +24,11 @@ function isAuthorizedWebhook(req: { headers: Record<string, string | string[] | 
 // POST /api/car-quote-webhook
 // Receives forwarded quote submissions from cars.the86connect.com
 carQuoteWebhookRouter.post("/", async (req, res) => {
+  // Auth check — only accept requests with the shared Bearer secret
+  if (!isAuthorizedWebhook(req)) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   const parsed = carQuoteForwardSchema.safeParse(req.body);
 
   if (!parsed.success) {

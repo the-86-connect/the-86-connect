@@ -173,9 +173,21 @@ const formLimiter = rateLimit({
   message: { error: "Too many submissions. Please wait a few minutes and try again." },
 });
 
+// Rate limiting — car quote webhook (more generous: 30 per 3 minutes)
+// All requests come from the cars app's server IP, so a single IP
+// represents many users. Bearer auth already prevents abuse.
+const webhookLimiter = rateLimit({
+  windowMs: 3 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many webhook requests." },
+});
+
 // Car quote webhook — receives forwarded quotes from cars.the86connect.com
-// Mounted AFTER rate limiter but BEFORE CSRF (server-to-server calls have no cookies)
-app.use("/api/car-quote-webhook", formLimiter, carQuoteWebhookRouter);
+// CSRF middleware skips this path (see csrf.ts CSRF_EXEMPT_PATHS) — server-to-server
+// calls use Bearer auth, not cookies, so CSRF protection does not apply.
+app.use("/api/car-quote-webhook", webhookLimiter, carQuoteWebhookRouter);
 
 // Rate limiting — registration (counts all attempts, including successes)
 // Prevents mass account creation. Separate from loginLimiter which skips

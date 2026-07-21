@@ -8,7 +8,15 @@ function generateToken(): string {
   return randomBytes(TOKEN_BYTE_LENGTH).toString("hex");
 }
 
+// Paths exempt from CSRF — server-to-server routes using Bearer auth, not cookies
+const CSRF_EXEMPT_PATHS = ["/api/car-quote-webhook"];
+
 function csrfMiddleware(req: Request, res: Response, next: NextFunction): void {
+  // Skip CSRF entirely for server-to-server webhook routes
+  if (CSRF_EXEMPT_PATHS.some((p) => req.path.startsWith(p))) {
+    return next();
+  }
+
   // Ensure a CSRF token cookie is always present
   let token = req.cookies?.csrf_token;
 
