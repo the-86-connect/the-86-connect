@@ -38,11 +38,26 @@ carQuoteWebhookRouter.post("/", async (req, res) => {
     });
   }
 
-  const { name, email, phone, serviceInterest, message, externalId } =
+  const { name, email, phone, serviceInterest, message, externalId, referenceImages } =
     parsed.data;
 
   try {
     const referenceCode = await generateUniqueReferenceCode("Car Quote");
+
+    // Build attachment records for any reference images from the cars app
+    const attachmentData = (referenceImages || []).map((imgUrl) => {
+      const fileName = imgUrl.split("/").pop()?.split("?")[0] || `car-quote-${Date.now()}.jpg`;
+      return {
+        originalName: fileName,
+        fileName,
+        url: imgUrl,
+        storageProvider: "cloudinary" as const,
+        mimeType: imgUrl.match(/\.(png|webp|gif)$/i)
+          ? `image/${(imgUrl.match(/\.(\w+)(\?|$)/)?.[1] || "jpeg").toLowerCase()}`
+          : "image/jpeg",
+        size: 0,
+      };
+    });
 
     const submission = await prisma.submission.create({
       data: {
@@ -59,7 +74,11 @@ carQuoteWebhookRouter.post("/", async (req, res) => {
         ],
         referenceCode,
         read: false,
+        attachments: attachmentData.length > 0
+          ? { create: attachmentData }
+          : undefined,
       },
+      include: { attachments: true },
     });
 
     res.status(201).json({
@@ -81,7 +100,7 @@ carQuoteWebhookRouter.post("/", async (req, res) => {
       read: false,
       submissionType: "car-quote",
       createdAt: submission.createdAt.toISOString(),
-      _count: { attachments: 0 },
+      _count: { attachments: attachmentData.length },
     });
 
     // Notify admin about the new submission (fire-and-forget)

@@ -296,6 +296,10 @@ export const carQuoteForwardSchema = z.object({
   source: z.string().optional(),
   externalId: z.string().trim().max(255).optional(),
   vehicleLink: z.string().url().max(2048).optional().or(z.literal("")),
+  referenceImages: z
+    .array(z.string().url().max(2048))
+    .max(10, "Maximum 10 reference images allowed")
+    .optional(),
 });
 
 export type CarQuoteForwardData = z.infer<typeof carQuoteForwardSchema>;
