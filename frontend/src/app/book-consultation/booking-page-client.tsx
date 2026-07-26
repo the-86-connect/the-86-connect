@@ -51,6 +51,12 @@ const SERVICE_OPTIONS = [
     icon: ShoppingCart,
   },
   {
+    value: "car-import" as const,
+    label: "Car Import",
+    description: "Vehicle import & shipping",
+    icon: Car,
+  },
+  {
     value: "general" as const,
     label: "General Inquiry",
     description: "Anything else we can help with",
@@ -377,7 +383,7 @@ export function BookingPageClient() {
             <span className="text-sm font-bold leading-none">
               Service Interest <span className="text-primary">*</span>
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {SERVICE_OPTIONS.map((option) => {
                 const isSelected = selectedService === option.value;
                 const Icon = option.icon;

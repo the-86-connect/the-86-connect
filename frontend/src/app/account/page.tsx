@@ -35,6 +35,7 @@ import {
   Settings,
   CalendarCheck,
   MessageSquare,
+  Car,
   Bell,
   BellDot,
   FileText,
@@ -96,6 +97,7 @@ const CONSULTATION_SERVICE_STYLES: Record<
     bg: "bg-blue-50",
     text: "text-blue-700",
   },
+  "car-import": { label: "Car Import", bg: "bg-amber-50", text: "text-amber-700" },
   general: { label: "General", bg: "bg-slate-100", text: "text-slate-700" },
 };
 
@@ -105,6 +107,7 @@ const CONSULTATION_SERVICE_ICONS: Record<
 > = {
   study: GraduationCap,
   sourcing: ShoppingCart,
+  "car-import": Car,
   general: MessageSquare,
 };
 

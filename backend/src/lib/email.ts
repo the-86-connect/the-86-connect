@@ -212,7 +212,9 @@ export async function notifyAdminNewConsultation(data: {
       ? "Study in China"
       : data.service === "sourcing"
         ? "Product Sourcing"
-        : "General Consultation";
+        : data.service === "car-import"
+          ? "Car Import"
+          : "General Consultation";
 
   const dateStr = data.preferredDate.toLocaleDateString("en-US", {
     weekday: "short",
@@ -258,7 +260,9 @@ export async function notifyUserConsultationUpdate(data: {
       ? "Study in China"
       : data.service === "sourcing"
         ? "Product Sourcing"
-        : "General Consultation";
+        : data.service === "car-import"
+          ? "Car Import"
+          : "General Consultation";
 
   const statusLabel =
     data.status === "confirmed"
@@ -346,7 +350,9 @@ export async function notifyUserBookingReceived(data: {
       ? "Study in China"
       : data.service === "sourcing"
         ? "Product Sourcing"
-        : "General Consultation";
+        : data.service === "car-import"
+          ? "Car Import"
+          : "General Consultation";
 
   const dateStr = data.preferredDate.toLocaleDateString("en-US", {
     weekday: "long",
@@ -396,7 +402,9 @@ export async function notifyUserCancellation(data: {
       ? "Study in China"
       : data.service === "sourcing"
         ? "Product Sourcing"
-        : "General Consultation";
+        : data.service === "car-import"
+          ? "Car Import"
+          : "General Consultation";
 
   const dateStr = data.preferredDate.toLocaleDateString("en-US", {
     weekday: "long",
@@ -448,7 +456,9 @@ export async function notifyAdminCancellation(data: {
       ? "Study in China"
       : data.service === "sourcing"
         ? "Product Sourcing"
-        : "General Consultation";
+        : data.service === "car-import"
+          ? "Car Import"
+          : "General Consultation";
 
   const dateStr = data.preferredDate.toLocaleDateString("en-US", {
     weekday: "short",

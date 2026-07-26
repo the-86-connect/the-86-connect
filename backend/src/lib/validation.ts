@@ -234,7 +234,7 @@ export const consultationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().optional(),
-  service: z.enum(["study", "sourcing", "general"]).default("general"),
+  service: z.enum(["study", "sourcing", "general", "car-import"]).default("general"),
   meetingType: z.enum(["online", "phone"]).default("online"),
   availabilitySlotId: z.string().min(1, "Please select an available time slot"),
   timezone: z.string().default("UTC"),
