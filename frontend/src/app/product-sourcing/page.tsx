@@ -27,6 +27,7 @@ import {
   Eye,
   Scale,
   FileText,
+  Car,
 } from "lucide-react";
 import { PageNavbar } from "@/components/layout/page-navbar";
 import { Footer } from "@/components/layout/footer";
@@ -290,6 +291,40 @@ const VALUE_PROPS = [
   },
 ];
 
+// Car Export from China — content sourced from cars.the86connect.com
+const CAR_EXPORT_STATS: { icon: typeof Car; value: string; label: string }[] = [
+  { icon: Car, value: "500+", label: "Vehicles shipped" },
+  { icon: Globe, value: "40+", label: "Countries served" },
+  { icon: Shield, value: "100%", label: "Customs cleared" },
+  { icon: Truck, value: "40-60", label: "Days delivery" },
+];
+
+const CAR_BRANDS: string[] = [
+  // Chinese innovators
+  "BYD", "NIO", "XPeng", "Li Auto", "Zeekr", "Geely",
+  // Global giants
+  "Toyota", "BMW", "Mercedes-Benz", "Audi", "Tesla", "Volkswagen",
+];
+
+const CAR_SHIPPING_METHODS: { title: string; description: string; duration: string }[] = [
+  {
+    title: "Sea Shipping (RoRo)",
+    description: "Roll-on/Roll-off for drivable vehicles. Cost-effective bulk shipping.",
+    duration: "40-60 days",
+  },
+  {
+    title: "Container Shipping",
+    description: "20ft & 40ft containers. Secure, weatherproof, ideal for multiple vehicles.",
+    duration: "45-65 days",
+  },
+];
+
+const CAR_DESTINATIONS: { region: string; countries: string }[] = [
+  { region: "Africa", countries: "Nigeria, Ghana, Kenya, South Africa, Egypt, Tanzania" },
+  { region: "Americas", countries: "USA, Canada, Mexico, Brazil, Chile, Colombia" },
+  { region: "Europe", countries: "Germany, UK, Netherlands, France, Spain, Italy" },
+];
+
 export default async function ProductSourcingPage() {
   const videos = await fetchVideos("sourcing");
   return (
@@ -359,14 +394,27 @@ export default async function ProductSourcingPage() {
                     <span>Our Services</span>
                   </a>
                 </div>
-                <Link
-                  href="/product-sourcing/track-quote"
-                  className="inline-flex items-center gap-2 mt-4 px-4 sm:px-5 h-10 sm:h-12 bg-primary/5 text-primary rounded-xl font-black text-xs sm:text-sm border-2 border-primary/20 hover:bg-primary/10 hover:border-primary/40 transition-all duration-200 cursor-pointer press"
-                >
-                  <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-                  <span>Track your quote</span>
-                  <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-                </Link>
+                <div className="flex flex-wrap gap-2.5 sm:gap-3 mt-4">
+                  <Link
+                    href="/product-sourcing/track-quote"
+                    className="inline-flex items-center gap-2 px-4 sm:px-5 h-10 sm:h-12 bg-primary/5 text-primary rounded-xl font-black text-xs sm:text-sm border-2 border-primary/20 hover:bg-primary/10 hover:border-primary/40 transition-all duration-200 cursor-pointer press"
+                  >
+                    <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                    <span>Track your quote</span>
+                    <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                  </Link>
+                  <a
+                    href="https://cars.the86connect.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Import a car from China via 86Connect Cars (opens in new tab)"
+                    className="group inline-flex items-center gap-2 px-4 sm:px-5 h-10 sm:h-12 bg-blue-100 text-blue-900 rounded-xl font-black text-xs sm:text-sm border-2 border-blue-300/60 shadow-sm hover:bg-blue-200 hover:border-blue-400 hover:-translate-y-[1px] hover:shadow-md active:translate-y-[1px] transition-all duration-200 cursor-pointer press"
+                  >
+                    <Car className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                    <span>Import a Car</span>
+                    <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                  </a>
+                </div>
               </div>
 
               {/* Right — sourcing image collage */}
@@ -727,6 +775,168 @@ export default async function ProductSourcingPage() {
                 <FileText className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                 <span>Download Company Profile (PDF)</span>
               </a>
+            </div>
+          </div>
+        </section>
+
+        {/* Car Export from China */}
+        <section
+          id="car-export"
+          className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-slate-50 text-slate-900 scroll-mt-24 relative overflow-hidden"
+        >
+          {/* Decorative glow */}
+          <div
+            aria-hidden="true"
+            className="absolute -top-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-red-500/10 blur-3xl pointer-events-none"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute -bottom-32 -left-32 w-[28rem] h-[28rem] rounded-full bg-red-500/5 blur-3xl pointer-events-none"
+          />
+
+          <div className="container mx-auto max-w-7xl relative z-10">
+            {/* Header */}
+            <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-4">
+                <Car className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-black uppercase tracking-wider text-primary">
+                  Car Export Service
+                </span>
+              </div>
+              <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-[-0.035em] mb-4 leading-[1.05] text-slate-900">
+                Export Cars from <span className="text-primary">China</span>
+              </h2>
+              <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-medium">
+                Source premium vehicles from China&apos;s top manufacturers — BYD, NIO, Toyota, BMW and more. Verified suppliers, 150-point inspection, and worldwide shipping to 40+ countries.
+              </p>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 mb-12 sm:mb-16">
+              {CAR_EXPORT_STATS.map((stat) => {
+                const Icon = stat.icon;
+                return (
+                  <div
+                    key={stat.label}
+                    className="text-center p-5 sm:p-7 rounded-2xl bg-white border border-slate-200 shadow-soft-sm"
+                  >
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2.5 sm:mb-3 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                    </div>
+                    <div className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-1 sm:mb-1.5 leading-none tabular-nums">
+                      <AnimatedCounter value={stat.value} />
+                    </div>
+                    <div className="text-xs sm:text-sm text-slate-600 font-semibold">
+                      {stat.label}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Brands grid */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-soft-sm p-6 sm:p-8 mb-10">
+              <h3 className="font-display font-black text-xl sm:text-2xl mb-2 text-center tracking-[-0.035em] text-slate-900">
+                Available Brands
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 text-center mb-6 font-medium">
+                Chinese innovators &amp; global giants — all available for export
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
+                {CAR_BRANDS.map((brand) => (
+                  <div
+                    key={brand}
+                    className="flex items-center justify-center px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 hover:bg-primary/5 hover:border-primary/30 hover:text-primary transition-all duration-200"
+                  >
+                    {brand}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Shipping methods + Destinations */}
+            <div className="grid md:grid-cols-2 gap-5 sm:gap-6 mb-10">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-soft-sm p-6 sm:p-7">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Ship className="h-5 w-5 text-primary" />
+                  </div>
+                  <h4 className="font-display font-black text-lg tracking-[-0.035em] text-slate-900">
+                    Shipping Methods
+                  </h4>
+                </div>
+                <div className="space-y-3">
+                  {CAR_SHIPPING_METHODS.map((method) => (
+                    <div
+                      key={method.title}
+                      className="flex items-start justify-between gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm text-slate-900">{method.title}</p>
+                        <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                          {method.description}
+                        </p>
+                      </div>
+                      <span className="text-xs font-black text-primary whitespace-nowrap shrink-0 mt-0.5">
+                        {method.duration}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-soft-sm p-6 sm:p-7">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Globe className="h-5 w-5 text-primary" />
+                  </div>
+                  <h4 className="font-display font-black text-lg tracking-[-0.035em] text-slate-900">
+                    Global Destinations
+                  </h4>
+                </div>
+                <div className="space-y-3.5">
+                  {CAR_DESTINATIONS.map((dest) => (
+                    <div key={dest.region}>
+                      <p className="text-xs font-black uppercase tracking-wider text-primary mb-1">
+                        {dest.region}
+                      </p>
+                      <p className="text-sm text-slate-700 font-medium leading-relaxed">
+                        {dest.countries}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="text-center">
+              <p className="text-sm sm:text-base text-slate-600 mb-5 font-medium">
+                Browse our full inventory of verified vehicles and get a free quote today.
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <a
+                  href="https://cars.the86connect.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Browse vehicles on 86Connect Cars Export website (opens in new tab)"
+                  className="group inline-flex items-center gap-2 px-6 sm:px-7 h-12 sm:h-14 bg-primary text-white rounded-xl font-black text-sm sm:text-base shadow-red-sm hover:-translate-y-[1px] hover:bg-red-700 hover:shadow-red active:translate-y-[1px] transition-all duration-200 cursor-pointer press"
+                >
+                  <Car className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+                  <span>Browse Vehicles</span>
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+                </a>
+                <a
+                  href="https://cars.the86connect.com#contact"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Get a free car export quote (opens in new tab)"
+                  className="group inline-flex items-center gap-2 px-6 sm:px-7 h-12 sm:h-14 bg-white text-slate-900 rounded-xl font-black text-sm sm:text-base border-2 border-slate-300 hover:bg-slate-50 hover:border-primary hover:text-primary transition-all duration-200 cursor-pointer press"
+                >
+                  <span>Get Free Quote</span>
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+                </a>
+              </div>
             </div>
           </div>
         </section>

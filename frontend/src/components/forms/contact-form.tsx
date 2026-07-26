@@ -11,6 +11,7 @@ import {
   GraduationCap,
   ShoppingCart,
   MessageCircle,
+  Car,
 } from "lucide-react";
 
 import {
@@ -33,6 +34,7 @@ const SERVICE_ICONS: Record<ServiceType, typeof GraduationCap> = {
   "Study in China": GraduationCap,
   "Product Sourcing": ShoppingCart,
   General: MessageCircle,
+  "Car Import": Car,
 };
 
 export function ContactForm() {

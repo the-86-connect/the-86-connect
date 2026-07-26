@@ -8,6 +8,7 @@ import {
   Shield,
   Award,
   Globe,
+  Car,
 } from "lucide-react";
 
 export function HeroSection() {
@@ -66,25 +67,36 @@ export function HeroSection() {
             </p>
 
             <div
-              className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 md:gap-3 lg:gap-4 mb-5 sm:mb-8 md:mb-7 lg:mb-10 justify-center md:justify-start animate-reveal-up px-2 sm:px-0"
+              className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-3.5 lg:gap-4 mb-5 sm:mb-8 md:mb-7 lg:mb-10 justify-center md:justify-start animate-reveal-up px-2 sm:px-0"
               style={{ animationDelay: "200ms" }}
             >
               <Link
                 href="/study-in-china"
-                className="group inline-flex items-center justify-center gap-2 px-5 sm:px-5 md:px-5 lg:px-6 h-12 sm:h-12 md:h-12 lg:h-14 bg-red-600 text-white rounded-2xl font-black text-sm sm:text-base md:text-base lg:text-lg shadow-lg shadow-red-900/30 hover:-translate-y-[1px] hover:bg-red-700 hover:shadow-xl hover:shadow-red-900/40 active:translate-y-[1px] transition-all duration-300 ease-out cursor-pointer press w-full sm:w-auto"
+                className="group inline-flex items-center justify-center gap-2.5 px-6 lg:px-7 h-12 lg:h-14 bg-red-600 text-white rounded-2xl font-black text-sm lg:text-lg shadow-lg shadow-red-900/30 hover:-translate-y-[1px] hover:bg-red-700 hover:shadow-xl hover:shadow-red-900/40 active:translate-y-[1px] transition-all duration-300 ease-out cursor-pointer press w-full sm:w-auto whitespace-nowrap"
               >
-                <GraduationCap className="h-4 w-4 sm:h-4 sm:w-4 md:h-4 md:w-4 lg:h-5 lg:w-5" />
+                <GraduationCap className="h-4 w-4 lg:h-5 lg:w-5 shrink-0" />
                 <span>Study in China</span>
-                <ArrowRight className="h-4 w-4 sm:h-4 sm:w-4 md:h-4 md:w-4 lg:h-5 lg:w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4 lg:h-5 lg:w-5 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/product-sourcing"
-                className="group inline-flex items-center justify-center gap-2 px-5 sm:px-5 md:px-5 lg:px-6 h-12 sm:h-12 md:h-12 lg:h-14 bg-white text-slate-900 rounded-2xl font-black text-sm sm:text-base md:text-base lg:text-lg shadow-lg hover:-translate-y-[1px] hover:bg-slate-50 hover:shadow-xl active:translate-y-[1px] transition-all duration-300 ease-out cursor-pointer press w-full sm:w-auto"
+                className="group inline-flex items-center justify-center gap-2.5 px-6 lg:px-7 h-12 lg:h-14 bg-white text-slate-900 rounded-2xl font-black text-sm lg:text-lg shadow-lg hover:-translate-y-[1px] hover:bg-slate-50 hover:shadow-xl active:translate-y-[1px] transition-all duration-300 ease-out cursor-pointer press w-full sm:w-auto whitespace-nowrap"
               >
-                <ShoppingCart className="h-4 w-4 sm:h-4 sm:w-4 md:h-4 md:w-4 lg:h-5 lg:w-5" />
+                <ShoppingCart className="h-4 w-4 lg:h-5 lg:w-5 shrink-0" />
                 <span>Source Products</span>
-                <ArrowRight className="h-4 w-4 sm:h-4 sm:w-4 md:h-4 md:w-4 lg:h-5 lg:w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4 lg:h-5 lg:w-5 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
+              <a
+                href="https://cars.the86connect.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Import a car from China via 86Connect Cars (opens in new tab)"
+                className="group inline-flex items-center justify-center gap-2.5 px-6 lg:px-7 h-12 lg:h-14 rounded-full bg-blue-100 text-blue-900 font-black text-sm lg:text-lg cursor-pointer press w-full sm:w-auto whitespace-nowrap shadow-lg shadow-blue-900/20 hover:-translate-y-[1px] hover:bg-blue-200 hover:shadow-xl hover:shadow-blue-900/30 active:translate-y-[1px] transition-all duration-300 ease-out ring-1 ring-inset ring-blue-300/60"
+              >
+                <Car className="h-4 w-4 lg:h-5 lg:w-5 shrink-0" />
+                <span>Import a Car</span>
+                <ArrowRight className="h-4 w-4 lg:h-5 lg:w-5 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+              </a>
             </div>
 
             {/* Trust badges */}

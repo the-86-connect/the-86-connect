@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   UserCheck,
   RefreshCw,
+  Car,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -553,7 +554,9 @@ export function BookingPageClient() {
                   ? "Study in China"
                   : selectedService === "sourcing"
                     ? "Product Sourcing"
-                    : "General consultation"}
+                    : selectedService === "car-import"
+                      ? "Car Import"
+                      : "General consultation"}
                 {" · "}
                 {selectedMeeting === "online" ? "Online meeting" : "Phone call"}
                 {(selectedSlot?.date ?? selectedDate) &&

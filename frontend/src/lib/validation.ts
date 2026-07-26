@@ -19,9 +19,12 @@ export const contactFormSchema = z.object({
     .regex(/^[\d\s+()-]{7,30}$/, "Please enter a valid phone number")
     .optional()
     .or(z.literal("")),
-  serviceInterest: z.enum(["Study in China", "Product Sourcing", "General"], {
-    message: "Please select a service",
-  }),
+  serviceInterest: z.enum(
+    ["Study in China", "Product Sourcing", "General", "Car Import"],
+    {
+      message: "Please select a service",
+    },
+  ),
   message: z
     .string()
     .trim()
@@ -35,6 +38,7 @@ export const SERVICE_OPTIONS = [
   "Study in China",
   "Product Sourcing",
   "General",
+  "Car Import",
 ] as const;
 
 /* ============== Study Application Form ============== */
@@ -225,7 +229,12 @@ export const SOURCING_INQUIRY_SCHEMA = z.object({
 export type SourcingInquiryData = z.infer<typeof SOURCING_INQUIRY_SCHEMA>;
 
 /* ============== Consultation Booking Form ============== */
-export const CONSULTATION_SERVICES = ["study", "sourcing", "general"] as const;
+export const CONSULTATION_SERVICES = [
+  "study",
+  "sourcing",
+  "general",
+  "car-import",
+] as const;
 
 export const CONSULTATION_MEETING_TYPES = ["online", "phone"] as const;
 

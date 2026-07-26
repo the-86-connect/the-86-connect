@@ -8,7 +8,11 @@ import {
   type ReactNode,
 } from "react";
 
-export type ServiceType = "Study in China" | "Product Sourcing" | "General";
+export type ServiceType =
+  | "Study in China"
+  | "Product Sourcing"
+  | "General"
+  | "Car Import";
 
 interface ContactContextType {
   selectedService: ServiceType | null;

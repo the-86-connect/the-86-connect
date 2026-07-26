@@ -19,9 +19,12 @@ export const contactFormSchema = z.object({
     .regex(/^[\d\s+()-]{7,30}$/, "Invalid phone format")
     .optional()
     .or(z.literal("")),
-  serviceInterest: z.enum(["Study in China", "Product Sourcing", "General"], {
-    errorMap: () => ({ message: "Please select a service" }),
-  }),
+  serviceInterest: z.enum(
+    ["Study in China", "Product Sourcing", "General", "Car Import"],
+    {
+      errorMap: () => ({ message: "Please select a service" }),
+    },
+  ),
   message: z
     .string()
     .trim()
