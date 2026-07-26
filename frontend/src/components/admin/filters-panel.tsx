@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { getStatusLabel } from "@/lib/submission-status";
 
-type FilterType = "all" | "Study in China" | "Product Sourcing" | "Car Quote" | "General";
+type FilterType = "all" | "Study in China" | "Product Sourcing" | "Car Quote" | "Car Import" | "General";
 type ReadFilter = "all" | "read" | "unread";
 
 interface FiltersPanelProps {
@@ -72,6 +72,7 @@ export function FiltersPanel({
               "Study in China",
               "Product Sourcing",
               "Car Quote",
+              "Car Import",
               "General",
             ] as FilterType[]
           ).map((f) => (
@@ -92,7 +93,9 @@ export function FiltersPanel({
                         ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/25"
                         : f === "Car Quote"
                           ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25"
-                          : "bg-gradient-to-r from-slate-600 to-slate-800 text-white shadow-md shadow-slate-500/25"
+                          : f === "Car Import"
+                            ? "bg-gradient-to-r from-amber-500 to-yellow-600 text-white shadow-md shadow-amber-500/25"
+                            : "bg-gradient-to-r from-slate-600 to-slate-800 text-white shadow-md shadow-slate-500/25"
                   : "text-muted-foreground hover:text-foreground hover:bg-white/40",
               )}
             >

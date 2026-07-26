@@ -37,6 +37,7 @@ import {
   STUDY_STAGES,
   SOURCING_STAGES,
   CAR_SHIPPING_STAGES,
+  CAR_IMPORT_STAGES,
   getStatusLabel,
   ALL_STATUS_KEYS,
 } from "@/lib/submission-status";
@@ -71,7 +72,7 @@ interface Submission {
   attachments: AdminAttachment[];
 }
 
-type FilterType = "all" | "Study in China" | "Product Sourcing" | "Car Quote" | "General";
+type FilterType = "all" | "Study in China" | "Product Sourcing" | "Car Quote" | "Car Import" | "General";
 type ReadFilter = "all" | "read" | "unread";
 
 interface SubmissionsTabProps {
@@ -112,10 +113,24 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function getStages(submissionType: string) {
-  if (submissionType === "sourcing") return SOURCING_STAGES;
-  if (submissionType === "car-quote" || submissionType === "car_shipping") return CAR_SHIPPING_STAGES;
+function getStages(submission: { submissionType: string; serviceInterest?: string | null }) {
+  if (submission.submissionType === "sourcing") return SOURCING_STAGES;
+  if (submission.submissionType === "car-quote" || submission.submissionType === "car_shipping") return CAR_SHIPPING_STAGES;
+  if (submission.serviceInterest === "Car Import") return CAR_IMPORT_STAGES;
   return STUDY_STAGES;
+}
+
+/**
+ * Whether the inline status badge in the table is read-only.
+ * - car-quote / car_shipping: managed in the Car Shipments tab
+ * - Car Import (contact form): view-only in table; updated via eye view modal
+ */
+function isReadOnlySubmission(submission: { submissionType: string; serviceInterest?: string | null }): boolean {
+  return (
+    submission.submissionType === "car-quote" ||
+    submission.submissionType === "car_shipping" ||
+    submission.serviceInterest === "Car Import"
+  );
 }
 
 type ParsedField = { label: string; value: string };
@@ -554,7 +569,8 @@ export default function SubmissionsTab({
     return submissions.filter((s) => {
       const matchesFilter = filter === "all"
         || s.serviceInterest === filter
-        || (filter === "Car Quote" && (s.submissionType === "car-quote" || s.submissionType === "car_shipping"));
+        || (filter === "Car Quote" && (s.submissionType === "car-quote" || s.submissionType === "car_shipping"))
+        || (filter === "Car Import" && s.serviceInterest === "Car Import");
       const matchesSearch =
         !search ||
         s.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -885,13 +901,17 @@ export default function SubmissionsTab({
                               ? "bg-red-50/40"
                               : s.serviceInterest === "Product Sourcing"
                                 ? "bg-white/80"
-                                : "bg-slate-50/40"),
+                                : s.serviceInterest === "Car Import"
+                                  ? "bg-amber-50/40"
+                                  : "bg-slate-50/40"),
                           isExpanded &&
                             (s.serviceInterest === "Study in China"
                               ? "bg-red-50/90 border-l-4 border-l-red-500"
                               : s.serviceInterest === "Product Sourcing"
                                 ? "bg-slate-50/90 border-l-4 border-l-primary"
-                                : "bg-slate-100/90 border-l-4 border-l-slate-500"),
+                                : s.serviceInterest === "Car Import"
+                                  ? "bg-amber-50/90 border-l-4 border-l-amber-500"
+                                  : "bg-slate-100/90 border-l-4 border-l-slate-500"),
                         )}
                         onClick={() => toggleExpand(s.id)}
                       >
@@ -951,7 +971,9 @@ export default function SubmissionsTab({
                                   ? "bg-red-50 text-red-600"
                                   : s.serviceInterest === "Product Sourcing"
                                     ? "bg-blue-50 text-blue-600"
-                                    : "bg-slate-100 text-slate-700",
+                                    : s.serviceInterest === "Car Import"
+                                      ? "bg-amber-50 text-amber-700"
+                                      : "bg-slate-100 text-slate-700",
                             )}
                           >
                             {s.submissionType === "car-quote" || s.submissionType === "car_shipping" ? (
@@ -960,6 +982,8 @@ export default function SubmissionsTab({
                               <GraduationCap className="h-3.5 w-3.5" />
                             ) : s.serviceInterest === "Product Sourcing" ? (
                               <ShoppingCart className="h-3.5 w-3.5" />
+                            ) : s.serviceInterest === "Car Import" ? (
+                              <Car className="h-3.5 w-3.5" />
                             ) : (
                               <MessageCircle className="h-3.5 w-3.5" />
                             )}
@@ -969,17 +993,19 @@ export default function SubmissionsTab({
                                 ? "Study"
                                 : s.serviceInterest === "Product Sourcing"
                                   ? "Sourcing"
-                                  : "General"}
+                                  : s.serviceInterest === "Car Import"
+                                    ? "Car Import"
+                                    : "General"}
                           </span>
                         </td>
                         <td
                           className="px-5 py-4 hidden sm:table-cell"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          {(s.submissionType === "car-quote" || s.submissionType === "car_shipping") ? (
+                          {(s.submissionType === "car-quote" || s.submissionType === "car_shipping" || s.serviceInterest === "Car Import") ? (
                             <span
                               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white/60"
-                              title="Status managed in Car Shipments tab"
+                              title={s.serviceInterest === "Car Import" ? "Click row to update status in detail view" : "Status managed in Car Shipments tab"}
                             >
                               <span
                                 className={cn(
@@ -1068,7 +1094,9 @@ export default function SubmissionsTab({
                               "px-5 py-4 border-l-4",
                               s.serviceInterest === "Study in China"
                                 ? "bg-red-50/90 border-red-500"
-                                : "bg-slate-50/90 border-slate-400",
+                                : s.serviceInterest === "Car Import"
+                                  ? "bg-amber-50/90 border-amber-500"
+                                  : "bg-slate-50/90 border-slate-400",
                             )}
                           >
                             <div className="flex flex-wrap items-start gap-x-8 gap-y-3">
@@ -1246,12 +1274,29 @@ export default function SubmissionsTab({
                 </p>
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium",
+                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold",
                     selectedSubmission.serviceInterest === "Study in China"
-                      ? "bg-accent/10 text-accent"
-                      : "bg-primary/10 text-primary",
+                      ? "bg-red-50 text-red-600"
+                      : selectedSubmission.serviceInterest === "Product Sourcing"
+                        ? "bg-blue-50 text-blue-600"
+                        : selectedSubmission.serviceInterest === "Car Import" ||
+                            selectedSubmission.submissionType === "car-quote" ||
+                            selectedSubmission.submissionType === "car_shipping"
+                          ? "bg-amber-50 text-amber-700"
+                          : "bg-slate-100 text-slate-700",
                   )}
                 >
+                  {selectedSubmission.serviceInterest === "Study in China" ? (
+                    <GraduationCap className="h-3.5 w-3.5" />
+                  ) : selectedSubmission.serviceInterest === "Product Sourcing" ? (
+                    <ShoppingCart className="h-3.5 w-3.5" />
+                  ) : selectedSubmission.serviceInterest === "Car Import" ||
+                      selectedSubmission.submissionType === "car-quote" ||
+                      selectedSubmission.submissionType === "car_shipping" ? (
+                    <Car className="h-3.5 w-3.5" />
+                  ) : (
+                    <MessageCircle className="h-3.5 w-3.5" />
+                  )}
                   {selectedSubmission.serviceInterest}
                 </span>
               </div>
@@ -1329,13 +1374,12 @@ export default function SubmissionsTab({
                   {/* Mini timeline (read-only) */}
                   <div className="mt-3 pt-3 border-t border-blue-200/40">
                     <ol className="flex flex-wrap gap-1.5">
-                      {getStages(selectedSubmission.submissionType).map(
-                        (stage, idx) => {
-                          const currentIdx = getStages(
-                            selectedSubmission.submissionType,
-                          ).findIndex(
-                            (st) => st.key === selectedSubmission.status,
-                          );
+                      {(() => {
+                        const stages = getStages(selectedSubmission);
+                        const currentIdx = stages.findIndex(
+                          (st) => st.key === selectedSubmission.status,
+                        );
+                        return stages.map((stage, idx) => {
                           const state =
                             idx < currentIdx
                               ? "done"
@@ -1364,8 +1408,8 @@ export default function SubmissionsTab({
                               {stage.label}
                             </li>
                           );
-                        },
-                      )}
+                        });
+                      })()}
                     </ol>
                   </div>
                 </div>
@@ -1400,7 +1444,7 @@ export default function SubmissionsTab({
                       disabled={statusUpdateLoading}
                       className="flex-1 h-11 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent/40 disabled:opacity-50 cursor-pointer"
                     >
-                      {getStages(selectedSubmission.submissionType).map(
+                      {getStages(selectedSubmission).map(
                         (stage) => (
                           <option key={stage.key} value={stage.key}>
                             {stage.label}
@@ -1441,13 +1485,12 @@ export default function SubmissionsTab({
                   {/* Mini timeline */}
                   <div className="mt-4 pt-3 border-t border-slate-200/50">
                     <ol className="flex flex-wrap gap-1.5">
-                      {getStages(selectedSubmission.submissionType).map(
-                        (stage, idx) => {
-                          const currentIdx = getStages(
-                            selectedSubmission.submissionType,
-                          ).findIndex(
-                            (st) => st.key === selectedSubmission.status,
-                          );
+                      {(() => {
+                        const stages = getStages(selectedSubmission);
+                        const currentIdx = stages.findIndex(
+                          (st) => st.key === selectedSubmission.status,
+                        );
+                        return stages.map((stage, idx) => {
                           const state =
                             idx < currentIdx
                               ? "done"
@@ -1476,8 +1519,8 @@ export default function SubmissionsTab({
                               {stage.label}
                             </li>
                           );
-                        },
-                      )}
+                        });
+                      })()}
                     </ol>
                   </div>
                 </div>

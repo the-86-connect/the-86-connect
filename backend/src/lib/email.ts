@@ -108,13 +108,29 @@ export async function notifyUserStatusChange(data: {
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 
-  const isCarShipping = data.service.toLowerCase().includes("car");
-  const noun = isCarShipping ? "shipment" : "application";
+  // Differentiate service types so the right track URL and noun are used.
+  // - "Car Shipping" / "Car Quote" → car-shipping track (shipment noun)
+  // - "Car Import" (contact form) → contact page (inquiry noun)
+  // - Product Sourcing / Study in China / fallback → respective track pages
+  const lowerService = data.service.toLowerCase();
+  const isCarShipping =
+    lowerService.includes("shipping") ||
+    lowerService.includes("car quote") ||
+    lowerService.includes("vehicle");
+  const isCarImport = data.service === "Car Import";
+  const isSourcing = lowerService.includes("sourcing");
+  const noun = isCarShipping
+    ? "shipment"
+    : isCarImport
+      ? "inquiry"
+      : "application";
   const trackUrl = isCarShipping
     ? `${SITE_URL}/car-shipping/track`
-    : data.service.toLowerCase().includes("sourcing")
-      ? `${SITE_URL}/product-sourcing/track-quote`
-      : `${SITE_URL}/study-in-china/track-application`;
+    : isCarImport
+      ? `${SITE_URL}/contact`
+      : isSourcing
+        ? `${SITE_URL}/product-sourcing/track-quote`
+        : `${SITE_URL}/study-in-china/track-application`;
 
   return send({
     to: data.to,

@@ -787,6 +787,32 @@ const CAR_SHIPPING_STAGES = [
   "customs",
   "delivered",
 ];
+// Inquiry-style stages for Car Import submissions from the contact form
+// (separate from CAR_SHIPPING_STAGES which are managed via the Car Shipments tab)
+const CAR_IMPORT_STAGES = [
+  "pending",
+  "reviewed",
+  "in_progress",
+  "completed",
+  "archived",
+];
+
+// Pick the correct status stage list for a submission, taking serviceInterest
+// (used by the contact form for "Car Import") into account.
+function getValidStages(submission: {
+  submissionType: string;
+  serviceInterest: string | null;
+}): string[] {
+  if (submission.submissionType === "sourcing") return SOURCING_STAGES;
+  if (
+    submission.submissionType === "car-quote" ||
+    submission.submissionType === "car_shipping"
+  ) {
+    return CAR_SHIPPING_STAGES;
+  }
+  if (submission.serviceInterest === "Car Import") return CAR_IMPORT_STAGES;
+  return STUDY_STAGES;
+}
 
 // Update submission status (protected)
 adminRouter.patch(
@@ -806,12 +832,7 @@ adminRouter.patch(
         return res.status(404).json({ error: "Submission not found" });
       }
 
-      const validStages =
-        submission.submissionType === "sourcing"
-          ? SOURCING_STAGES
-          : submission.submissionType === "car-quote" || submission.submissionType === "car_shipping"
-            ? CAR_SHIPPING_STAGES
-            : STUDY_STAGES;
+      const validStages = getValidStages(submission);
 
       if (!validStages.includes(status)) {
         return res.status(400).json({
@@ -887,6 +908,10 @@ adminRouter.patch(
           at_port: "At Destination Port",
           customs: "Customs Clearance",
           delivered: "Delivered",
+          reviewed: "Reviewed",
+          in_progress: "In Progress",
+          completed: "Completed",
+          archived: "Archived",
         };
         const label = statusLabels[status] || status;
         prisma.notification.create({

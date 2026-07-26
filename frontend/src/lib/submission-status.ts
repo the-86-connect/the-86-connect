@@ -31,11 +31,22 @@ export const CAR_SHIPPING_STAGES: Stage[] = [
   { key: "delivered", label: "Delivered" },
 ];
 
+// Simple inquiry-style stages for Car Import submissions from the contact form
+// (separate from car-quote/car-shipping which flow through Car Shipments tab)
+export const CAR_IMPORT_STAGES: Stage[] = [
+  { key: "pending", label: "Pending" },
+  { key: "reviewed", label: "Reviewed" },
+  { key: "in_progress", label: "In Progress" },
+  { key: "completed", label: "Completed" },
+  { key: "archived", label: "Archived" },
+];
+
 const ALL_STATUSES: (Stage | { key: null; label: string })[] = [
   { key: null, label: "Submitted" },
   ...STUDY_STAGES,
   ...SOURCING_STAGES,
   ...CAR_SHIPPING_STAGES,
+  ...CAR_IMPORT_STAGES,
 ];
 
 const STATUS_LABEL_MAP = new Map<string | null, string>();
@@ -52,6 +63,6 @@ export function getStatusLabel(status: string | null | undefined): string {
   );
 }
 
-export const ALL_STATUS_KEYS = STUDY_STAGES.concat(SOURCING_STAGES).map(
-  (s) => s.key,
-);
+export const ALL_STATUS_KEYS = STUDY_STAGES.concat(SOURCING_STAGES)
+  .concat(CAR_IMPORT_STAGES)
+  .map((s) => s.key);
