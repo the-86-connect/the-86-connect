@@ -108,29 +108,40 @@ export async function notifyUserStatusChange(data: {
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 
-  // Differentiate service types so the right track URL and noun are used.
-  // - "Car Shipping" / "Car Quote" → car-shipping track (shipment noun)
-  // - "Car Import" (contact form) → contact page (inquiry noun)
-  // - Product Sourcing / Study in China / fallback → respective track pages
+  // Only services with dedicated tracking pages get a "Track" link.
+  // - Study in China → /study-in-china/track-application
+  // - Product Sourcing → /product-sourcing/track-quote
+  // - Car Shipping / Car Quote → /car-shipping/track
+  // - Car Import & General (contact form only) → no tracking page, no link
   const lowerService = data.service.toLowerCase();
   const isCarShipping =
     lowerService.includes("shipping") ||
     lowerService.includes("car quote") ||
     lowerService.includes("vehicle");
-  const isCarImport = data.service === "Car Import";
   const isSourcing = lowerService.includes("sourcing");
+  const isStudy = lowerService.includes("study");
+
   const noun = isCarShipping
     ? "shipment"
-    : isCarImport
+    : isSourcing
       ? "inquiry"
-      : "application";
+      : isStudy
+        ? "application"
+        : "submission";
+
   const trackUrl = isCarShipping
     ? `${SITE_URL}/car-shipping/track`
-    : isCarImport
-      ? `${SITE_URL}/contact`
-      : isSourcing
-        ? `${SITE_URL}/product-sourcing/track-quote`
-        : `${SITE_URL}/study-in-china/track-application`;
+    : isSourcing
+      ? `${SITE_URL}/product-sourcing/track-quote`
+      : isStudy
+        ? `${SITE_URL}/study-in-china/track-application`
+        : null;
+
+  const trackLinkHtml = trackUrl
+    ? `<p style="margin-top:20px;font-size:13px;color:#64748b;">
+         <a href="${trackUrl}" style="color:#dc2626;">Track your ${noun}</a>
+       </p>`
+    : "";
 
   return send({
     to: data.to,
@@ -144,9 +155,7 @@ export async function notifyUserStatusChange(data: {
           <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;width:140px;">Reference</td><td style="padding:6px 12px;border:1px solid #e2e8f0;">${ref}</td></tr>
           <tr><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;background:#f8fafc;">New Status</td><td style="padding:6px 12px;border:1px solid #e2e8f0;font-weight:600;color:#dc2626;">${statusLabel}</td></tr>
         </table>
-        <p style="margin-top:20px;font-size:13px;color:#64748b;">
-          <a href="${trackUrl}" style="color:#dc2626;">Track your ${noun}</a>
-        </p>
+        ${trackLinkHtml}
         <p style="font-size:13px;color:#94a3b8;margin-top:24px;">— 86 Connect Team</p>
       </div>
     `,
