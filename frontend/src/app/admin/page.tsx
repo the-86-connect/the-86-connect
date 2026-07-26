@@ -384,7 +384,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background admin-shell">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {/* ========== Header ========== */}
         <header className="flex items-center justify-between mb-6">
@@ -403,10 +403,10 @@ export default function AdminPage() {
                 setActiveTab("submissions");
                 router.replace(`${window.location.pathname}#submissions`);
               }}
-              className="relative p-2.5 rounded-xl glass-card hover:bg-white/80 transition-colors cursor-pointer"
+              className="relative p-2.5 rounded-xl bg-primary text-white hover:bg-red-700 transition-colors cursor-pointer"
               aria-label={`${stats.unread} unread submissions`}
             >
-              <Bell className="h-5 w-5 text-muted-foreground" />
+              <Bell className="h-5 w-5 text-white" />
               {stats.unread > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center rounded-full bg-accent text-white text-[10px] font-bold px-1.5 animate-in zoom-in duration-200">
                   {stats.unread > 99 ? "99+" : stats.unread}
@@ -419,11 +419,11 @@ export default function AdminPage() {
               type="button"
               onClick={fetchSubmissions}
               disabled={fetchLoading}
-              className="p-2.5 rounded-xl glass-card hover:bg-white/80 transition-colors cursor-pointer disabled:opacity-50"
+              className="p-2.5 rounded-xl bg-primary text-white hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-50"
               aria-label="Refresh data"
               title="Refresh"
             >
-              <RefreshCw className={cn("h-5 w-5 text-muted-foreground", fetchLoading && "animate-spin")} />
+              <RefreshCw className={cn("h-5 w-5 text-white", fetchLoading && "animate-spin")} />
             </button>
 
             {/* Logout */}
@@ -431,7 +431,7 @@ export default function AdminPage() {
               variant="outline"
               size="sm"
               onClick={logout}
-              className="cursor-pointer btn-glass rounded-xl border-0"
+              className="cursor-pointer bg-primary text-white border-primary hover:bg-red-700 hover:border-red-700 hover:text-white rounded-xl"
             >
               <LogOut className="h-4 w-4" />
               Logout
@@ -451,8 +451,8 @@ export default function AdminPage() {
                 className={cn(
                   "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer",
                   isActive
-                    ? "bg-primary text-white shadow-md"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                    ? "bg-primary text-white shadow-md shadow-primary/30"
+                    : "text-red-700 bg-red-50 hover:bg-red-100 border border-red-200",
                 )}
               >
                 <Icon className="h-4 w-4" />

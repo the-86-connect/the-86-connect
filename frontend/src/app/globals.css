@@ -502,6 +502,71 @@
     color: #dc2626;
   }
 
+  /* ====== Admin Panel — Solid Red Theme ====== */
+  /* Scoped to .admin-shell so only the admin panel gets solid red.
+     Layout and functions are untouched — only visual styling changes. */
+
+  /* Buttons → solid red */
+  .admin-shell .btn-glass {
+    background: #dc2626;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid #b91c1c;
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3);
+  }
+  .admin-shell .btn-glass:hover {
+    background: #b91c1c;
+    border-color: #991b1b;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+  }
+  .admin-shell .btn-glass-danger {
+    background: #dc2626;
+    color: #ffffff;
+  }
+  .admin-shell .btn-glass-danger:hover {
+    background: #991b1b;
+    border-color: #7f1d1d;
+    color: #ffffff;
+  }
+
+  /* Cards → solid white, no blur, red accent border */
+  .admin-shell .glass-card {
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid #fecaca;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  }
+  .admin-shell .glass-card-hover:hover {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
+  }
+
+  /* Pills (filter bars) → solid white with red border */
+  .admin-shell .glass-pill {
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid #fecaca;
+  }
+  .admin-shell .glass-pill-active {
+    background: #dc2626;
+    border: 1px solid #b91c1c;
+    color: #ffffff;
+  }
+
+  /* Modals (glass-strong) → solid white, no blur */
+  .admin-shell .glass-strong {
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.15);
+  }
+
   /* ====== Red accent orbs — subtle, only red ====== */
   .orb-red {
     background: radial-gradient(

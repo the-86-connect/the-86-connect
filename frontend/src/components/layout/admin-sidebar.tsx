@@ -97,7 +97,7 @@ export function AdminSidebar() {
 
   if (!mounted) {
     return (
-      <aside className="hidden lg:block w-[64px] shrink-0 border-r border-border/40 bg-white/60" />
+      <aside className="hidden lg:block w-[64px] shrink-0 border-r border-red-200 bg-white" />
     );
   }
 
@@ -124,7 +124,7 @@ export function AdminSidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed lg:sticky top-0 left-0 z-50 h-full flex flex-col border-r border-border/40 bg-white/60 backdrop-blur-xl transition-all duration-300 ease-in-out",
+          "fixed lg:sticky top-0 left-0 z-50 h-full flex flex-col border-r border-red-200 bg-white transition-all duration-300 ease-in-out",
           collapsed ? "w-[64px]" : "w-64",
           // Mobile: slide in/out
           "lg:translate-x-0",
@@ -134,7 +134,7 @@ export function AdminSidebar() {
         {/* Logo / Header */}
         <div
           className={cn(
-            "flex items-center h-16 shrink-0 border-b border-border/40 px-4",
+            "flex items-center h-16 shrink-0 border-b border-red-200 px-4",
             collapsed ? "justify-center" : "justify-between",
           )}
         >
@@ -205,7 +205,7 @@ export function AdminSidebar() {
         </nav>
 
         {/* Footer — logout */}
-        <div className="shrink-0 border-t border-border/40 p-3">
+        <div className="shrink-0 border-t border-red-200 p-3">
           <button
             type="button"
             onClick={handleLogout}
