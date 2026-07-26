@@ -11,6 +11,15 @@ interface BookingDatePickerProps {
   label?: string;
 }
 
+interface DayInfo {
+  iso: string;
+  dayName: string;
+  dayNum: number;
+  monthShort: string;
+  monthKey: string; // e.g. "2026-07" for grouping
+  monthLabel: string; // e.g. "July 2026"
+}
+
 export function BookingDatePicker({
   availableDates,
   selectedDate,
@@ -19,14 +28,19 @@ export function BookingDatePicker({
 }: BookingDatePickerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const dayInfo = useMemo(() => {
+  const dayInfo = useMemo<DayInfo[]>(() => {
     return availableDates.map((iso) => {
       const d = new Date(iso + "T00:00:00");
       return {
         iso,
         dayName: d.toLocaleDateString("en-US", { weekday: "short" }),
         dayNum: d.getDate(),
-        label: d.toLocaleDateString("en-US", { month: "long", day: "numeric" }),
+        monthShort: d.toLocaleDateString("en-US", { month: "short" }),
+        monthKey: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+        monthLabel: d.toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        }),
       };
     });
   }, [availableDates]);
@@ -40,6 +54,27 @@ export function BookingDatePicker({
       day: "numeric",
     });
   }, [selectedDate]);
+
+  // Build a list with month group headers inserted
+  const itemsWithHeaders = useMemo(() => {
+    const result: (
+      | { type: "header"; monthKey: string; monthLabel: string }
+      | { type: "day"; info: DayInfo }
+    )[] = [];
+    let lastMonthKey = "";
+    for (const info of dayInfo) {
+      if (info.monthKey !== lastMonthKey) {
+        result.push({
+          type: "header",
+          monthKey: info.monthKey,
+          monthLabel: info.monthLabel,
+        });
+        lastMonthKey = info.monthKey;
+      }
+      result.push({ type: "day", info });
+    }
+    return result;
+  }, [dayInfo]);
 
   const scroll = (dir: "left" | "right") => {
     const el = scrollRef.current;
@@ -76,10 +111,24 @@ export function BookingDatePicker({
 
       <div
         ref={scrollRef}
-        className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
+        className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide items-center"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        {dayInfo.map(({ iso, dayName, dayNum }) => {
+        {itemsWithHeaders.map((item) => {
+          if (item.type === "header") {
+            return (
+              <div
+                key={`header-${item.monthKey}`}
+                className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200"
+              >
+                <span className="text-xs font-black text-primary uppercase tracking-wide whitespace-nowrap">
+                  {item.monthLabel}
+                </span>
+              </div>
+            );
+          }
+
+          const { iso, dayName, dayNum, monthShort } = item.info;
           const isSelected = iso === selectedDate;
           return (
             <button
@@ -95,13 +144,21 @@ export function BookingDatePicker({
             >
               <span
                 className={cn(
+                  "text-[9px] font-bold uppercase tracking-wider mb-0.5",
+                  isSelected ? "text-white/90" : "text-primary/70",
+                )}
+              >
+                {monthShort}
+              </span>
+              <span
+                className={cn(
                   "text-[10px] font-bold uppercase tracking-wider mb-0.5",
                   isSelected ? "text-white/90" : "text-muted-foreground",
                 )}
               >
                 {dayName}
               </span>
-              <span className="text-xl font-black">{dayNum}</span>
+              <span className="text-xl font-black leading-none">{dayNum}</span>
             </button>
           );
         })}
